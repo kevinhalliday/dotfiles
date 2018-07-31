@@ -285,11 +285,9 @@ function git_branch {
 PS1_DIR="\[$BOLD\]\[$COLOR_BRIGHT_BLUE\]\w"
 PS1_GIT="\[\$(git_color)\]\[$BOLD\]\$(git_branch)\[$BOLD\]\[$COLOR_RESET\]"
 PS1_USR="\[$BOLD\]\[$COLOR_GOLD\]\u@\h"
-PS1_END="\[$BOLD\]\[$COLOR_SILVER\]$ \[$COLOR_RESET\]"
+PS1_END="\[$BOLD\]\[$COLOR_WHITE\]$ \[$COLOR_RESET\]"
+PS1_PMT="\[$BOLD\]\[$COLOR_WHITE\] > \[$COLOR_RESET\]"
 
-PS1="${PS1_DIR} ${PS1_GIT}\
-${PS1_USR} ${PS1_END}"
+PS1="${PS1_DIR} ${PS1_GIT} ${PS1_USR} ${PS1_END} \n ${PS1_PMT}"
 
 # }}}
-
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
