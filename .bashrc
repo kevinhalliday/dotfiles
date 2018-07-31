@@ -1,6 +1,7 @@
 #!/bin/bash
-# Repurposed from Sam Roeca's .bashrc
-
+#
+# Repurpoused from Sam Roeca's .bashrc
+#
 # Notes --- {{{
 
 # Searching for a specific man page
@@ -15,7 +16,7 @@ include () {
 }
 
 # these lines are included in case I add local or sensitive dotfiles
-include ~/.bashrc_local		
+include ~/.bashrc_local
 include ~/.bash/sensitive
 
 # }}}
@@ -87,28 +88,121 @@ alias upgrade="sudo apt-get update && sudo apt-get upgrade"
 # Functions --- {{{
 
 # [optionally] create and activate Python virtual environment
-ve() {
-  if [ ! -d venv ]; then
-    echo "Creating new Python 3.6 virtualenv"
-    python3.6 -m venv venv
-    source venv/bin/activate
-    pip install -U pip
-    pip install neovim
-  else
-    source venv/bin/activate
-  fi
-  echo "Activated $(python --version) virtualenv"
+# activate virtual environment from any directory from current and up
+DEFAULT_VENV_NAME=.venv
+DEFAULT_PYTHON_VERSION="3"
+
+pydev() {
+  pip install -U pip neovim bpython autopep8 jedi restview
 }
 
-# alias for ve because I type va a lot more
 va() {
-  ve
+  if [ $# -eq 0 ]; then
+    local VENV_NAME=$DEFAULT_VENV_NAME
+  else
+    local VENV_NAME="$1"
+  fi
+  local slashes=${PWD//[^\/]/}
+  local DIR="$PWD"
+  for (( n=${#slashes}; n>0; --n ))
+  do
+    if [ -d "$DIR/$VENV_NAME" ]; then
+      source "$DIR/$VENV_NAME/bin/activate"
+      local DIR_REL=$(realpath --relative-to='.' "$DIR/$VENV_NAME")
+      echo "Activated $(python --version) virtualenv in $DIR_REL/"
+      return
+    fi
+    local DIR="$DIR/.."
+  done
+  echo "no $VENV_NAME/ found from here to OS root"
 }
 
-# Reload bashrc
-so() {
-  source ~/.bashrc
+# [optionally] create and activate Python virtual environment
+ve() {
+  if [ $# -eq 0 ]; then
+    local VENV_NAME="$DEFAULT_VENV_NAME"
+  else
+    local VENV_NAME="$1"
+  fi
+  if [ ! -d "$VENV_NAME" ]; then
+    echo "Creating new Python virtualenv in $VENV_NAME/"
+    python$DEFAULT_PYTHON_VERSION -m venv "$VENV_NAME"
+    source "$VENV_NAME/bin/activate"
+    pydev
+    deactivate
+    va
+  else
+    va
+  fi
 }
+
+# deactivate virtual environment
+vd() {
+  deactivate
+}
+
+# Create New Python Repo
+pynew() {
+  if [ $# -ne 1 ]; then
+    echo "pynew <directory>"
+   return 1
+  fi
+  local dir_name="$1"
+  mkdir "$dir_name"
+  cd "$dir_name"
+  git init
+
+  mkdir instance
+  cat > instance/.gitignore <<EOL
+*
+!.gitignore
+EOL
+
+  # venv/
+  ve
+  # NOTE: not using pyenv right now
+  # pipenv install
+  # va
+  # pydev
+  # deactivate
+  # va
+
+  # .gitignore
+  cat > .gitignore <<EOL
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.tox/
+.cache
+.coverage
+docs/_build/
+*.egg-info/
+.installed.cfg
+*.egg
+.mypy_cache/
+.pytest_cache/
+*.coverage*
+# Vim
+*.swp
+# C
+*.so
+EOL
+
+  cat > main.py <<EOL
+#!/usr/bin/env python
+'''The main module'''
+EOL
+  chmod +x main.py
+}
+
+# Vim, but activate python virtual environment first
+vim() {
+  va > /dev/null
+  nvim "$@"
+}
+
 
 # Timer
 countdown-seconds(){
@@ -198,3 +292,4 @@ ${PS1_USR} ${PS1_END}"
 
 # }}}
 
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash

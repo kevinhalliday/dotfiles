@@ -1,11 +1,7 @@
 #!/bin/bash
+#
 # Repurposed from Sam Roeca's .zprofile file
-
-# include bashrc if it exists
-if [ -f "$HOME/.bashrc" ]; then 
-  . "$HOME/.bashrc"
-fi
-
+#
 # Functions --- {{{
 
 path_ladd() {
@@ -108,7 +104,7 @@ export LESS_TERMCAP_us=$'\E[1;32m'     # begin underline
 export LESS_TERMCAP_ue=$'\E[0m'        # reset underline
 
 # environment variable controlling difference between HI-DPI / Non HI_DPI
-# look into this to handle scale differences between HI-DPI Lenovo yoga and 
+# look into this to handle scale differences between HI-DPI Lenovo yoga and
 # Non HI-DPI external monito
 # export GDK_SCALE=0
 
@@ -144,3 +140,10 @@ fi
 export PATH
 
 # }}}
+
+# include .bashrc if it exists
+if [ -f "$HOME/.bashrc" ]; then
+  . "$HOME/.bashrc"
+fi
+
+

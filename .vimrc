@@ -2,6 +2,8 @@
 "
 " Author: Samuel Roeca
 " Date: August 15, 2017
+" Repurposed By: Kevin Halliday
+" Date: July 30, 2018
 " TLDR: vimrc minimum viable product for Python programming
 "
 " I've noticed that many vim/neovim beginners have trouble creating a useful
@@ -139,8 +141,20 @@ call plug#begin('~/.vim/plugged')
 " Commands run in vim's virtual screen and don't pollute main shell
 Plug 'fcpg/vim-altscreen'
 
+" File Navigation
+Plug 'scrooloose/nerdtree'
+
+" Searcing
+Plug 'kien/ctrlp.vim'
+
+" Auto-Completion
+Plug 'Valloric/YouCompleteMe'
+
 " Basic coloring
 Plug 'NLKNguyen/papercolor-theme'
+
+" Status line
+Plug 'itchyny/lightline.vim'
 
 " Utils
 Plug 'tpope/vim-commentary'
@@ -172,6 +186,8 @@ augroup fold_settings
   autocmd FileType vim setlocal foldmethod=marker
   autocmd FileType vim setlocal foldlevelstart=0
   autocmd FileType * setlocal foldnestmax=1
+  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.zshrc setlocal foldmethod=marker
+  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.zshrc setlocal foldlevelstart=0
 augroup END
 
 " }}}
@@ -241,6 +257,27 @@ endtry
 " Python highlighting
 let g:python_highlight_space_errors = 0
 let g:python_highlight_all = 1
+
+" NERDTree:
+let NERDTreeIgnore=['\.pyc$', '\~$'] "ignore files in NERDTree
+nnoremap <silent> <space>j :NERDTreeToggle<CR>
+
+" YouCompleteMe:
+"   - ensure auto-complete window goes away after use
+"   - set space g to goto definition
+let g:ycm_autoclose_preview_window_after_completion=1
+map <space>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+
+" add python virtualenv support
+" allows YouCompleteMe 'know' about virtual environments
+py << EOF
+import os
+import sys
+if 'VIRTUAL_ENV' in os.environ:
+  project_base_dir = os.environ['VIRTUAL_ENV']
+  activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
+  execfile(activate_this, dict(__file__=activate_this))
+EOF
 
 "  }}}
 " General: Key remappings ----------------------- {{{
