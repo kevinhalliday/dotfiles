@@ -186,8 +186,8 @@ augroup fold_settings
   autocmd FileType vim setlocal foldmethod=marker
   autocmd FileType vim setlocal foldlevelstart=0
   autocmd FileType * setlocal foldnestmax=1
-  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.zshrc setlocal foldmethod=marker
-  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.zshrc setlocal foldlevelstart=0
+  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.zshrc,.tmux.conf setlocal foldmethod=marker
+  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.zshrc,.tmux.conf setlocal foldlevelstart=0
 augroup END
 
 " }}}
@@ -264,20 +264,14 @@ nnoremap <silent> <space>j :NERDTreeToggle<CR>
 
 " YouCompleteMe:
 "   - ensure auto-complete window goes away after use
+"   - set python binary path to the first python found in PATH,
+"     if a virtualenv is active, this will point to the virtualenv python
+"     binary
 "   - set space g to goto definition
 let g:ycm_autoclose_preview_window_after_completion=1
+let g:ycm_python_binary_path='python'
 map <space>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
-" add python virtualenv support
-" allows YouCompleteMe 'know' about virtual environments
-py << EOF
-import os
-import sys
-if 'VIRTUAL_ENV' in os.environ:
-  project_base_dir = os.environ['VIRTUAL_ENV']
-  activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
-  execfile(activate_this, dict(__file__=activate_this))
-EOF
 
 "  }}}
 " General: Key remappings ----------------------- {{{
@@ -333,4 +327,3 @@ set secure
 set noshowcmd
 
 " }}}
-

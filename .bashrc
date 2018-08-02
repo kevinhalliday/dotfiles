@@ -87,13 +87,19 @@ alias upgrade="sudo apt-get update && sudo apt-get upgrade"
 # }}}
 # Functions --- {{{
 
+# reload this file
+so() {
+  source ~/.bashrc
+}
+
 # [optionally] create and activate Python virtual environment
 # activate virtual environment from any directory from current and up
 DEFAULT_VENV_NAME=.venv
 DEFAULT_PYTHON_VERSION="3"
 
 pydev() {
-  pip install -U pip neovim bpython autopep8 jedi restview
+  pip install -U pip wheel
+  pip install -U neovim bpython autopep8 jedi restview
 }
 
 va() {
@@ -145,7 +151,7 @@ vd() {
 pynew() {
   if [ $# -ne 1 ]; then
     echo "pynew <directory>"
-   return 1
+    return 1
   fi
   local dir_name="$1"
   mkdir "$dir_name"

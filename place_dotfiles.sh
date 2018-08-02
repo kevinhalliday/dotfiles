@@ -24,6 +24,6 @@ softlink () {
   ln -s $TARGET $LINK_NAME
 }
 
-for homedir_file in .vimrc .bashrc .bash_profile .gitconfig; do
+for homedir_file in .vimrc .bashrc .bash_profile .gitconfig .tmux.conf; do
   softlink $homedir_file $homedir_file
 done
