@@ -36,7 +36,7 @@ let mapleader = ","
 let maplocalleader = "\\"
 
 " }}}
-" General: global config ------------ {{{
+" General: Global config ------------ {{{
 
 "A comma separated list of options for Insert mode completion
 "   menuone  Use the popup menu also when there is only one match.
@@ -160,8 +160,18 @@ Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 
-" Language-specific syntax
+" Syntax highlighting
 Plug 'hdima/python-syntax'
+Plug 'ekalinin/Dockerfile.vim'
+Plug 'pangloss/vim-javascript'
+Plug 'elzr/vim-json'
+Plug 'magicalbanana/sql-syntax-vim'
+
+" Code prettifiers
+Plug 'b4b4r07/vim-sqlfmt'
+Plug 'tell-k/vim-autopep8'
+Plug 'maksimr/vim-jsbeautify'
+Plug 'alx741/vim-stylishask'
 
 " Indentation
 Plug 'hynek/vim-python-pep8-indent'
@@ -169,13 +179,69 @@ Plug 'hynek/vim-python-pep8-indent'
 call plug#end()
 
 " }}}
+" General: Filetype specification ------------ {{{
+
+augroup filetype_recognition
+  autocmd!
+  autocmd BufNewFile,BufRead,BufEnter *.hql,*.q set filetype=hive
+  autocmd BufNewFile,BufRead,BufEnter *.config set filetype=yaml
+  autocmd BufNewFile,BufRead,BufEnter *.bowerrc,*.babelrc,*.eslintrc,*.slack-term
+        \ set filetype=json
+  autocmd BufNewFile,BufRead,BufEnter *.handlebars set filetype=html
+  autocmd BufNewFile,BufRead,BufEnter *.m,*.oct set filetype=octave
+  autocmd BufNewFile,BufRead,BufEnter *.jsx set filetype=javascript.jsx
+  autocmd BufNewFile,BufRead,BufEnter *.cfg,*.ini,.coveragerc,.pylintrc
+        \ set filetype=dosini
+  autocmd BufNewFile,BufRead,BufEnter *.tsv set filetype=tsv
+  autocmd BufNewFile,BufRead,BufEnter Dockerfile.* set filetype=Dockerfile
+  autocmd BufNewFile,BufRead,BufEnter Makefile.* set filetype=make
+augroup END
+
+" not sure what this does, may have to set some env variables
+"augroup filetype_vim
+"autocmd!
+"  autocmd BufWritePost *vimrc so $MYVIMRC |
+"        \if has('gui_running') |
+"        \so $MYGVIMRC |
+"        \endif
+"augroup END
+
+" }}}
 " General: Indentation (tabs, spaces, width, etc)------------- {{{
 
+" Note -> apparently BufRead, BufNewFile trumps Filetype
+" Eg, if BufRead,BufNewFile * ignores any Filetype overwrites
+" This is why default settings are chosen with Filetype *
 augroup indentation_sr
   autocmd!
   autocmd Filetype * setlocal expandtab shiftwidth=2 softtabstop=2 tabstop=8
-  autocmd Filetype python setlocal shiftwidth=4 softtabstop=4 tabstop=8
+  autocmd Filetype python,c,elm,haskell,markdown,rust,rst,kv,yaml,nginx
+        \ setlocal shiftwidth=4 softtabstop=4 tabstop=8
+  autocmd Filetype dot setlocal autoindent cindent
+  autocmd Filetype make,tsv,votl,go
+        \ setlocal tabstop=4 softtabstop=0 shiftwidth=4 noexpandtab
+  " Prevent auto-indenting from occuring
   autocmd Filetype yaml setlocal indentkeys-=<:>
+augroup END
+
+" }}}
+" General: Writing (non-coding)------------------ {{{
+
+" Notes:
+"   indenting and de-indenting in insert mode are:
+"     <C-t> and <C-d>
+"   formatting hard line breaks
+"     NORMAL
+"       gqap => format current paragraph
+"       gq => format selection
+"     VISUAL
+"       J => join all lines
+
+augroup writing
+  autocmd!
+  autocmd FileType markdown :setlocal wrap linebreak nolist
+  autocmd BufNewFile,BufRead *.html,*.txt,*.tex :setlocal wrap linebreak nolist
+  autocmd BufNewFile,BufRead *.html,*.txt :setlocal colorcolumn=0
 augroup END
 
 " }}}
@@ -242,6 +308,13 @@ augroup python_syntax
   autocmd FileType python syn keyword pythonBuiltinObj cls
 augroup end
 
+" Javascript: Highlight this keyword in object / function definitions
+augroup javascript_syntax
+  autocmd!
+  autocmd FileType javascript syn keyword jsBooleanTrue this
+  autocmd FileType javascript.jsx syn keyword jsBooleanTrue this
+augroup end
+
 " Syntax: select global syntax scheme
 " Make sure this is at end of section
 try
@@ -272,8 +345,29 @@ let g:ycm_autoclose_preview_window_after_completion=1
 let g:ycm_python_binary_path='python'
 map <space>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
+" VimJavascript:
+let g:javascript_plugin_flow = 1
 
+" SQLFormat:
+" relies on 'pip install sqlformat'
+let g:sqlfmt_auto = 0
+let g:sqlfmt_command = "sqlformat"
+let g:sqlfmt_options = "--keywords=upper --identifiers=lower --use_space_around_operators"
 "  }}}
+"  Plugin: Language-specific file beautification --- {{{
+
+let g:stylishask_on_save = 0
+
+augroup language_specific_file_beauty
+  autocmd FileType javascript noremap <buffer> <leader>f :call JsBeautify()<cr>
+  autocmd FileType json noremap <buffer> <leader>f :call JsonBeautify()<cr>
+  autocmd FileType javascript.jsx,jsx noremap <buffer> <leader>f :call JsxBeautify()<cr>
+  autocmd FileType html noremap <buffer> <leader>f :call HtmlBeautify()<cr>
+  autocmd FileType css noremap <buffer> <leader>f :call CSSBeautify()<cr>
+  autocmd Filetype python nnoremap <buffer> <leader>f :Autopep8<cr>
+  autocmd Filetype sql nnoremap <buffer> <leader>f :SQLFmt<cr>
+augroup END
+" }}}
 " General: Key remappings ----------------------- {{{
 
 " Escape:
@@ -313,6 +407,12 @@ nnoremap <silent> J <c-y>
 nnoremap <silent> gJ L
 nnoremap <silent> gK H
 nnoremap <silent> gM M
+
+" QuickChangeFiletype:
+" Sometimes we want to set some filetypes due to annoying behavior of plugins
+" The following mappings make it easier to chage javascript plugin behavior
+nnoremap <leader>jx :set filetype=javascript.jsx<CR>
+nnoremap <leader>jj :set filetype=javascript<CR>
 
 " }}}
 " General: Cleanup ------------------ {{{
