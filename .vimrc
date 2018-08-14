@@ -159,13 +159,40 @@ Plug 'itchyny/lightline.vim'
 " Utils
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
+Plug 'jiangmiao/auto-pairs'
 
 " Syntax highlighting
-Plug 'hdima/python-syntax'
+Plug 'derekwyatt/vim-scala',
+Plug 'rust-lang/rust.vim'
+Plug 'hdima/python-syntax',
+Plug 'autowitch/hive.vim'
+Plug 'elzr/vim-json',
+Plug 'vimoutliner/vimoutliner'
+Plug 'cespare/vim-toml'
+Plug 'Glench/Vim-Jinja2-Syntax'
+Plug 'godlygeek/tabular'
+Plug 'plasticboy/vim-markdown'
+Plug 'ElmCast/elm-vim'
+Plug 'mopp/rik_octave.vim'
 Plug 'ekalinin/Dockerfile.vim'
-Plug 'pangloss/vim-javascript'
-Plug 'elzr/vim-json'
+Plug 'StanAngeloff/php.vim'
+Plug 'vim-scripts/SAS-Syntax'
+Plug 'neovimhaskell/haskell-vim'
+Plug 'aklt/plantuml-syntax'
+Plug 'NLKNguyen/c-syntax.vim'
+Plug 'hashivim/vim-terraform'
+Plug 'hashivim/vim-vagrant'
+Plug 'lervag/vimtex'
+Plug 'tomlion/vim-solidity'
+Plug 'jparise/vim-graphql'
 Plug 'magicalbanana/sql-syntax-vim'
+Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
+Plug 'groenewege/vim-less'
+Plug 'farfanoide/vim-kivy'
+Plug 'raimon49/requirements.txt.vim'
+Plug 'chr4/nginx.vim'
+Plug 'othree/html5.vim'
 
 " Code prettifiers
 Plug 'b4b4r07/vim-sqlfmt'
@@ -179,6 +206,16 @@ Plug 'hynek/vim-python-pep8-indent'
 call plug#end()
 
 " }}}
+"  Plugin: Vim-Plug --- {{{
+
+" Plug update and upgrade
+function! _PU()
+  exec 'PlugUpdate'
+  exec 'PlugUpgrade'
+endfunction
+command! PU call _PU()
+
+"  }}}
 " General: Filetype specification ------------ {{{
 
 augroup filetype_recognition
@@ -252,8 +289,8 @@ augroup fold_settings
   autocmd FileType vim setlocal foldmethod=marker
   autocmd FileType vim setlocal foldlevelstart=0
   autocmd FileType * setlocal foldnestmax=1
-  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.zshrc,.tmux.conf setlocal foldmethod=marker
-  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.zshrc,.tmux.conf setlocal foldlevelstart=0
+  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.bash_profile,.zshrc,.tmux.conf setlocal foldmethod=marker
+  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.bash_profile,.zshrc,.tmux.conf setlocal foldlevelstart=0
 augroup END
 
 " }}}
@@ -331,10 +368,6 @@ endtry
 let g:python_highlight_space_errors = 0
 let g:python_highlight_all = 1
 
-" NERDTree:
-let NERDTreeIgnore=['\.pyc$', '\~$'] "ignore files in NERDTree
-nnoremap <silent> <space>j :NERDTreeToggle<CR>
-
 " YouCompleteMe:
 "   - ensure auto-complete window goes away after use
 "   - set python binary path to the first python found in PATH,
@@ -354,6 +387,62 @@ let g:sqlfmt_auto = 0
 let g:sqlfmt_command = "sqlformat"
 let g:sqlfmt_options = "--keywords=upper --identifiers=lower --use_space_around_operators"
 "  }}}
+"  Plugin: NERDTree --- {{{
+
+let g:NERDTreeMapOpenInTab = '<C-t>'
+let g:NERDTreeMapOpenInTabSilent = ''
+let g:NERDTreeMapOpenSplit = '<C-s>'
+let g:NERDTreeMapOpenVSplit = '<C-v>'
+let g:NERDTreeMapJumpNextSibling = '<C-n>'
+let g:NERDTreeMapJumpPrevSibling = '<C-p>'
+let g:NERDTreeMapJumpFirstChild = '<C-k>'
+let g:NERDTreeMapJumpLastChild = '<C-j>'
+
+let g:NERDTreeShowLineNumbers = 1
+let g:NERDTreeCaseSensitiveSort = 0
+let g:NERDTreeWinPos = 'left'
+let g:NERDTreeWinSize = 31
+let g:NERDTreeAutoDeleteBuffer = 1
+let g:NERDTreeSortOrder = ['*', '\/$']
+let g:NERDTreeIgnore=[
+      \'venv$[[dir]]',
+      \'.venv$[[dir]]',
+      \'__pycache__$[[dir]]',
+      \'.egg-info$[[dir]]',
+      \'node_modules$[[dir]]',
+      \'elm-stuff$[[dir]]',
+      \'\.aux$[[file]]',
+      \'\.toc$[[file]]',
+      \'\.pdf$[[file]]',
+      \'\.out$[[file]]',
+      \'\.o$[[file]]',
+      \]
+
+function! NERDTreeToggleCustom()
+  if exists('t:NERDTreeBufName') && bufwinnr(t:NERDTreeBufName) != -1
+    " if NERDTree is open in window in current tab...
+    exec 'NERDTreeClose'
+  else
+    exec 'NERDTree %'
+  endif
+endfunction
+
+function! s:CloseIfOnlyControlWinLeft()
+  if winnr("$") != 1
+    return
+  endif
+  if (exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1)
+        \ || &buftype == 'quickfix'
+    q
+  endif
+endfunction
+
+augroup CloseIfOnlyControlWinLeft
+  au!
+  au BufEnter * call s:CloseIfOnlyControlWinLeft()
+augroup END
+
+"  }}}
 "  Plugin: Language-specific file beautification --- {{{
 
 let g:stylishask_on_save = 0
@@ -368,6 +457,40 @@ augroup language_specific_file_beauty
   autocmd Filetype sql nnoremap <buffer> <leader>f :SQLFmt<cr>
 augroup END
 " }}}
+" Plugin: AutoPairs --- {{{
+" AutoPairs:
+" unmap CR due to incompatibility with clang-complete
+let g:AutoPairsMapCR = 0
+let g:AutoPairs = {
+      \ '(':')',
+      \ '[':']',
+      \ '{':'}',
+      \ "'":"'",
+      \ '"':'"',
+      \ '`':'`'
+      \ }
+augroup autopairs_filetype_overrides
+  autocmd FileType rust let b:AutoPairs = {
+        \ '(':')',
+        \ '[':']',
+        \ '{':'}',
+        \ '"':'"',
+        \ '`':'`'
+        \ }
+  autocmd FileType plantuml let b:AutoPairs = {
+        \ '{':'}',
+        \ '"':'"',
+        \ '`':'`'
+        \ }
+  autocmd FileType tex let b:AutoPairs = {
+        \ '(':')',
+        \ '[':']',
+        \ '{':'}',
+        \ '`': "'"
+        \ }
+augroup END
+
+"  }}}
 " General: Key remappings ----------------------- {{{
 
 " Escape:
@@ -413,6 +536,18 @@ nnoremap <silent> gM M
 " The following mappings make it easier to chage javascript plugin behavior
 nnoremap <leader>jx :set filetype=javascript.jsx<CR>
 nnoremap <leader>jj :set filetype=javascript<CR>
+
+" TogglePluginWindows:
+nnoremap <silent> <space>j :NERDTreeToggle<CR>
+nnoremap <silent> <space>J :call NERDTreeToggleCustom()<CR>
+nnoremap <silent> <space>l :TagbarToggle <CR>
+nnoremap <silent> <space>u :UndotreeToggle<CR>
+
+" NERDTree: Jump to current file
+nnoremap <silent> <space>k :NERDTreeFind<cr><C-w>w
+
+" AutoPairs:
+imap <silent><CR> <CR><Plug>AutoPairsReturn
 
 " }}}
 " General: Cleanup ------------------ {{{

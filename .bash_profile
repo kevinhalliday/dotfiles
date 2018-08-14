@@ -126,6 +126,14 @@ export SAVEHIST=5000
 # }}}
 # Path appends + Misc env setup --- {{{
 
+PYENV_ROOT="$HOME/.pyenv"
+if [ -d "$PYENV_ROOT" ]; then
+  export PYENV_ROOT
+  path_radd "$PYENV_ROOT/bin"
+  eval "$(pyenv init -)"
+  # eval "$(pyenv virtualenv-init -)" might need this, it is in the instructions
+fi
+
 HOME_BIN="$HOME/bin"
 if [ -d "$HOME_BIN" ]; then
   path_ladd "$HOME_BIN"
