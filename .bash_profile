@@ -123,6 +123,9 @@ export HISTFILE=~/.bash_history
 #History: Number of history entries to save to disk
 export SAVEHIST=5000
 
+export VISUAL='vim'
+export EDITOR="$VISUAL"
+
 # }}}
 # Path appends + Misc env setup --- {{{
 
@@ -151,7 +154,7 @@ export PATH
 
 # include .bashrc if it exists
 if [ -f "$HOME/.bashrc" ]; then
-  . "$HOME/.bashrc"
+  source "$HOME/.bashrc"
 fi
 
 

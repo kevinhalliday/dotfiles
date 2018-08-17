@@ -199,6 +199,7 @@ Plug 'b4b4r07/vim-sqlfmt'
 Plug 'tell-k/vim-autopep8'
 Plug 'maksimr/vim-jsbeautify'
 Plug 'alx741/vim-stylishask'
+Plug 'junegunn/rainbow_parentheses.vim'
 
 " Indentation
 Plug 'hynek/vim-python-pep8-indent'
@@ -378,6 +379,9 @@ let g:ycm_autoclose_preview_window_after_completion=1
 let g:ycm_python_binary_path='python'
 map <space>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
 
+" change color of preview window
+highlight Pmenu ctermfg=15 ctermbg=0 guifg=#ffffff guibg=#000000
+
 " VimJavascript:
 let g:javascript_plugin_flow = 1
 
@@ -524,13 +528,13 @@ nnoremap <silent> <C-l> :wincmd l<CR>
 nnoremap <silent> <C-h> :wincmd h<CR>
 " Scroll screen up, down, left, and right
 " left: zh, right: zl
-nnoremap <silent> K <c-e>
-nnoremap <silent> J <c-y>
+" nnoremap <silent> K <c-e>
+" nnoremap <silent> J <c-y> we like when J autowraps text
 " Move cursor to top, bottom, and middle of screen
 nnoremap <silent> gJ L
 nnoremap <silent> gK H
 nnoremap <silent> gM M
-
+"
 " QuickChangeFiletype:
 " Sometimes we want to set some filetypes due to annoying behavior of plugins
 " The following mappings make it easier to chage javascript plugin behavior
@@ -540,8 +544,8 @@ nnoremap <leader>jj :set filetype=javascript<CR>
 " TogglePluginWindows:
 nnoremap <silent> <space>j :NERDTreeToggle<CR>
 nnoremap <silent> <space>J :call NERDTreeToggleCustom()<CR>
-nnoremap <silent> <space>l :TagbarToggle <CR>
-nnoremap <silent> <space>u :UndotreeToggle<CR>
+" nnoremap <silent> <space>l :TagbarToggle <CR> no use for these yet
+" nnoremap <silent> <space>u :UndotreeToggle<CR>
 
 " NERDTree: Jump to current file
 nnoremap <silent> <space>k :NERDTreeFind<cr><C-w>w
