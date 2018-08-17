@@ -205,7 +205,6 @@ Plug 'junegunn/rainbow_parentheses.vim'
 Plug 'hynek/vim-python-pep8-indent'
 
 call plug#end()
-
 " }}}
 "  Plugin: Vim-Plug --- {{{
 " Plug update and upgrade
@@ -389,6 +388,17 @@ let g:javascript_plugin_flow = 1
 let g:sqlfmt_auto = 0
 let g:sqlfmt_command = "sqlformat"
 let g:sqlfmt_options = "--keywords=upper --identifiers=lower --use_space_around_operators"
+
+" Rainbow Parentheses:
+let g:rainbow#max_level = 16
+let g:rainbow#pairs = [['(', ')'], ['[', ']']]
+augroup rainbow_settings
+  " Section to turn on rainbow parentheses
+  autocmd!
+  autocmd BufEnter,BufRead * :RainbowParentheses
+  autocmd BufEnter,BufRead *.html,*.css,*.jsx,*.js :RainbowParentheses!
+augroup END
+
 "  }}}
 "  Plugin: NERDTree --- {{{
 
