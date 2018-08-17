@@ -208,7 +208,6 @@ call plug#end()
 
 " }}}
 "  Plugin: Vim-Plug --- {{{
-
 " Plug update and upgrade
 function! _PU()
   exec 'PlugUpdate'
@@ -544,6 +543,7 @@ nnoremap <leader>jj :set filetype=javascript<CR>
 " TogglePluginWindows:
 nnoremap <silent> <space>j :NERDTreeToggle<CR>
 nnoremap <silent> <space>J :call NERDTreeToggleCustom()<CR>
+
 " nnoremap <silent> <space>l :TagbarToggle <CR> no use for these yet
 " nnoremap <silent> <space>u :UndotreeToggle<CR>
 
