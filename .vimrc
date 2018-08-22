@@ -175,6 +175,9 @@ Plug 'junegunn/rainbow_parentheses.vim'
 " Indentation
 Plug 'hynek/vim-python-pep8-indent'
 
+" Previewers
+Plug 'JamshedVesuna/vim-markdown-preview'
+
 call plug#end()
 " }}}
 "  Plugin: Vim-Plug --- {{{
@@ -369,6 +372,10 @@ augroup rainbow_settings
   autocmd BufEnter,BufRead * :RainbowParentheses
   autocmd BufEnter,BufRead *.html,*.css,*.jsx,*.js :RainbowParentheses!
 augroup END
+
+" Vim Markdown Preview:
+let vim_markdown_preview_hotkey='<space>m'
+"let vim_markdown_preview_github=1 " because we use grip (github flavored md)
 
 "  }}}
 "  Plugin: NERDTree --- {{{
