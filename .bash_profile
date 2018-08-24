@@ -127,6 +127,9 @@ export SAVEHIST=5000
 export VISUAL='vim'
 export EDITOR="$VISUAL"
 
+# VAULT
+export VAULT_ADDR='https://vault.keplergrp.com:8200'
+
 # }}}
 # Path appends + Misc env setup --- {{{
 
