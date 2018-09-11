@@ -6,7 +6,8 @@ $include /etc/inputrc
 "\C-n":history-search-forward
 
 set colored-stats On
-set completion-ignore-case On
+# this made me delete a main.py when trying to delete a Makefile
+# set completion-ignore-case On
 set completion-prefix-display-length 3
 set mark-symlinked-directories On
 set show-all-if-ambiguous On

@@ -141,6 +141,12 @@ if [ -d "$PYENV_ROOT" ]; then
   # eval "$(pyenv virtualenv-init -)" might need this, it is in the instructions
 fi
 
+TFENV_ROOT="$HOME/.tfenv"
+if [ -d "$TFENV_ROOT" ]; then
+  export TFENV_ROOT
+  path_radd "$TFENV_ROOT/bin"
+fi
+
 HOME_BIN="$HOME/bin"
 if [ -d "$HOME_BIN" ]; then
   path_ladd "$HOME_BIN"

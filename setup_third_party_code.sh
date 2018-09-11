@@ -154,19 +154,20 @@ sudo apt install ~/Downloads/vagrant.deb
 #######################################################################
 # Diagramming
 #######################################################################
-# sudo apt install graphviz
-# sudo apt install gthumb
+sudo apt install graphviz
+sudo apt install gthumb
 
-# # plantuml
-# if [ ! -d ~/java ]; then
-#   mkdir ~/java
-# fi
-# wget -O ~/java/plantuml.jar \
-#   http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
-# cd ~/bin
-# # Add the following line to an executable file in ~/bin called "plantuml"
-# # #!/bin/bash
-# # java -jar ~/java/plantuml.jar ${@}
+# plantuml
+if [ ! -d ~/java ]; then
+  mkdir ~/java
+fi
+wget -O ~/java/plantuml.jar \
+  http://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+cd ~/bin
+# Add the following line to your bashrc
+# plantuml() {
+#   java -jar ~/java/plantuml.jar ${@}
+# }
 
 #######################################################################
 # PDF Viewer with vi bindings
