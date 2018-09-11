@@ -270,12 +270,12 @@ sudo snap install inkscape
 #######################################################################
 # Jenkins
 #######################################################################
-# wget -O ~/java/jenkins.war \
-#   http://mirrors.jenkins.io/war-stable/latest/jenkins.war
-# cd ~/bin
-# Add the following line to an executable file in ~/bin called "jenkins"
-# #!/bin/bash
-# java -jar ~/java/jenkins.war ${@}
+wget -O ~/java/jenkins.war \
+  http://mirrors.jenkins.io/war-stable/latest/jenkins.war
+cd ~/bin
+Add the following line to an executable file in ~/bin called "jenkins"
+#!/bin/bash
+java -jar ~/java/jenkins.war ${@}
 
 #######################################################################
 # Install language binary managers
@@ -287,7 +287,7 @@ sudo snap install inkscape
 
 # Go: GoEnv
 #######################################################################
-# git clone https://github.com/syndbg/goenv.git ~/.goenv
+git clone https://github.com/syndbg/goenv.git ~/.goenv
 
 # Javascript (Node): NodeEnv
 #######################################################################
@@ -297,7 +297,7 @@ git clone https://github.com/nodenv/nodenv.git ~/.nodenv
 cd ~/.nodenv && src/configure && make -C src
 
 # install node-build as nodenv plugin
-# git clone https://github.com/nodenv/node-build.git $(nodenv root)/plugins/node-build
+git clone https://github.com/nodenv/node-build.git $(nodenv root)/plugins/node-build
 
 # install nodeenv-package-rehash (so I don't need to run rehash manually)
 # git clone https://github.com/nodenv/nodenv-package-rehash.git "$(nodenv root)"/plugins/nodenv-package-rehash
@@ -305,10 +305,10 @@ cd ~/.nodenv && src/configure && make -C src
 
 # Ruby: RbEnv
 #######################################################################
-# git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-# cd ~/.rbenv && src/configure && make -C src
+git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+cd ~/.rbenv && src/configure && make -C src
 
-# git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
 
 # Python: PyEnv
 #######################################################################
@@ -325,4 +325,4 @@ git clone https://github.com/yyuu/pyenv.git ~/.pyenv
 
 # Terraform: TfEnv
 #######################################################################
-# git clone https://github.com/kamatama41/tfenv.git ~/.tfenv
+git clone https://github.com/kamatama41/tfenv.git ~/.tfenv

@@ -104,6 +104,12 @@ augroup redraw_on_refocus
   au FocusGained * :redraw!
 augroup END
 
+" If you prefer the Omni-Completion tip window to close when a selection is
+" made, these lines close it on movement in insert mode or when leaving
+" insert mode
+autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
+autocmd InsertLeave * if pumvisible() == 0|pclose|endif
+
 " }}}
 " General: Plugin Install --------------------- {{{
 
@@ -392,7 +398,7 @@ let g:terraform_fold_sections = 1
 let g:terraform_remap_spacebar = 1
 
 "  }}}
-"  "  Plugin: AutoCompletion config and key remappings ------------ {{{
+" Plugin: AutoCompletion config and key remappings ------------ {{{
 
 " YouCompleteMe:
 "   - ensure auto-complete window goes away after use
@@ -407,6 +413,7 @@ let g:terraform_remap_spacebar = 1
 " NOTE: General remappings
 " 1) go to file containing definition: <C-]>
 " 2) Return from file (relies on tag stack): <C-O>
+
 
 " VimScript:
 " Autocompletion and show definition is built in to Vim
@@ -603,6 +610,13 @@ augroup END
 
 "  }}}
 " General: Key remappings ----------------------- {{{
+"
+" Omnicompletion:
+" <C-@> is signal sent by terminal when pressing <C-Space>
+" Need to include <C-Space> as well for neovim sometimes
+inoremap <C-@> <C-x><C-o>
+inoremap <C-space> <C-x><C-o>
+
 
 " Escape:
 " Make escape also clear highlighting

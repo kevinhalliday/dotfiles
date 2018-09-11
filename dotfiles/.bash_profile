@@ -141,10 +141,42 @@ if [ -d "$PYENV_ROOT" ]; then
   # eval "$(pyenv virtualenv-init -)" might need this, it is in the instructions
 fi
 
+NODENV_ROOT="$HOME/.nodenv"
+if [ -d "$NODENV_ROOT" ]; then
+  export NODENV_ROOT
+  path_radd "$NODENV_ROOT/bin"
+  eval "$(nodenv init -)"
+fi
+
+GOENV_ROOT="$HOME/.goenv"
+if [ -d "$GOENV_ROOT" ]; then
+  export GOENV_ROOT
+  path_radd "$GOENV_ROOT/bin"
+  eval "$(goenv init -)"
+fi
+
+RBENV_ROOT="$HOME/.rbenv"
+if [ -d "$RBENV_ROOT" ]; then
+  export RBENV_ROOT
+  path_radd "$RBENV_ROOT/bin"
+  eval "$(rbenv init -)"
+fi
+
 TFENV_ROOT="$HOME/.tfenv"
 if [ -d "$TFENV_ROOT" ]; then
   export TFENV_ROOT
   path_radd "$TFENV_ROOT/bin"
+fi
+
+GOPATH="$HOME/go"
+if [ -d "$GOPATH" ]; then
+  export GOPATH
+  path_ladd "$GOPATH/bin"
+fi
+
+RUST_CARGO="$HOME/.cargo/bin"
+if [ -d "$RUST_CARGO" ]; then
+  path_ladd "$RUST_CARGO"
 fi
 
 HOME_BIN="$HOME/bin"
