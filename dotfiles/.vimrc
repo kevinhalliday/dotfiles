@@ -574,8 +574,13 @@ augroup language_specific_file_beauty
   autocmd FileType html noremap <buffer> <leader>f :call HtmlBeautify()<cr>
   autocmd FileType css noremap <buffer> <leader>f :call CSSBeautify()<cr>
   autocmd Filetype python nnoremap <buffer> <leader>f :Autopep8<cr>
+  autocmd Filetype elm nnoremap <buffer> <leader>f :ElmFormat<cr>
   autocmd Filetype sql nnoremap <buffer> <leader>f :SQLFmt<cr>
+  autocmd Filetype rust nnoremap <buffer> <leader>f :RustFmt<cr>
+  autocmd Filetype terraform nnoremap <buffer> <leader>f :TerraformFmt<cr>
+  autocmd Filetype haskell nnoremap <buffer> <leader>f :Stylishask<cr>
 augroup END
+
 " }}}
 " Plugin: AutoPairs --- {{{
 " AutoPairs:
