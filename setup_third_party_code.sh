@@ -203,11 +203,12 @@ pip install hovercraft
 #######################################################################
 # Rust packages
 #######################################################################
-# cargo install ripgrep
-# cargo install fd-find
-# cargo install racer
-# rustup component add rustfmt-preview
-# rustup component add rust-src
+cargo install ripgrep
+cargo install fd-find
+rustup component add rustfmt-preview
+rustup component add rust-src
+rustup toolchain add nightly
+cargo +nightly install racer
 
 #######################################################################
 # kdenlive (along with necessary plugins)

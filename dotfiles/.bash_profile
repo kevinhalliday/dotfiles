@@ -138,7 +138,13 @@ if [ -d "$PYENV_ROOT" ]; then
   export PYENV_ROOT
   path_radd "$PYENV_ROOT/bin"
   eval "$(pyenv init -)"
-  # eval "$(pyenv virtualenv-init -)" might need this, it is in the instructions
+fi
+
+SDKMAN_DIR="$HOME/.sdkman"
+if [ -d "$SDKMAN_DIR" ]; then
+  export SDKMAN_DIR
+  [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && \
+    source "$SDKMAN_DIR/bin/sdkman-init.sh"
 fi
 
 NODENV_ROOT="$HOME/.nodenv"
@@ -198,5 +204,4 @@ export PATH
 if [ -f "$HOME/.bashrc" ]; then
   source "$HOME/.bashrc"
 fi
-
 

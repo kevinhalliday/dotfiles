@@ -194,6 +194,7 @@ Plug 'othree/html5.vim'
 Plug 'khalliday7/Jenkinsfile-vim-syntax'
 Plug 'fatih/vim-go'
 Plug 'rdolgushin/groovy.vim'
+Plug 'khalliday7/Kevinsfile-vim-syntax'
 
 " Code prettifiers
 Plug 'b4b4r07/vim-sqlfmt'
@@ -201,6 +202,7 @@ Plug 'tell-k/vim-autopep8'
 Plug 'maksimr/vim-jsbeautify'
 Plug 'alx741/vim-stylishask'
 Plug 'junegunn/rainbow_parentheses.vim'
+Plug 'thiagoalessio/rainbow_levels.vim'
 
 " Indentation
 Plug 'hynek/vim-python-pep8-indent'
