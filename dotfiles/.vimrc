@@ -201,8 +201,9 @@ Plug 'b4b4r07/vim-sqlfmt'
 Plug 'tell-k/vim-autopep8'
 Plug 'maksimr/vim-jsbeautify'
 Plug 'alx741/vim-stylishask'
-Plug 'junegunn/rainbow_parentheses.vim'
-Plug 'thiagoalessio/rainbow_levels.vim'
+" these make things slow
+" Plug 'junegunn/rainbow_parentheses.vim'
+" Plug 'thiagoalessio/rainbow_levels.vim'
 
 " Indentation
 Plug 'hynek/vim-python-pep8-indent'
@@ -385,14 +386,15 @@ let g:sqlfmt_command = "sqlformat"
 let g:sqlfmt_options = "--keywords=upper --identifiers=lower --use_space_around_operators"
 
 " Rainbow Parentheses:
-let g:rainbow#max_level = 16
-let g:rainbow#pairs = [['(', ')'], ['[', ']']]
-augroup rainbow_settings
-  " Section to turn on rainbow parentheses
-  autocmd!
-  autocmd BufEnter,BufRead * :RainbowParentheses
-  autocmd BufEnter,BufRead *.html,*.css,*.jsx,*.js :RainbowParentheses!
-augroup END
+" THIS MAKES THINGS SLOW
+" let g:rainbow#max_level = 16
+" let g:rainbow#pairs = [['(', ')'], ['[', ']']]
+" augroup rainbow_settings
+"   " Section to turn on rainbow parentheses
+"   autocmd!
+"   autocmd BufEnter,BufRead * :RainbowParentheses
+"   autocmd BufEnter,BufRead *.html,*.css,*.jsx,*.js :RainbowParentheses!
+" augroup END
 
 " Terrform:
 let g:terraform_align = 1
