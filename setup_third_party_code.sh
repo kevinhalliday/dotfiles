@@ -35,7 +35,7 @@ sudo apt install typespeed
 # Offline dictionary
 #######################################################################
 sudo apt install dict
-sudo apt dict-gcide dict-moby-thesaurus
+sudo apt install dict-gcide dict-moby-thesaurus
 
 #######################################################################
 # keepass
