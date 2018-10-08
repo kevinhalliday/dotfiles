@@ -44,14 +44,6 @@ if (exists('+colorcolumn'))
   highlight ColorColumn ctermbg=9
 endif
 
-" Search result highlighting
-set incsearch
-augroup sroeca_incsearch_highlight
-  autocmd!
-  autocmd CmdlineEnter /,\? :set hlsearch
-  autocmd CmdlineLeave /,\? :set nohlsearch
-augroup END
-
 " Remove query for terminal version
 " This prevents un-editable garbage characters from being printed
 " after the 80 character highlight line
