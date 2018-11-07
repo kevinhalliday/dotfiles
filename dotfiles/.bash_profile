@@ -154,6 +154,12 @@ if [ -d "$NODENV_ROOT" ]; then
   eval "$(nodenv init -)"
 fi
 
+YARN_ROOT="$HOME/.yarn"
+if [ -d "$YARN_ROOT" ]; then
+  export YARN_ROOT
+  path_radd "$YARN_ROOT/bin"
+fi
+
 GOENV_ROOT="$HOME/.goenv"
 if [ -d "$GOENV_ROOT" ]; then
   export GOENV_ROOT

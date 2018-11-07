@@ -144,6 +144,8 @@ Plug 'wannesm/wmgraphviz.vim'  " dotlanguage
 " note: must run 'gem install neovim' to get this to work
 " might require the neovim headers
 Plug 'juliosueiras/vim-terraform-completion'
+" requires flow to be installed and available om your path
+Plug 'flowtype/vim-flow'
 
 " Basic coloring
 Plug 'NLKNguyen/papercolor-theme'
@@ -229,6 +231,7 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter *.bowerrc,*.babelrc,*.eslintrc,*.slack-term
         \ set filetype=json
   autocmd BufNewFile,BufRead,BufEnter *.handlebars set filetype=html
+  autocmd BufNewFile,BufRead,BufEnter *.ejs set filetype=html
   autocmd BufNewFile,BufRead,BufEnter *.m,*.oct set filetype=octave
   autocmd BufNewFile,BufRead,BufEnter *.jsx set filetype=javascript.jsx
   autocmd BufNewFile,BufRead,BufEnter *.cfg,*.ini,.coveragerc,.pylintrc
@@ -401,6 +404,9 @@ let g:terraform_align = 1
 let g:terraform_fold_sections = 1
 let g:terraform_remap_spacebar = 1
 
+" Remove annoying go neovim warning
+let g:go_version_warning = 0
+
 "  }}}
 " Plugin: AutoCompletion config and key remappings ------------ {{{
 
@@ -450,6 +456,7 @@ let g:jedi#rename_command = "<leader>sr"
 " Javascript:
 let g:tern_show_argument_hints = 'on_move'
 let g:tern_show_signature_in_pum = 1
+let g:flow#autoclose = 1
 augroup javascript_complete
   autocmd!
   autocmd FileType javascript nnoremap <buffer> <C-]> :TernDef<CR>
