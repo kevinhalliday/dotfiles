@@ -35,7 +35,7 @@ sudo apt install typespeed
 # Offline dictionary
 #######################################################################
 sudo apt install dict
-sudo apt dict-gcide dict-moby-thesaurus
+sudo apt install dict-gcide dict-moby-thesaurus
 
 #######################################################################
 # keepass
@@ -78,12 +78,12 @@ sudo apt install neovim
 sudo apt install python-dev python-pip python3-dev python3-pip
 
 # when creating a virtual environment, run the following to get autocompletion:
-pip install neovim
-gem install neovim
+# pip install neovim
+# gem install neovim
 
 # for ctags
-npm install -g jsctags
-sudo apt install -y php
+# npm install -g jsctags
+# sudo apt install -y php
 
 #######################################################################
 # Vim dependencies
@@ -114,7 +114,7 @@ sudo apt install python3-dev
 sudo apt install python3-virtualenv
 
 # enables pyenv to build with tkinter support
-sudo apt install tk-dev
+# sudo apt install tk-dev
 
 #######################################################################
 # MySQL
@@ -136,19 +136,21 @@ sudo apt install fonts-firacode
 # Vagrant
 #######################################################################
 
-wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | \
-  sudo apt-key add -
+# DO MANUALLY WHEN NECESSARY
 
-echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bionic contrib" | \
-  sudo tee /etc/apt/sources.list.d/virtualbox.list
+# wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | \
+#   sudo apt-key add -
 
-sudo apt update
-sudo apt install virtualbox-5.2
+# echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bionic contrib" | \
+#   sudo tee /etc/apt/sources.list.d/virtualbox.list
 
-wget -O ~/Downloads/vagrant.deb \
-  https://releases.hashicorp.com/vagrant/2.1.2/vagrant_2.1.2_x86_64.deb
+# sudo apt update
+# sudo apt install virtualbox-5.2
 
-sudo apt install ~/Downloads/vagrant.deb
+# wget -O ~/Downloads/vagrant.deb \
+#   https://releases.hashicorp.com/vagrant/2.1.2/vagrant_2.1.2_x86_64.deb
+
+# sudo apt install ~/Downloads/vagrant.deb
 
 
 #######################################################################
