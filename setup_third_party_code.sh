@@ -306,6 +306,12 @@ git clone https://github.com/nodenv/node-build.git $(nodenv root)/plugins/node-b
 # git clone https://github.com/nodenv/nodenv-package-rehash.git "$(nodenv root)"/plugins/nodenv-package-rehash
 # nodenv package-hooks install --all
 
+# Javascript: Yarn
+#######################################################################
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt-get install yarn
+
 # Ruby: RbEnv
 #######################################################################
 git clone https://github.com/rbenv/rbenv.git ~/.rbenv
