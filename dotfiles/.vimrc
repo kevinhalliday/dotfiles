@@ -136,8 +136,10 @@ Plug 'wannesm/wmgraphviz.vim'  " dotlanguage
 " note: must run 'gem install neovim' to get this to work
 " might require the neovim headers
 Plug 'juliosueiras/vim-terraform-completion'
-" requires flow to be installed and available om your path
 Plug 'flowtype/vim-flow'
+
+" Linting
+Plug 'w0rp/ale'
 
 " Basic coloring
 Plug 'NLKNguyen/papercolor-theme'
@@ -195,9 +197,6 @@ Plug 'b4b4r07/vim-sqlfmt'
 Plug 'tell-k/vim-autopep8'
 Plug 'maksimr/vim-jsbeautify'
 Plug 'alx741/vim-stylishask'
-" these make things slow
-" Plug 'junegunn/rainbow_parentheses.vim'
-" Plug 'thiagoalessio/rainbow_levels.vim'
 
 " Indentation
 Plug 'hynek/vim-python-pep8-indent'
@@ -364,7 +363,7 @@ endtry
 " }}}
 "  Plugin: Configure ------------ {{{
 
-" Python highlighting
+" Python: highlighting
 let g:python_highlight_space_errors = 0
 let g:python_highlight_all = 1
 
@@ -373,6 +372,11 @@ highlight Pmenu ctermfg=15 ctermbg=0 guifg=#ffffff guibg=#000000
 
 " VimJavascript:
 let g:javascript_plugin_flow = 1
+" turn off flow typechecking, because we use vim ALE to see errors
+" but if flow is on, enable autoclose
+let g:flow#enable = 0
+let g:flow#autoclose = 1
+
 
 " SQLFormat:
 " relies on 'pip install sqlformat'
@@ -380,24 +384,35 @@ let g:sqlfmt_auto = 0
 let g:sqlfmt_command = "sqlformat"
 let g:sqlfmt_options = "--keywords=upper --identifiers=lower --use_space_around_operators"
 
-" Rainbow Parentheses:
-" THIS MAKES THINGS SLOW
-" let g:rainbow#max_level = 16
-" let g:rainbow#pairs = [['(', ')'], ['[', ']']]
-" augroup rainbow_settings
-"   " Section to turn on rainbow parentheses
-"   autocmd!
-"   autocmd BufEnter,BufRead * :RainbowParentheses
-"   autocmd BufEnter,BufRead *.html,*.css,*.jsx,*.js :RainbowParentheses!
-" augroup END
-
 " Terrform:
 let g:terraform_align = 1
 let g:terraform_fold_sections = 1
 let g:terraform_remap_spacebar = 1
 
 " Remove annoying go neovim warning
+
 let g:go_version_warning = 0
+
+" Vim Ale:
+"Limit linters used for JavaScript.
+let g:ale_linters = {
+      \   'javascript': ['eslint','flow'],
+      \   'python': ['pylint', 'mypy']
+      \}
+" highlight clear ALEErrorSign " otherwise uses error bg color (typically red)
+" highlight clear ALEWarningSign " otherwise uses error bg color (typically red)
+let g:ale_sign_error = 'X'
+let g:ale_sign_warning = '?'
+let g:ale_statusline_format = ['X %d', '? %d', '']
+" %linter% is the name of the linter that provided the message
+" %s is the error or warning message
+let g:ale_echo_msg_format = '%linter% says %s'
+" Map keys to navigate between lines with errors and warnings.
+nnoremap <space>an :ALENextWrap<cr>
+nnoremap <space>ap :ALEPreviousWrap<cr>
+
+let g:ale_completion_enabled = 1
+
 
 "  }}}
 " Plugin: AutoCompletion config and key remappings ------------ {{{
@@ -448,7 +463,6 @@ let g:jedi#rename_command = "<leader>sr"
 " Javascript:
 let g:tern_show_argument_hints = 'on_move'
 let g:tern_show_signature_in_pum = 1
-let g:flow#autoclose = 1
 augroup javascript_complete
   autocmd!
   autocmd FileType javascript nnoremap <buffer> <C-]> :TernDef<CR>
