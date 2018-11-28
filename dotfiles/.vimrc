@@ -1,5 +1,4 @@
 " Author: Kevin Halliday
-" Repurposed from Sam Roeca's .vimrc
 "
 " General: Leader mappings -------------------- {{{
 
@@ -136,7 +135,6 @@ Plug 'wannesm/wmgraphviz.vim'  " dotlanguage
 " note: must run 'gem install neovim' to get this to work
 " might require the neovim headers
 Plug 'juliosueiras/vim-terraform-completion'
-Plug 'flowtype/vim-flow'
 
 " Linting
 Plug 'w0rp/ale'
@@ -372,11 +370,6 @@ highlight Pmenu ctermfg=15 ctermbg=0 guifg=#ffffff guibg=#000000
 
 " VimJavascript:
 let g:javascript_plugin_flow = 1
-" turn off flow typechecking, because we use vim ALE to see errors
-" but if flow is on, enable autoclose
-let g:flow#enable = 0
-let g:flow#autoclose = 1
-
 
 " SQLFormat:
 " relies on 'pip install sqlformat'
@@ -407,11 +400,15 @@ let g:ale_statusline_format = ['X %d', '? %d', '']
 " %linter% is the name of the linter that provided the message
 " %s is the error or warning message
 let g:ale_echo_msg_format = '%linter% says %s'
+" turn off ale on open, turn on with Toggle
+let g:ale_enabled = 0
+" only run on save
+" let g:ale_lint_on_text_changed = 'never' -- not using currently, because
+" we can toggle ALE on and off with space at
 " Map keys to navigate between lines with errors and warnings.
 nnoremap <space>an :ALENextWrap<cr>
 nnoremap <space>ap :ALEPreviousWrap<cr>
-
-let g:ale_completion_enabled = 1
+nnoremap <space>at :ALEToggle<cr>
 
 
 "  }}}
@@ -461,7 +458,8 @@ let g:jedi#usages_command = "<leader>su"
 let g:jedi#rename_command = "<leader>sr"
 
 " Javascript:
-let g:tern_show_argument_hints = 'on_move'
+" This slows scroll over first function in file
+" let g:tern_show_argument_hints = 'on_move'
 let g:tern_show_signature_in_pum = 1
 augroup javascript_complete
   autocmd!

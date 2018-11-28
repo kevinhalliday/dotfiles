@@ -85,9 +85,6 @@ alias regrep="grep --perl-regexp -Ir \
 # upgrade
 alias upgrade="sudo apt-get update && sudo apt-get upgrade"
 
-# openvnp
-alias kvpn='sudo openvpn --config ~/openvpn/openvpn.conf'
-
 # reload this file
 alias so='source ~/.bashrc'
 

@@ -140,6 +140,12 @@ if [ -d "$PYENV_ROOT" ]; then
   eval "$(pyenv init -)"
 fi
 
+POETRY_ROOT="$HOME/.poetry"
+if [ -d "$POETRY_ROOT" ]; then
+  export POETRY_ROOT
+  path_radd "$POETRY_ROOT/bin"
+fi
+
 SDKMAN_DIR="$HOME/.sdkman"
 if [ -d "$SDKMAN_DIR" ]; then
   export SDKMAN_DIR
@@ -210,4 +216,3 @@ export PATH
 if [ -f "$HOME/.bashrc" ]; then
   source "$HOME/.bashrc"
 fi
-
