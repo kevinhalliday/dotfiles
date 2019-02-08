@@ -1,7 +1,6 @@
 #!/bin/bash
 #
 # Author: Kevin Halliday
-# Repurpoused from Sam Roeca's .bashrc
 #
 # Notes --- {{{
 

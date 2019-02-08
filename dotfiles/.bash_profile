@@ -1,7 +1,6 @@
 #!/bin/bash
 #
 # Author: Kevin Halliday
-# Repurposed from Sam Roeca's .zprofile file
 #
 # Functions --- {{{
 
