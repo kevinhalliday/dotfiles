@@ -33,6 +33,12 @@ bind '"\C-w": backward-kill-word'
 # }}}
 # Aliases --- {{{
 
+# navigation
+alias 'kepler'='cd ~/src/KeplerGroup/'
+alias 'playground'='cd ~/src/playground/'
+alias 'khalliday'='cd ~/src/khalliday/'
+alias 'rocket'='cd ~/src/KeplerGroup/KIP-Rocket/'
+
 # Easier directory navigation for going up a directory tree
 alias 'a'='cd - &> /dev/null'
 alias .='cd ..'
@@ -151,6 +157,59 @@ vd() {
   deactivate
 }
 
+# Print out the Github-recommended gitignore
+export GITIGNORE_DIR=$HOME/src/lib/gitignore
+gitignore() {
+  if [ ! -d "$GITIGNORE_DIR" ]; then
+    mkdir -p $HOME/src/lib
+    git clone https://github.com/github/gitignore $GITIGNORE_DIR
+    return 1
+  elif [ $# -eq 0 ]; then
+    echo "Usage: gitignore <file1> <file2> <file3> <file...n>"
+    return 1
+  else
+    # print all the files
+    local count=0
+    for filevalue in $@; do
+      echo "#################################################################"
+      echo "# $filevalue"
+      echo "#################################################################"
+      cat $GITIGNORE_DIR/$filevalue
+      if [ $count -ne $# ]; then
+        echo
+      fi
+      (( count++ ))
+    done
+  fi
+}
+
+# Create instance folder with only .gitignore ignored
+mkinstance() {
+  mkdir instance
+  cat > instance/.gitignore <<EOL
+*
+!.gitignore
+EOL
+}
+
+
+# Initialize Python Repo
+pyinit() {
+  if [ $# -ne 0 ]; then
+    echo "pyinit takes no arguments"
+    return 1
+  fi
+  gitignore Python.gitignore > .gitignore
+  mkinstance
+  ve
+  cat > main.py <<EOL
+#!/usr/bin/env python
+"""The main module"""
+EOL
+  chmod +x main.py
+  poetry init --no-interaction
+}
+
 # Create New Python Repo
 pynew() {
   if [ $# -ne 1 ]; then
@@ -158,53 +217,12 @@ pynew() {
     return 1
   fi
   local dir_name="$1"
-  mkdir "$dir_name"
-  cd "$dir_name"
-  git init
-
-  mkdir instance
-  cat > instance/.gitignore <<EOL
-*
-!.gitignore
-EOL
-
-  # venv/
-  ve
-  # NOTE: not using pyenv right now
-  # pipenv install
-  # va
-  # pydev
-  # deactivate
-  # va
-
-  # .gitignore
-  cat > .gitignore <<EOL
-# Python
-venv/
-.venv/
-__pycache__/
-*.py[cod]
-.tox/
-.cache
-.coverage
-docs/_build/
-*.egg-info/
-.installed.cfg
-*.egg
-.mypy_cache/
-.pytest_cache/
-*.coverage*
-# Vim
-*.swp
-# C
-*.so
-EOL
-
-  cat > main.py <<EOL
-#!/usr/bin/env python
-'''The main module'''
-EOL
-  chmod +x main.py
+  if [ -d "$dir_name" ]; then
+    echo "$dir_name already exists"
+    return 1
+  fi
+  git init "$dir_name" && cd "$dir_name"
+  pyinit
 }
 
 # Vim, but activate python virtual environment first

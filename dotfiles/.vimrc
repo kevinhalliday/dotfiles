@@ -152,6 +152,7 @@ Plug 'tpope/vim-surround'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tyru/open-browser.vim'
 Plug 'weirongxu/plantuml-previewer.vim'
+Plug 'ckarnell/Antonys-macro-repeater'
 
 " Syntax highlighting
 Plug 'derekwyatt/vim-scala',
@@ -191,10 +192,7 @@ Plug 'rdolgushin/groovy.vim'
 Plug 'khalliday7/Kevinsfile-vim-syntax'
 
 " Code prettifiers
-Plug 'b4b4r07/vim-sqlfmt'
-Plug 'tell-k/vim-autopep8'
-Plug 'maksimr/vim-jsbeautify'
-Plug 'alx741/vim-stylishask'
+Plug 'pappasam/vim-filetype-formatter'
 
 " Indentation
 Plug 'hynek/vim-python-pep8-indent'
@@ -217,7 +215,9 @@ augroup filetype_recognition
   autocmd!
   autocmd BufNewFile,BufRead,BufEnter *.hql,*.q set filetype=hive
   autocmd BufNewFile,BufRead,BufEnter *.config set filetype=yaml
-  autocmd BufNewFile,BufRead,BufEnter *.bowerrc,*.babelrc,*.eslintrc,*.slack-term
+  autocmd BufNewFile,BufRead,BufEnter *.bowerrc,*.babelrc,*.eslintrc
+        \ set filetype=json
+  autocmd BufNewFile,BufRead,BufEnter *.slack-term,*.prettierrc
         \ set filetype=json
   autocmd BufNewFile,BufRead,BufEnter *.handlebars set filetype=html
   autocmd BufNewFile,BufRead,BufEnter *.ejs set filetype=html
@@ -231,14 +231,6 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter *.groovy  set filetype=groovy
 augroup END
 
-" not sure what this does, may have to set some env variables
-"augroup filetype_vim
-"autocmd!
-"  autocmd BufWritePost *vimrc so $MYVIMRC |
-"        \if has('gui_running') |
-"        \so $MYGVIMRC |
-"        \endif
-"augroup END
 
 " }}}
 " General: Indentation (tabs, spaces, width, etc)------------- {{{
@@ -383,32 +375,7 @@ let g:terraform_fold_sections = 1
 let g:terraform_remap_spacebar = 1
 
 " Remove annoying go neovim warning
-
 let g:go_version_warning = 0
-
-" Vim Ale:
-"Limit linters used for JavaScript.
-let g:ale_linters = {
-      \   'javascript': ['eslint','flow'],
-      \   'python': ['pylint', 'mypy']
-      \}
-" highlight clear ALEErrorSign " otherwise uses error bg color (typically red)
-" highlight clear ALEWarningSign " otherwise uses error bg color (typically red)
-let g:ale_sign_error = 'X'
-let g:ale_sign_warning = '?'
-let g:ale_statusline_format = ['X %d', '? %d', '']
-" %linter% is the name of the linter that provided the message
-" %s is the error or warning message
-let g:ale_echo_msg_format = '%linter% says %s'
-" turn off ale on open, turn on with Toggle
-let g:ale_enabled = 0
-" only run on save
-" let g:ale_lint_on_text_changed = 'never' -- not using currently, because
-" we can toggle ALE on and off with space at
-" Map keys to navigate between lines with errors and warnings.
-nnoremap <space>an :ALENextWrap<cr>
-nnoremap <space>ap :ALEPreviousWrap<cr>
-nnoremap <space>at :ALEToggle<cr>
 
 
 "  }}}
@@ -455,15 +422,22 @@ let g:jedi#auto_vim_configuration = 0
 let g:jedi#goto_command = "<C-]>"
 let g:jedi#documentation_command = "<leader>sd"
 let g:jedi#usages_command = "<leader>su"
-let g:jedi#rename_command = "<leader>sr"
+let g:jedi#rename_command = "<leader>r"
 
 " Javascript:
 " This slows scroll over first function in file
 " let g:tern_show_argument_hints = 'on_move'
 let g:tern_show_signature_in_pum = 1
+let g:tern#command = ['npx', 'tern']
 augroup javascript_complete
   autocmd!
   autocmd FileType javascript nnoremap <buffer> <C-]> :TernDef<CR>
+  autocmd FileType javascript nnoremap <buffer> <leader>sd :TernDoc<CR>
+  autocmd FileType javascript nnoremap <buffer> <leader>sp :TernDefPreview<CR>
+  autocmd FileType javascript nnoremap <buffer> <leader>ss :TernDefSplit<CR>
+  autocmd FileType javascript nnoremap <buffer> <leader>st :TernDefTab<CR>
+  autocmd FileType javascript nnoremap <buffer> <leader>su :TernRefs<CR>
+  autocmd FileType javascript nnoremap <buffer> <leader>r :TernRename<CR>
 augroup END
 
 " Elm:
@@ -576,22 +550,52 @@ augroup CloseIfOnlyControlWinLeft
 augroup END
 
 "  }}}
-"  Plugin: Language-specific file beautification --- {{{
+"  Plugin: Language-specific file formatting/linting --- {{{
+"
+" Vim Ale:
+"Limit linters used for JavaScript.
+let g:ale_linters = {
+      \   'javascript': ['eslint', 'flow'],
+      \   'python': ['pylint', 'mypy']
+      \}
+let g:ale_fixers = {
+      \   'javascript': ['prettier'],
+      \   'python': ['yapf']
+      \}
+" highlight clear ALEErrorSign " otherwise uses error bg color (typically red)
+" highlight clear ALEWarningSign " otherwise uses error bg color (typically red)
+let g:ale_sign_error = 'X'
+let g:ale_sign_warning = '?'
+let g:ale_statusline_format = ['X %d', '? %d', '']
+" %linter% is the name of the linter that provided the message
+" %s is the error or warning message
+let g:ale_echo_msg_format = '%linter% says %s'
+" turn off ale on open, turn on with Toggle
+let g:ale_enabled = 0
+" only run on save
+" let g:ale_lint_on_text_changed = 'never' -- not using currently, because
+" we can toggle ALE on and off with space at
+" Map keys to navigate between lines with errors and warnings.
 
-let g:stylishask_on_save = 0
+augroup mapping_ale_fix
+  autocmd FileType python,javascript,javascript.jsx,
+        \ nnoremap  <C-k> :ALEPreviousWrap<cr> |
+        \ nnoremap  <C-j> :ALENextWrap<cr> |
+        \ nnoremap  <space>at :ALEToggle<cr>
+        " \ nnoremap  <leader>f :ALEFix<cr> |
+augroup END
 
-augroup language_specific_file_beauty
-  autocmd FileType javascript noremap <buffer> <leader>f :call JsBeautify()<cr>
-  autocmd FileType json noremap <buffer> <leader>f :call JsonBeautify()<cr>
-  autocmd FileType javascript.jsx,jsx noremap <buffer> <leader>f :call JsxBeautify()<cr>
-  autocmd FileType html noremap <buffer> <leader>f :call HtmlBeautify()<cr>
-  autocmd FileType css noremap <buffer> <leader>f :call CSSBeautify()<cr>
-  autocmd Filetype python nnoremap <buffer> <leader>f :Autopep8<cr>
-  autocmd Filetype elm nnoremap <buffer> <leader>f :ElmFormat<cr>
-  autocmd Filetype sql nnoremap <buffer> <leader>f :SQLFmt<cr>
-  autocmd Filetype rust nnoremap <buffer> <leader>f :RustFmt<cr>
-  autocmd Filetype terraform nnoremap <buffer> <leader>f :TerraformFmt<cr>
-  autocmd Filetype haskell nnoremap <buffer> <leader>f :Stylishask<cr>
+" " code formatting, thanks sam
+let g:vim_filetype_formatter_verbose = 1
+let g:vim_filetype_formatter_commands = {
+      \ 'python': 'yapf',
+      \ 'javascript': 'prettier --parser flow --stdin',
+      \ 'javascript.jsx': 'prettier --parser flow --stdin',
+      \}
+
+augroup mapping_vim_filetype_formatter
+  autocmd FileType python,javascript,javascript.jsx
+        \ nnoremap <silent> <buffer> <leader>f :FiletypeFormat<cr>
 augroup END
 
 " }}}
