@@ -35,7 +35,7 @@ bind '"\C-w": backward-kill-word'
 # navigation
 alias 'kepler'='cd ~/src/KeplerGroup/'
 alias 'playground'='cd ~/src/playground/'
-alias 'khalliday'='cd ~/src/khalliday/'
+alias 'khalliday7'='cd ~/src/khalliday7/'
 alias 'rocket'='cd ~/src/KeplerGroup/KIP-Rocket/'
 
 # Easier directory navigation for going up a directory tree
@@ -157,7 +157,7 @@ vd() {
 }
 
 # Print out the Github-recommended gitignore
-export GITIGNORE_DIR=$HOME/src/lib/gitignore
+export GITIGNORE_DIR=$HOME/lib/gitignore
 gitignore() {
   if [ ! -d "$GITIGNORE_DIR" ]; then
     mkdir -p $HOME/src/lib

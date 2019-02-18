@@ -579,8 +579,8 @@ let g:ale_enabled = 0
 
 augroup mapping_ale_fix
   autocmd FileType python,javascript,javascript.jsx,
-        \ nnoremap  <C-k> :ALEPreviousWrap<cr> |
-        \ nnoremap  <C-j> :ALENextWrap<cr> |
+        \ nnoremap  <space>ap :ALEPreviousWrap<cr> |
+        \ nnoremap  <space>an :ALENextWrap<cr> |
         \ nnoremap  <space>at :ALEToggle<cr>
         " \ nnoremap  <leader>f :ALEFix<cr> |
 augroup END
