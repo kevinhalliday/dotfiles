@@ -1,14 +1,5 @@
 #!/bin/zsh
 
-# Notes:
-#
-# Searching for a specific man page
-#   1. apropros
-#   2. man -k
-#
-# Clearning "less" search results
-#   Alt-u
-
 #######################################################################
 # Environment Setup
 #######################################################################
@@ -236,6 +227,11 @@ if [ -d "$POETRY_LOC" ]; then
   source $HOME/.poetry/env
 fi
 
+YARN_LOC="$HOME/.yarn/bin"
+if [ -d "$YARN_LOC" ]; then
+  path_ladd "$YARN_LOC"
+fi
+
 # EXPORT THE FINAL, MODIFIED PATH
 export PATH
 
@@ -254,7 +250,30 @@ include () {
 include ~/.bash/sensitive
 
 # }}}
-# Plugins --- {{{
+# ZShell prompt (PS1) --- {{{
+
+# this must be done before sourceing the plugin
+GEOMETRY_PROMPT_PLUGINS=(virtualenv exec_time git)
+
+GEOMETRY_SYMBOL_PROMPT="▲"
+GEOMETRY_SYMBOL_RPROMPT="◇"
+GEOMETRY_SYMBOL_EXIT_VALUE="△"
+GEOMETRY_SYMBOL_ROOT="▲"
+
+GEOMETRY_COLOR_EXIT_VALUE="magenta"
+GEOMETRY_COLOR_PROMPT="white"
+GEOMETRY_COLOR_ROOT="red"
+GEOMETRY_COLOR_DIR="220"
+
+GEOMETRY_PROMPT_SUFFIX=""
+
+PROMPT_GEOMETRY_GIT_TIME=false
+PROMPT_GEOMETRY_GIT_SHOW_STASHES=false
+
+GEOMETRY_COLOR_VIRTUALENV="green"
+
+# }}}
+ # Plugins --- {{{
 
 if [ -f ~/.zplug/init.zsh ]; then
   source ~/.zplug/init.zsh
@@ -262,16 +281,9 @@ if [ -f ~/.zplug/init.zsh ]; then
   # BEGIN: List plugins
 
   # use double quotes: the plugin manager author says we must for some reason
-  zplug "paulirish/git-open", as:plugin
-  zplug "greymd/docker-zsh-completion", as:plugin
   zplug "zsh-users/zsh-completions", as:plugin
   zplug "zsh-users/zsh-syntax-highlighting", as:plugin
-  zplug "nobeans/zsh-sdkman", as:plugin
-  zplug "junegunn/fzf-bin", \
-    from:gh-r, \
-    as:command, \
-    rename-to:fzf
-
+  zplug "geometry-zsh/geometry", as:plugin
 
   #END: List plugins
 
@@ -333,54 +345,7 @@ export PERIOD=1
 export LISTMAX=0
 
 # }}}
-# ZShell Misc Autoloads --- {{{
-
-# Enables zshell calculator: type with zcalc
-autoload -Uz zcalc
-
-# }}}
-# ZShell Hook Functions --- {{{
-
-# NOTE: precmd is defined within the prompt section
-
-# Executed whenever the current working directory is changed
-function chpwd() {
-  ls --color=auto
-}
-
-# Executed every $PERIOD seconds, just before a prompt.
-# NOTE: if multiple functions are defined using the array periodic_functions,
-# only  one  period  is applied to the complete set of functions, and the
-# scheduled time is not reset if the list of functions is altered.
-# Hence the set of functions is always called together.
-function periodic() {
-}
-
-# Executed just after a command has been read and is about to be executed
-#   arg1: the string that the user typed OR an empty string
-#   arg2: a single-line, size-limited version of the command
-#     (with things like function bodies elided)
-#   arg3: full text that is being executed
-function preexec() {
-  # local user_string="$1"
-  # local cmd_single_line="$2"
-  # local cmd_full="$3"
-}
-
-
-# Executed when a history line is read interactively, but before it is executed
-#   arg1: the complete history line (terminating newlines are present
-function zshaddhistory() {
-  # local history_complete="$1"
-}
-
-# Executed at the point where the main shell is about to exit normally.
-function zshexit() {
-}
-
-# }}}
 # ZShell Auto Completion --- {{{
-
 autoload -U compinit && compinit
 autoload -U +X bashcompinit && bashcompinit
 zstyle ':completion:*:*:git:*' script /usr/local/etc/bash_completion.d/git-completion.bash
@@ -399,20 +364,6 @@ zstyle ':completion:*' matcher-list '' \
 fpath=(/usr/local/share/zsh-completions $fpath)
 zmodload -i zsh/complist
 
-# Manual libraries
-
-# vault, by Hashicorp
-_vault_complete() {
-  local word completions
-  word="$1"
-  completions="$(vault --cmplt "${word}")"
-  reply=( "${(ps:\n:)completions}" )
-}
-compctl -f -K _vault_complete vault
-
-# stack
-# eval "$(stack --bash-completion-script stack)"
-
 # Add autocompletion path
 fpath+=~/.zfunc
 
@@ -428,7 +379,7 @@ bindkey -e
 # '^o' - choose selection and execute
 # '^m' - choose selection but do NOT execute AND leave all modes in menu-select
 #         useful to get out of both select and search-backward
-# '^z' - stop interactive tab-complete mode and go back to regular selection
+# '^q' - stop interactive tab-complete mode and go back to regular selection
 
 # make vi keys do menu-expansion (eg, ^j does expansion, navigate with hjkl)
 bindkey '^j' menu-expand-or-complete
@@ -436,6 +387,9 @@ bindkey -M menuselect '^j' menu-complete
 bindkey -M menuselect '^k' reverse-menu-complete
 bindkey -M menuselect '^h' backward-char
 bindkey -M menuselect '^l' forward-char
+
+bindkey '^p' history-beginning-search-backward
+bindkey '^n' history-beginning-search-forward
 
 # delete function characters to include
 # Omitted: /=
@@ -446,7 +400,7 @@ WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
 
 # Easier directory navigation for going up a directory tree
 alias 'a'='cd - &> /dev/null'
-alias ','='cd_up'  # can not name function 'cd..'; references cd_up below
+alias 'h'='cd ~'
 alias .='cd ..'
 alias ..='cd ../..'
 alias ...='cd ../../..'
@@ -458,8 +412,6 @@ alias ........='cd ../../../../../../../..'
 alias .........='cd ../../../../../../../../..'
 alias ..........='cd ../../../../../../../../../..'
 
-# Vim and Vi: try activate Python virtual environment then call neovim
-alias f='nvim'
 alias vi='nvim'
 alias vim='nvim'
 
@@ -487,7 +439,6 @@ alias ls='ls --color=auto'
 alias dir='dir --color=auto'
 alias vdir='vdir --color=auto'
 
-alias sl='ls'
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
@@ -501,9 +452,6 @@ alias diff='diff -rupP'
 # the perl step removes the final newline from the output
 alias pbcopy="perl -pe 'chomp if eof' | xsel --clipboard --input"
 alias pbpaste='xsel --clipboard --output'
-
-# Octave
-alias octave='octave --no-gui'
 
 # Public IP
 alias publicip='curl -s checkip.amazonaws.com'
@@ -522,9 +470,6 @@ alias upgrade='sudo mintupdate'
 # battery
 alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "state|time\ to\ full|percentage"'
 
-# dynamodb
-alias docker-dynamodb="docker run -v /data:$HOME/data -p 8000:8000 dwmkerr/dynamodb -dbPath $HOME/data"
-
 # alias for say
 alias say='spd-say'
 compdef _dict_words say
@@ -532,27 +477,11 @@ compdef _dict_words say
 # reload zshrc
 alias so='source ~/.zshrc'
 
-# Cookiecutter (project boilerplate generator)
-alias cookiecutter-hovercraft='cookiecutter gh:pappasam/cookiecutter-hovercraft'
-
-# Rust
-
-# need cargo install cargo-update
-# NOTE: CARGO_INCREMENTAL=0 turns off incremental compilation
-alias cargo-update='cargo +nightly install-update -a'
-alias cargo-doc='cargo doc --open'
-alias alacritty-deb-install='CARGO_INCREMENTAL=0 cargo deb --install'
-
-# Python
-# Enable things like "pip install 'requests[security]'"
-alias pip='noglob pip'
-alias poetry-clean='poetry cache:clear --all pypi'
-
 # File navigation
-alias kepler='cd /src/KeplerGroup/'
-alias rocket='cd /src/KeplerGroup/KIP-Rocket/'
-alias khalliday7='cd /src/khalliday7/'
-alias playground='cd /src/playground/'
+alias kepler='cd ~/src/KeplerGroup/'
+alias rocket='cd ~/src/KeplerGroup/KIP-Rocket/'
+alias khalliday7='cd ~/src/khalliday7/'
+alias playground='cd ~/src/playground/'
 
 # }}}
 # Functions --- {{{
@@ -601,21 +530,6 @@ function fixwindow() {
   fi
 }
 
-function gitzip() {  # arg1: the git repository
-  if [ $# -eq 0 ]; then
-    local git_dir='.'
-  else
-    local git_dir="$1"
-  fi
-  pushd $git_dir > /dev/null
-  local git_root=$(git rev-parse --show-toplevel)
-  local git_name=$(basename $git_root)
-  local outfile="$git_root/../$git_name.zip"
-  git archive --format=zip --prefix="$git_name-from-zip/" HEAD -o "$outfile"
-  popd > /dev/null
-}
-compdef _dirs gitzip
-
 # dictionary lookups
 function def() {  # arg1: word
   dict -d gcide $1
@@ -633,33 +547,20 @@ function d() { #arg1: directory
 }
 compdef _dirs d
 
-# Move up n directories using:  cd.. dir
-function cd_up() {  # arg1: number|word
-  pushd . >/dev/null
-  cd $( pwd | sed -r "s|(.*/$1[^/]*/).*|\1|" ) # cd up into path (if found)
-}
-
 # Open files with gnome-open
 function gn() {  # arg1: filename
   gio open $1
 }
 
-# Open documentation files
-export DOC_DIR="$HOME/Documents/reference"
-function doc() {  # arg1: filename
-  gio open "$DOC_DIR/$1"
-}
-compdef "_files -W $DOC_DIR" doc
-
-# activate virtual environment from any directory from current and up
-DEFAULT_VENV_NAME=.venv
-DEFAULT_PYTHON_VERSION="3"
-
-function cargodev() {
-  cargo install cargo-edit
+function plantuml() {
+  java -jar ~/java/plantuml.jar ${@}
 }
 
-PYTHON_DEV_PACKAGES=(pynvim bpython restview jedi yapf pre-commit)
+function jenkins() {
+  java -jar ~/java/jenkins.war ${@}
+}
+
+PYTHON_DEV_PACKAGES=(pynvim bpython jedi yapf)
 
 # [optionally] create and activate Python virtual environment
 function ve() {
@@ -755,16 +656,6 @@ function pynew() {
   pyinit
 }
 
-# Clubhouse story template
-function clubhouse() {
-  echo -e "## Objective\n## Value\n## Acceptance Criteria" | pbcopy
-}
-
-# GIT: git-clone keplergrp repos to src/ directory
-function klone() {
-  git clone git@github.com:KeplerGroup/$1
-}
-
 # GIT: push current branch from origin to current branch
 function push() {
   local current_branch="$(git rev-parse --abbrev-ref HEAD)"
@@ -775,14 +666,6 @@ function push() {
 function pull() {
   local current_branch="$(git rev-parse --abbrev-ref HEAD)"
   git pull origin "$current_branch"
-}
-
-# GITHUB: list all of an organization's Repositories
-function github-list {
-  local username=$1
-  local organization=$2
-  local page=$3
-  curl -u $username "https://api.github.com/orgs/$organization/repos?per_page=100&page=$page"
 }
 
 # Timer
@@ -813,27 +696,8 @@ function stopwatch(){
 
 function quote() {
   local cowsay_word_message="$(shuf -n 1 ~/.gre_words.txt)"
-  local cowsay_quote="$(fortune -s ~/.fortunes/ | grep -v '\-\-' | grep .)"
+  local cowsay_quote="$(fortune -s | grep -v '\-\-' | grep .)"
   echo -e "$cowsay_word_message\n\n$cowsay_quote" | cowsay
-}
-
-function deshake-video() {
-  # see below link for documentation
-  # https://github.com/georgmartius/vid.stab
-  if [ $# -ne 2 ]; then
-    echo "deshake-video <infile> <outfile>"
-    exit 1
-  fi
-  local infile="$1"
-  local outfile="$2"
-  local transfile="$infile.trf"
-  if [ ! -f "$transfile" ]; then
-    echo "Generating $transfile ..."
-    ffmpeg2 -i "$infile" -vf vidstabdetect=result="$transfile" -f null -
-  fi
-  ffmpeg2 -i "$infile" -vf \
-    vidstabtransform=smoothing=10:input="$transfile" \
-    "$outfile"
 }
 
 function dat(){
@@ -846,117 +710,6 @@ function dat(){
 }
 
 # }}}
-# ZShell prompt (PS1) --- {{{
-
-# NOTE this is not cross-shell; zsh-specific
-
-#######################################################################
-# BEGIN: Git formatting
-#######################################################################
-autoload -Uz vcs_info
-zstyle ':vcs_info:*' stagedstr '%F{yellow}=%f'
-zstyle ':vcs_info:*' unstagedstr '%F{red}!%f'
-zstyle ':vcs_info:*' check-for-changes true
-zstyle ':vcs_info:*' actionformats \
-  '%F{magenta}[%F{green}%b%F{yellow}|%F{red}%a%F{magenta}]%f '
-zstyle ':vcs_info:*' formats \
-  '%F{magenta}[%F{green}%b%m%F{magenta}] %F{green}%c%F{yellow}%u%f'
-zstyle ':vcs_info:git*+set-message:*' hooks git-untracked git-st git-stash
-zstyle ':vcs_info:*' enable git
-
-# Show untracked files
-untracked_msg="Untracked files:"
-function +vi-git-untracked() {
-  local in_tree=$(git rev-parse --is-inside-work-tree 2> /dev/null)
-  local untracked=$(git status | grep "$untracked_msg")
-  if [[ "$in_tree" == 'true' ]] && [[ "$untracked" == "$untracked_msg" ]]; then
-    hook_com[unstaged]+='%F{red}?%f'
-  fi
-}
-
-# Show remote ref name and number of commits ahead-of or behind
-function +vi-git-st() {
-  local ahead behind remote
-  local -a gitstatus
-
-  # Are we on a remote-tracking branch?
-  remote=${$(git rev-parse --verify ${hook_com[branch]}@{upstream} \
-    --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
-
-  if [[ -n ${remote} ]] ; then
-    ahead=$(git rev-list ${hook_com[branch]}@{upstream}..HEAD 2>/dev/null | wc -l)
-    (( $ahead )) && gitstatus+=( "${c3}+${ahead}${c2}" )
-    behind=$(git rev-list HEAD..${hook_com[branch]}@{upstream} 2>/dev/null | wc -l)
-    (( $behind )) && gitstatus+=( "${c4}-${behind}${c2}" )
-    hook_com[branch]="${hook_com[branch]} [@ ${(j:/:)gitstatus}]"
-  fi
-}
-
-# Show count of stashed changes
-function +vi-git-stash() {
-  local -a stashes
-
-  if [[ -s ${hook_com[base]}/.git/refs/stash ]] ; then
-    stashes=$(git stash list 2>/dev/null | wc -l)
-    hook_com[misc]+=" (stash ${stashes})"
-  fi
-}
-
-function precmd() { vcs_info }
-#######################################################################
-# END: Git formatting
-#######################################################################
-
-# Set Terminal settings
-# https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
-COLOR_BRIGHT_BLUE="6"
-COLOR_GOLD="3"
-COLOR_SILVER="7"
-COLOR_PYTHON_GREEN="2"
-
-# Set Bash PS1
-PS1_DIR="%B%F{$COLOR_BRIGHT_BLUE}%~%f%b"
-PS1_USR="%B%F{$COLOR_GOLD}%n@%M%b%f"
-PS1_END="%B%F{$COLOR_SILVER}$ %f%b"
-
-# Configure Python virtualenv prompt
-export VIRTUAL_ENV_DISABLE_PROMPT=1
-function virtualenv_info(){
-  # Get Virtual Env
-  if [[ -n "$VIRTUAL_ENV" ]]; then
-    # Strip out the path and just leave the env name
-    venv="${VIRTUAL_ENV##*/}"
-  else
-    # In case you don't have one activated
-    venv=''
-  fi
-  [[ -n "$venv" ]] && echo "<$venv> "
-}
-
-PS1="${PS1_DIR} \$vcs_info_msg_0_ %F{$COLOR_PYTHON_GREEN}\$(virtualenv_info)%f \
-${PS1_USR} ${PS1_END}"
-
-# }}}
-# FZF --- {{{
-
-# Load zsh script
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# Use fd to generate the list for file and directory completion
-_fzf_compgen_path() {
-  fd -c always --hidden --follow --exclude ".git" . "$1"
-}
-
-_fzf_compgen_dir() {
-  fd -c always --hidden --type d --follow --exclude ".git" . "$1"
-}
-
-# <C-t> does fzf; <C-i> does normal stuff; <C-o> does the same thing as enter
-export FZF_COMPLETION_TRIGGER=''
-export FZF_DEFAULT_OPTS="--bind=ctrl-o:accept --ansi"
-bindkey '^T' fzf-completion
-
-# }}}
 # Executed Commands --- {{{
 
 if [[ -o interactive ]]; then
@@ -967,11 +720,6 @@ if [[ -o interactive ]]; then
 
   # turn off ctrl-s and ctrl-q from freezing / unfreezing terminal
   stty -ixon
-
-  # kubectl autocompletion
-  if [ $commands[kubectl] ]; then
-    source <(kubectl completion zsh)
-  fi
 
   if [[ "$TERM" == "linux" ]]; then
     if [ ! -n "$TMUX" ]; then
