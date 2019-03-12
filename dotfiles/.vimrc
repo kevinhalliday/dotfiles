@@ -1,12 +1,14 @@
+" My lovely, mostly plagiarized, slightly repurposed vim configuration.
+"
 " Author: Kevin Halliday
 "
-" General: Leader mappings -------------------- {{{
+" Leader mappings -------------------- {{{
 
 let mapleader = ","
 let maplocalleader = "\\"
 
 " }}}
-" General: Global config ------------ {{{
+" Global config ------------ {{{
 
 "A comma separated list of options for Insert mode completion
 "   menuone  Use the popup menu also when there is only one match.
@@ -102,7 +104,7 @@ autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
 autocmd InsertLeave * if pumvisible() == 0|pclose|endif
 
 " }}}
-" General: Plugin Install --------------------- {{{
+" Plugin Install --------------------- {{{
 
 call plug#begin('~/.vim/plugged')
 
@@ -111,29 +113,19 @@ Plug 'fcpg/vim-altscreen'
 
 " File Navigation
 Plug 'scrooloose/nerdtree'
-
-" Searcing
 Plug 'kien/ctrlp.vim'
+Plug 'airblade/vim-rooter'
 
 " Auto-Completion
-" Plug 'Valloric/YouCompleteMe'
 Plug 'davidhalter/jedi-vim'
 Plug 'marijnh/tern_for_vim', { 'do': 'npm install'  }  " for javascript
-" Additional requirements:
-"   ln -s /home/sroeca/dotfiles/.tern-project /home/sroeca/.tern-project
 Plug 'Rip-Rip/clang_complete'
-" for C header filename completion:
 Plug 'xaizek/vim-inccomplete'
 Plug 'eagletmt/neco-ghc'
 Plug 'racer-rust/vim-racer'
-" Addional requirements:
-"   cargo install racer
-"   rustup component add rust-src
 Plug 'nsf/gocode', { 'rtp': 'vim', 'do': '~/.vim/plugged/gocode/vim/symlink.sh' }
 Plug 'fatih/vim-go'
 Plug 'wannesm/wmgraphviz.vim'  " dotlanguage
-" note: must run 'gem install neovim' to get this to work
-" might require the neovim headers
 Plug 'juliosueiras/vim-terraform-completion'
 
 " Linting
@@ -153,6 +145,7 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'tyru/open-browser.vim'
 Plug 'weirongxu/plantuml-previewer.vim'
 Plug 'ckarnell/Antonys-macro-repeater'
+Plug 'alvan/vim-closetag'
 
 " Syntax highlighting
 Plug 'derekwyatt/vim-scala',
@@ -180,7 +173,7 @@ Plug 'tomlion/vim-solidity'
 Plug 'jparise/vim-graphql'
 Plug 'magicalbanana/sql-syntax-vim'
 Plug 'pangloss/vim-javascript'
-Plug 'mxw/vim-jsx'
+Plug 'maxmellon/vim-jsx-pretty'
 Plug 'groenewege/vim-less'
 Plug 'farfanoide/vim-kivy'
 Plug 'raimon49/requirements.txt.vim'
@@ -190,6 +183,7 @@ Plug 'khalliday7/Jenkinsfile-vim-syntax'
 Plug 'fatih/vim-go'
 Plug 'rdolgushin/groovy.vim'
 Plug 'khalliday7/Kevinsfile-vim-syntax'
+Plug 'lepture/vim-jinja'
 
 " Code prettifiers
 Plug 'pappasam/vim-filetype-formatter'
@@ -200,158 +194,7 @@ Plug 'vim-scripts/groovyindent-unix'
 
 call plug#end()
 " }}}
-"  Plugin: Vim-Plug --- {{{
-" Plug update and upgrade
-function! _PU()
-  exec 'PlugUpdate'
-  exec 'PlugUpgrade'
-endfunction
-command! PU call _PU()
-
-"  }}}
-" General: Filetype specification ------------ {{{
-
-augroup filetype_recognition
-  autocmd!
-  autocmd BufNewFile,BufRead,BufEnter *.hql,*.q set filetype=hive
-  autocmd BufNewFile,BufRead,BufEnter *.config set filetype=yaml
-  autocmd BufNewFile,BufRead,BufEnter *.bowerrc,*.babelrc,*.eslintrc
-        \ set filetype=json
-  autocmd BufNewFile,BufRead,BufEnter *.slack-term,*.prettierrc
-        \ set filetype=json
-  autocmd BufNewFile,BufRead,BufEnter *.handlebars set filetype=html
-  autocmd BufNewFile,BufRead,BufEnter *.ejs set filetype=html
-  autocmd BufNewFile,BufRead,BufEnter *.m,*.oct set filetype=octave
-  autocmd BufNewFile,BufRead,BufEnter *.jsx set filetype=javascript.jsx
-  autocmd BufNewFile,BufRead,BufEnter *.cfg,*.ini,.coveragerc,.pylintrc
-        \ set filetype=dosini
-  autocmd BufNewFile,BufRead,BufEnter *.tsv set filetype=tsv
-  autocmd BufNewFile,BufRead,BufEnter Dockerfile.* set filetype=Dockerfile
-  autocmd BufNewFile,BufRead,BufEnter Makefile.* set filetype=make
-  autocmd BufNewFile,BufRead,BufEnter *.groovy  set filetype=groovy
-augroup END
-
-
-" }}}
-" General: Indentation (tabs, spaces, width, etc)------------- {{{
-
-" Note -> apparently BufRead, BufNewFile trumps Filetype
-" Eg, if BufRead,BufNewFile * ignores any Filetype overwrites
-" This is why default settings are chosen with Filetype *
-augroup indentation_sr
-  autocmd!
-  autocmd Filetype * setlocal expandtab shiftwidth=2 softtabstop=2 tabstop=8
-  autocmd Filetype python,c,elm,haskell,markdown,rust,rst,kv,yaml,nginx
-        \ setlocal shiftwidth=4 softtabstop=4 tabstop=8
-  autocmd Filetype dot setlocal autoindent cindent
-  autocmd Filetype make,tsv,votl,go
-        \ setlocal tabstop=4 softtabstop=0 shiftwidth=4 noexpandtab
-  " Prevent auto-indenting from occuring
-  autocmd Filetype yaml setlocal indentkeys-=<:>
-augroup END
-
-" }}}
-" General: Writing (non-coding)------------------ {{{
-
-" Notes:
-"   indenting and de-indenting in insert mode are:
-"     <C-t> and <C-d>
-"   formatting hard line breaks
-"     NORMAL
-"       gqap => format current paragraph
-"       gq => format selection
-"     VISUAL
-"       J => join all lines
-
-augroup writing
-  autocmd!
-  autocmd FileType markdown :setlocal wrap linebreak nolist
-  autocmd BufNewFile,BufRead *.html,*.txt,*.tex :setlocal wrap linebreak nolist
-  autocmd BufNewFile,BufRead *.html,*.txt :setlocal colorcolumn=0
-augroup END
-
-" }}}
-" General: Folding Settings --------------- {{{
-
-augroup fold_settings
-  autocmd!
-  autocmd FileType vim setlocal foldmethod=marker
-  autocmd FileType vim setlocal foldlevelstart=0
-  autocmd FileType * setlocal foldnestmax=1
-  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.bash_profile,.zshrc,.tmux.conf setlocal foldmethod=marker
-  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.bash_profile,.zshrc,.tmux.conf setlocal foldlevelstart=0
-augroup END
-
-" }}}
-" General: Trailing whitespace ------------- {{{
-
-" This section should go before syntax highlighting
-" because autocommands must be declared before syntax library is loaded
-function! TrimWhitespace()
-  if &ft == 'markdown'
-    return
-  endif
-  let l:save = winsaveview()
-  %s/\s\+$//e
-  call winrestview(l:save)
-endfunction
-
-highlight EOLWS ctermbg=red guibg=red
-match EOLWS /\s\+$/
-augroup whitespace_color
-  autocmd!
-  autocmd ColorScheme * highlight EOLWS ctermbg=red guibg=red
-  autocmd InsertEnter * highlight EOLWS NONE
-  autocmd InsertLeave * highlight EOLWS ctermbg=red guibg=red
-augroup END
-
-augroup fix_whitespace_save
-  autocmd!
-  autocmd BufWritePre * call TrimWhitespace()
-augroup END
-
-" }}}
-" General: Syntax highlighting ---------------- {{{
-
-" Papercolor: options
-let g:PaperColor_Theme_Options = {
-      \   'theme' : {
-      \     'default': {
-      \       'transparent_background': 1
-      \     }
-      \   }
-      \ }
-let g:PaperColor_Theme_Options['language'] = {
-      \   'python': {
-      \     'highlight_builtins' : 1
-      \   }
-      \ }
-
-" Python: Highlight self and cls keyword in class definitions
-augroup python_syntax
-  autocmd!
-  autocmd FileType python syn keyword pythonBuiltinObj self
-  autocmd FileType python syn keyword pythonBuiltinObj cls
-augroup end
-
-" Javascript: Highlight this keyword in object / function definitions
-augroup javascript_syntax
-  autocmd!
-  autocmd FileType javascript syn keyword jsBooleanTrue this
-  autocmd FileType javascript.jsx syn keyword jsBooleanTrue this
-augroup end
-
-" Syntax: select global syntax scheme
-" Make sure this is at end of section
-try
-  set t_Co=256 " says terminal has 256 colors
-  set background=dark
-  colorscheme PaperColor
-catch
-endtry
-
-" }}}
-"  Plugin: Configure ------------ {{{
+"  Plugin Configuration ------------ {{{
 
 " Python: highlighting
 let g:python_highlight_space_errors = 0
@@ -377,24 +220,16 @@ let g:terraform_remap_spacebar = 1
 " Remove annoying go neovim warning
 let g:go_version_warning = 0
 
+"  Vim-Plug --- {{{
+" Plug update and upgrade
+function! _PU()
+  exec 'PlugUpdate'
+  exec 'PlugUpgrade'
+endfunction
+command! PU call _PU()
 
 "  }}}
-" Plugin: AutoCompletion config and key remappings ------------ {{{
-
-" YouCompleteMe:
-"   - ensure auto-complete window goes away after use
-"   - set python binary path to the first python found in PATH,
-"     if a virtualenv is active, this will point to the virtualenv python
-"     binary
-"   - set space g to goto definition
-" let g:ycm_autoclose_preview_window_after_completion=1
-" let g:ycm_python_binary_path='python'
-" map <space>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-"
-" NOTE: General remappings
-" 1) go to file containing definition: <C-]>
-" 2) Return from file (relies on tag stack): <C-O>
-
+" AutoCompletion config and key remappings ------------ {{{
 
 " VimScript:
 " Autocompletion and show definition is built in to Vim
@@ -494,7 +329,7 @@ augroup terraform_complete
 augroup END
 
 "  }}}
-"  Plugin: NERDTree --- {{{
+"  NERDTree --- {{{
 
 let g:NERDTreeMapOpenInTab = '<C-t>'
 let g:NERDTreeMapOpenInTabSilent = ''
@@ -550,17 +385,13 @@ augroup CloseIfOnlyControlWinLeft
 augroup END
 
 "  }}}
-"  Plugin: Language-specific file formatting/linting --- {{{
-"
+"  Vim Ale --- {{{
+
 " Vim Ale:
 "Limit linters used for JavaScript.
 let g:ale_linters = {
       \   'javascript': ['eslint', 'flow'],
       \   'python': ['pylint', 'mypy']
-      \}
-let g:ale_fixers = {
-      \   'javascript': ['prettier'],
-      \   'python': ['yapf']
       \}
 " highlight clear ALEErrorSign " otherwise uses error bg color (typically red)
 " highlight clear ALEWarningSign " otherwise uses error bg color (typically red)
@@ -582,8 +413,9 @@ augroup mapping_ale_fix
         \ nnoremap  <space>ap :ALEPreviousWrap<cr> |
         \ nnoremap  <space>an :ALENextWrap<cr> |
         \ nnoremap  <space>at :ALEToggle<cr>
-        " \ nnoremap  <leader>f :ALEFix<cr> |
 augroup END
+" }}}
+"  Vim Filetype Formatter --- {{{
 
 " " code formatting, thanks sam
 let g:vim_filetype_formatter_verbose = 1
@@ -591,15 +423,17 @@ let g:vim_filetype_formatter_commands = {
       \ 'python': 'yapf',
       \ 'javascript': 'prettier --parser flow --stdin',
       \ 'javascript.jsx': 'prettier --parser flow --stdin',
+      \ 'css': 'prettier --parser css --stdin',
+      \ 'less': 'prettier --parser less --stdin',
       \}
 
 augroup mapping_vim_filetype_formatter
-  autocmd FileType python,javascript,javascript.jsx
+  autocmd FileType python,javascript,javascript.jsx,css,less
         \ nnoremap <silent> <buffer> <leader>f :FiletypeFormat<cr>
 augroup END
 
 " }}}
-" Plugin: AutoPairs --- {{{
+" AutoPairs --- {{{
 " AutoPairs:
 " unmap CR due to incompatibility with clang-complete
 let g:AutoPairsMapCR = 0
@@ -612,12 +446,51 @@ let g:AutoPairs = {
       \ '`':'`'
       \ }
 augroup autopairs_filetype_overrides
+   " autocmd FileType javascript let b:AutoPairs = {
+   "    \ '(':')',
+   "    \ '[':']',
+   "    \ '{':'}',
+   "    \ "'":"'",
+   "    \ '"':'"',
+   "    \ '`':'`',
+   "    \ '<':'>',
+   "    \ }
+   " autocmd FileType javascript.jsx let b:AutoPairs = {
+   "    \ '(':')',
+   "    \ '[':']',
+   "    \ '{':'}',
+   "    \ "'":"'",
+   "    \ '"':'"',
+   "    \ '`':'`',
+   "    \ '<':'>',
+   "    \ }
+   autocmd FileType python let b:AutoPairs = {
+      \ '(':')',
+      \ '[':']',
+      \ '{':'}',
+      \ "'":"'",
+      \ '"':'"',
+      \ '`':'`',
+      \ '"""': '"""',
+      \ "'''": "'''",
+      \ }
   autocmd FileType rust let b:AutoPairs = {
         \ '(':')',
         \ '[':']',
         \ '{':'}',
         \ '"':'"',
         \ '`':'`'
+        \ }
+   autocmd FileType markdown let b:AutoPairs = {
+        \ '(':')',
+        \ '[':']',
+        \ '{':'}',
+        \ "'":"'",
+        \ '"':'"',
+        \ '`':'`',
+        \ '"""': '"""',
+        \ "'''": "'''",
+        \ '```': '```',
         \ }
   autocmd FileType plantuml let b:AutoPairs = {
         \ '{':'}',
@@ -630,10 +503,211 @@ augroup autopairs_filetype_overrides
         \ '{':'}',
         \ '`': "'"
         \ }
+  autocmd FileType vim let b:AutoPairs = {
+        \ '(':')',
+        \ '[':']',
+        \ '{':'}',
+        \ "'":"'",
+        \ '`':'`',
+        \ }
 augroup END
 
 "  }}}
-" General: Key remappings ----------------------- {{{
+" Ctrl P --- {{{
+
+" move ctrl p up to last .git dir
+let g:ctrlp_working_path_mode = 'rw' " start from cwd
+let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']
+" open first in current window and others as hidden
+let g:ctrlp_open_multiple_files = '1r'
+let g:ctrlp_use_caching = 0
+
+"  }}}
+" Plugin: close-tag {{{
+" filenames like *.xml, *.html, *.xhtml, ...
+" These are the file extensions where this plugin is enabled.
+"
+let g:closetag_filenames = '*.html,*.xhtml,*.js,*.jsx'
+
+" filetypes like xml, html, xhtml, ...
+" These are the file types where this plugin is enabled.
+"
+let g:closetag_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx'
+
+" integer value [0|1]
+" This will make the list of non-closing tags case-sensitive
+" (e.g. `<Link>` will be closed while `<link>` won't.)
+"
+let g:closetag_emptyTags_caseSensitive = 1
+
+" dict
+" Disables auto-close if not in a "valid" region (based on filetype)
+"
+let g:closetag_regions = {
+    \ 'typescript.tsx': 'jsxRegion,tsxRegion',
+    \ 'javascript': 'jsxRegion',
+    \ 'javascript.jsx': 'jsxRegion',
+    \ }
+
+" Shortcut for closing tags, default is '>'
+"
+let g:closetag_shortcut = '>'
+
+" Add > at current position without closing the current tag, default is ''
+"
+let g:closetag_close_shortcut = '<leader>>'
+" }}}
+
+"  }}}
+" Filetype specification ------------ {{{
+
+augroup filetype_recognition
+  autocmd!
+  autocmd BufNewFile,BufRead,BufEnter *.hql,*.q set filetype=hive
+  autocmd BufNewFile,BufRead,BufEnter *.config set filetype=yaml
+  autocmd BufNewFile,BufRead,BufEnter *.bowerrc,*.babelrc,*.eslintrc
+        \ set filetype=json
+  autocmd BufNewFile,BufRead,BufEnter *.slack-term,*.prettierrc
+        \ set filetype=json
+  autocmd BufNewFile,BufRead,BufEnter *.handlebars set filetype=html
+  autocmd BufNewFile,BufRead,BufEnter *.ejs set filetype=html
+  autocmd BufNewFile,BufRead,BufEnter *.m,*.oct set filetype=octave
+  autocmd BufNewFile,BufRead,BufEnter *.jsx set filetype=javascript.jsx
+  autocmd BufNewFile,BufRead,BufEnter *.cfg,*.ini,.coveragerc,.pylintrc
+        \ set filetype=dosini
+  autocmd BufNewFile,BufRead,BufEnter *.tsv set filetype=tsv
+  autocmd BufNewFile,BufRead,BufEnter Dockerfile.* set filetype=Dockerfile
+  autocmd BufNewFile,BufRead,BufEnter Makefile.* set filetype=make
+  autocmd BufNewFile,BufRead,BufEnter *.groovy  set filetype=groovy
+augroup END
+
+
+" }}}
+" Indentation (tabs, spaces, width, etc)------------- {{{
+
+" Note -> apparently BufRead, BufNewFile trumps Filetype
+" Eg, if BufRead,BufNewFile * ignores any Filetype overwrites
+" This is why default settings are chosen with Filetype *
+augroup indentation_sr
+  autocmd!
+  autocmd Filetype * setlocal expandtab shiftwidth=2 softtabstop=2 tabstop=8
+  autocmd Filetype python,c,elm,haskell,markdown,rust,rst,kv,yaml,nginx
+        \ setlocal shiftwidth=4 softtabstop=4 tabstop=8
+  autocmd Filetype dot setlocal autoindent cindent
+  autocmd Filetype make,tsv,votl,go
+        \ setlocal tabstop=4 softtabstop=0 shiftwidth=4 noexpandtab
+  " Prevent auto-indenting from occuring
+  autocmd Filetype yaml setlocal indentkeys-=<:>
+augroup END
+
+" }}}
+" Writing (non-coding)------------------ {{{
+
+" Notes:
+"   indenting and de-indenting in insert mode are:
+"     <C-t> and <C-d>
+"   formatting hard line breaks
+"     NORMAL
+"       gqap => format current paragraph
+"       gq => format selection
+"     VISUAL
+"       J => join all lines
+
+augroup writing
+  autocmd!
+  autocmd FileType markdown :setlocal wrap linebreak nolist
+  autocmd BufNewFile,BufRead *.html,*.txt,*.tex :setlocal wrap linebreak nolist
+  autocmd BufNewFile,BufRead *.html,*.txt :setlocal colorcolumn=0
+augroup END
+
+" }}}
+" Folding Settings --------------- {{{
+
+augroup fold_settings
+  autocmd!
+  autocmd FileType vim setlocal foldmethod=marker
+  autocmd FileType vim setlocal foldlevelstart=0
+  autocmd FileType * setlocal foldnestmax=1
+  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.bash_profile,.zshrc,.tmux.conf setlocal foldmethod=marker
+  autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.bash_profile,.zshrc,.tmux.conf setlocal foldlevelstart=0
+augroup END
+
+" }}}
+" Trailing whitespace ------------- {{{
+
+" This section should go before syntax highlighting
+" because autocommands must be declared before syntax library is loaded
+function! TrimWhitespace()
+  if &ft == 'markdown'
+    return
+  endif
+  let l:save = winsaveview()
+  %s/\s\+$//e
+  call winrestview(l:save)
+endfunction
+
+highlight EOLWS ctermbg=red guibg=red
+match EOLWS /\s\+$/
+augroup whitespace_color
+  autocmd!
+  autocmd ColorScheme * highlight EOLWS ctermbg=red guibg=red
+  autocmd InsertEnter * highlight EOLWS NONE
+  autocmd InsertLeave * highlight EOLWS ctermbg=red guibg=red
+augroup END
+
+augroup fix_whitespace_save
+  autocmd!
+  autocmd BufWritePre * call TrimWhitespace()
+augroup END
+
+" }}}
+" Syntax highlighting ---------------- {{{
+
+" Papercolor: options
+let g:PaperColor_Theme_Options = {
+      \   'theme' : {
+      \     'default': {
+      \       'transparent_background': 1,
+      \       'override': {
+      \         'folded_fg' : ['#00ff00', ''],
+      \         'folded_bg' : ['#585858', ''],
+      \       }
+      \     }
+      \   }
+      \ }
+let g:PaperColor_Theme_Options['language'] = {
+      \   'python': {
+      \     'highlight_builtins' : 1
+      \   }
+      \ }
+
+let g:vim_jsx_pretty_colorful_config = 1
+
+" Python: Highlight self and cls keyword in class definitions
+augroup python_syntax
+  autocmd!
+  autocmd FileType python syn keyword pythonBuiltinObj self
+  autocmd FileType python syn keyword pythonBuiltinObj cls
+augroup end
+
+" Javascript: Highlight this keyword in object / function definitions
+augroup javascript_syntax
+  autocmd!
+  autocmd FileType javascript syn keyword jsBooleanTrue this
+  autocmd FileType javascript.jsx syn keyword jsBooleanTrue this
+augroup end
+
+" Syntax: select global syntax scheme
+" Make sure this is at end of section
+try
+  set t_Co=256 " says terminal has 256 colors
+  set background=dark
+  colorscheme PaperColor
+catch
+endtry
+
+" }}}
+" Key remappings ----------------------- {{{
 "
 " Omnicompletion:
 " <C-@> is signal sent by terminal when pressing <C-Space>
@@ -641,6 +715,11 @@ augroup END
 inoremap <C-@> <C-x><C-o>
 inoremap <C-space> <C-x><C-o>
 
+" Moving in insert mode
+inoremap <C-u> <esc>kA
+inoremap <C-d> <esc>jA
+inoremap <C-a> <esc>I
+inoremap <C-e> <esc>A
 
 " Escape:
 " Make escape also clear highlighting
@@ -700,7 +779,7 @@ nnoremap <silent> <space>k :NERDTreeFind<cr><C-w>w
 imap <silent><CR> <CR><Plug>AutoPairsReturn
 
 " }}}
-" General: Cleanup ------------------ {{{
+" Cleanup ------------------ {{{
 " commands that need to run at the end of my vimrc
 
 " disable unsafe commands in your project-specific .vimrc files

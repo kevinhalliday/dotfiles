@@ -141,7 +141,7 @@ export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.g
 export PIPENV_VENV_IN_PROJECT='doit'
 
 # Default browser for some programs (eg, urlview)
-export BROWSER='/usr/bin/firefox'
+export BROWSER='/usr/bin/google-chrome'
 
 # Enable editor to scale with monitor's DPI
 export WINIT_HIDPI_FACTOR=1.0
@@ -284,6 +284,8 @@ if [ -f ~/.zplug/init.zsh ]; then
   zplug "zsh-users/zsh-completions", as:plugin
   zplug "zsh-users/zsh-syntax-highlighting", as:plugin
   zplug "geometry-zsh/geometry", as:plugin
+  zplug "buonomo/yarn-completion", as:plugin, defer:2 # defer 2 to run after compinit
+  zplug "greymd/docker-zsh-completion", as:plugin, defer:2
 
   #END: List plugins
 
@@ -480,6 +482,7 @@ alias so='source ~/.zshrc'
 # File navigation
 alias kepler='cd ~/src/KeplerGroup/'
 alias rocket='cd ~/src/KeplerGroup/KIP-Rocket/'
+alias library='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Create-Library'
 alias khalliday7='cd ~/src/khalliday7/'
 alias playground='cd ~/src/playground/'
 
