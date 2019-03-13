@@ -146,6 +146,7 @@ Plug 'tyru/open-browser.vim'
 Plug 'weirongxu/plantuml-previewer.vim'
 Plug 'ckarnell/Antonys-macro-repeater'
 Plug 'alvan/vim-closetag'
+Plug 'wincent/ferret' " multi file search
 
 " Syntax highlighting
 Plug 'derekwyatt/vim-scala',
@@ -567,7 +568,7 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter *.config set filetype=yaml
   autocmd BufNewFile,BufRead,BufEnter *.bowerrc,*.babelrc,*.eslintrc
         \ set filetype=json
-  autocmd BufNewFile,BufRead,BufEnter *.slack-term,*.prettierrc
+  autocmd BufNewFile,BufRead,BufEnter *.slack-term,*.prettierrc,*.graphqlconfig
         \ set filetype=json
   autocmd BufNewFile,BufRead,BufEnter *.handlebars set filetype=html
   autocmd BufNewFile,BufRead,BufEnter *.ejs set filetype=html
