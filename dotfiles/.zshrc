@@ -402,7 +402,6 @@ WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
 
 # Easier directory navigation for going up a directory tree
 alias 'a'='cd - &> /dev/null'
-alias 'h'='cd ~'
 alias .='cd ..'
 alias ..='cd ../..'
 alias ...='cd ../../..'
