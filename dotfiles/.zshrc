@@ -451,8 +451,8 @@ alias diff='diff -rupP'
 
 # Set copy/paste helper functions
 # the perl step removes the final newline from the output
-alias pbcopy="perl -pe 'chomp if eof' | xsel --clipboard --input"
-alias pbpaste='xsel --clipboard --output'
+alias pbcopy="perl -pe 'chomp if eof' | xclip -selection clipboard"
+alias pbpaste='xclip -selection clipboard -o'
 
 # Public IP
 alias publicip='curl -s checkip.amazonaws.com'
