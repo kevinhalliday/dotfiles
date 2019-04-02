@@ -422,14 +422,16 @@ augroup END
 let g:vim_filetype_formatter_verbose = 1
 let g:vim_filetype_formatter_commands = {
       \ 'python': 'yapf',
-      \ 'javascript': 'prettier --parser flow --stdin',
-      \ 'javascript.jsx': 'prettier --parser flow --stdin',
-      \ 'css': 'prettier --parser css --stdin',
-      \ 'less': 'prettier --parser less --stdin',
+      \ 'json': 'python3 -c "import json, sys; print(json.dumps(json.load(sys.stdin), indent=2), end=\"\")"',
+      \ 'javascript': 'npx prettier --parser flow --stdin',
+      \ 'javascript.jsx': 'npx prettier --parser flow --stdin',
+      \ 'css': 'npx prettier --parser css --stdin',
+      \ 'less': 'npx prettier --parser less --stdin',
+      \ 'html': 'npx prettier --parser html --stdin',
       \}
 
 augroup mapping_vim_filetype_formatter
-  autocmd FileType python,javascript,javascript.jsx,css,less
+  autocmd FileType python,javascript,javascript.jsx,css,less,json,html
         \ nnoremap <silent> <buffer> <leader>f :FiletypeFormat<cr>
 augroup END
 
@@ -716,11 +718,12 @@ endtry
 inoremap <C-@> <C-x><C-o>
 inoremap <C-space> <C-x><C-o>
 
-" Moving in insert mode
-inoremap <C-u> <esc>kA
-inoremap <C-d> <esc>jA
+" Emacs:
 inoremap <C-a> <esc>I
 inoremap <C-e> <esc>A
+
+" Paste:
+inoremap <C-v> <esc>p
 
 " Escape:
 " Make escape also clear highlighting
