@@ -253,7 +253,10 @@ include ~/.bash/sensitive
 # ZShell prompt (PS1) --- {{{
 
 # this must be done before sourceing the plugin
-GEOMETRY_PROMPT_PLUGINS=(virtualenv exec_time git)
+# check if it exists for avoid error on resource
+if [[ ! -v GEOMETRY_PROMPT_PLUGINS ]]; then
+  GEOMETRY_PROMPT_PLUGINS=(virtualenv exec_time git)
+fi
 
 GEOMETRY_SYMBOL_PROMPT="▲"
 GEOMETRY_SYMBOL_RPROMPT="◇"
