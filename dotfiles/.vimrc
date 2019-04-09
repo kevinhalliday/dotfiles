@@ -777,7 +777,7 @@ nnoremap <silent> <space>J :call NERDTreeToggleCustom()<CR>
 " nnoremap <silent> <space>u :UndotreeToggle<CR>
 
 " NERDTree: Jump to current file
-nnoremap <silent> <space>k :NERDTreeFind<cr><C-w>w
+nnoremap <silent> <space>k :NERDTreeFind<cr>
 
 " AutoPairs:
 imap <silent><CR> <CR><Plug>AutoPairsReturn
