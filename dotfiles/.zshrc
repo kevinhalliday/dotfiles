@@ -4,23 +4,6 @@
 # Environment Setup
 #######################################################################
 
-# Functions --- {{{
-
-path_ladd() {
-  # Takes 1 argument and adds it to the beginning of the PATH
-  if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-    PATH="$1${PATH:+":$PATH"}"
-  fi
-}
-
-path_radd() {
-  # Takes 1 argument and adds it to the end of the PATH
-  if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-    PATH="${PATH:+"$PATH:"}$1"
-  fi
-}
-
-# }}}
 # Exported variable: LS_COLORS --- {{{
 
 # Colors when using the LS command
@@ -154,17 +137,7 @@ export RUST_SRC_PATH="$RUST_TOOLCHAIN_PATH/lib/rustlib/src/rust/src"
 export BAT_PAGER=''
 
 # }}}
-# Path appends + Misc env setup --- {{{
-
-PYENV_ROOT="$HOME/.pyenv"
-if [ -d "$PYENV_ROOT" ]; then
-  export PYENV_ROOT
-  path_radd "$PYENV_ROOT/bin"
-  eval "$(pyenv init -)"
-  if [ -d "$PYENV_ROOT/plugins/pyenv-virtualenv" ]; then
-    eval "$(pyenv virtualenv-init -)"
-  fi
-fi
+# Misc env setup --- {{{
 
 SDKMAN_DIR="$HOME/.sdkman"
 if [ -d "$SDKMAN_DIR" ]; then
@@ -172,68 +145,6 @@ if [ -d "$SDKMAN_DIR" ]; then
   [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && \
     source "$SDKMAN_DIR/bin/sdkman-init.sh"
 fi
-
-NODENV_ROOT="$HOME/.nodenv"
-if [ -d "$NODENV_ROOT" ]; then
-  export NODENV_ROOT
-  path_radd "$NODENV_ROOT/bin"
-  eval "$(nodenv init -)"
-fi
-
-GOENV_ROOT="$HOME/.goenv"
-if [ -d "$GOENV_ROOT" ]; then
-  export GOENV_ROOT
-  path_radd "$GOENV_ROOT/bin"
-  eval "$(goenv init -)"
-fi
-
-RBENV_ROOT="$HOME/.rbenv"
-if [ -d "$RBENV_ROOT" ]; then
-  export RBENV_ROOT
-  path_radd "$RBENV_ROOT/bin"
-  eval "$(rbenv init -)"
-fi
-
-TFENV_ROOT="$HOME/.tfenv"
-if [ -d "$TFENV_ROOT" ]; then
-  export TFENV_ROOT
-  path_radd "$TFENV_ROOT/bin"
-fi
-
-GOPATH="$HOME/go"
-if [ -d "$GOPATH" ]; then
-  export GOPATH
-  path_ladd "$GOPATH/bin"
-fi
-
-RUST_CARGO="$HOME/.cargo/bin"
-if [ -d "$RUST_CARGO" ]; then
-  path_ladd "$RUST_CARGO"
-fi
-
-HOME_BIN="$HOME/bin"
-if [ -d "$HOME_BIN" ]; then
-  path_ladd "$HOME_BIN"
-fi
-
-STACK_LOC="$HOME/.local/bin"
-if [ -d "$STACK_LOC" ]; then
-  path_ladd "$STACK_LOC"
-fi
-
-POETRY_LOC="$HOME/.poetry/bin"
-if [ -d "$POETRY_LOC" ]; then
-  path_ladd "$POETRY_LOC"
-  source $HOME/.poetry/env
-fi
-
-YARN_LOC="$HOME/.yarn/bin"
-if [ -d "$YARN_LOC" ]; then
-  path_ladd "$YARN_LOC"
-fi
-
-# EXPORT THE FINAL, MODIFIED PATH
-export PATH
 
 # }}}
 
@@ -348,6 +259,57 @@ unsetopt AUTO_REMOVE_SLASH
 #######################################################################
 export PERIOD=1
 export LISTMAX=0
+
+# }}}
+# ZShell Hook Functions {{{
+
+# NOTE: precmd is defined within the prompt section
+
+# Executed whenever the current working directory is changed
+function chpwd() {
+  # Magically find Python's virtual environment based on name
+  va
+}
+
+# Executed every $PERIOD seconds, just before a prompt.
+# NOTE: if multiple functions are defined using the array periodic_functions,
+# only  one  period  is applied to the complete set of functions, and the
+# scheduled time is not reset if the list of functions is altered.
+# Hence the set of functions is always called together.
+function periodic() {
+  # Magically find Python's virtual environment based on name
+  va
+}
+
+# Executed before each prompt. Note that precommand functions are not
+# re-executed simply because the command line is redrawn, as happens, for
+# example, when a notification about an exiting job is displayed.
+function precmd() {
+  # Gather information about the version control system
+  # vcs_info
+}
+
+# Executed just after a command has been read and is about to be executed
+#   arg1: the string that the user typed OR an empty string
+#   arg2: a single-line, size-limited version of the command
+#     (with things like function bodies elided)
+#   arg3: full text that is being executed
+function preexec() {
+  # local user_string="$1"
+  # local cmd_single_line="$2"
+  # local cmd_full="$3"
+}
+
+
+# Executed when a history line is read interactively, but before it is executed
+#   arg1: the complete history line (terminating newlines are present
+function zshaddhistory() {
+  # local history_complete="$1"
+}
+
+# Executed at the point where the main shell is about to exit normally.
+function zshexit() {
+}
 
 # }}}
 # ZShell Auto Completion --- {{{
@@ -565,39 +527,80 @@ function jenkins() {
   java -jar ~/java/jenkins.war ${@}
 }
 
-PYTHON_DEV_PACKAGES=(pynvim bpython jedi yapf)
-
-# [optionally] create and activate Python virtual environment
-function ve() {
-  if [ ${#} -ne 1 ]; then
-    local pkg_base=$(basename $PWD)
-    local pkg_hashval=$(\
-      pwd |\
-      sha1sum |\
-      base32 |\
-      cut -c1-5 |\
-      tr '[:upper:]' '[:lower:]')
-    local pkg="$pkg_base-$pkg_hashval"
+# pydev-install: install only env dependencies
+# pydev-install dev: install only dev dependencies
+# pydev-install all: install all deps
+function pydev-install() {  ## Install default python dependencies
+  local env=(pynvim)
+  local dev=(pylint mypy pre-commit)
+  if [[ "$1" == 'all' ]]; then
+    pip install -U $env $dev
+  elif [[ "$1" == 'dev' ]]; then
+    pip install -U $dev
   else
-    local pkg=$@
+    pip install -U $env
   fi
-  venv_name=$pkg
-  pyenv virtualenv $venv_name
-  pyenv activate $venv_name
-  $(pyenv which pip) install --upgrade pip $PYTHON_DEV_PACKAGES
-  # Deactive the current virtual environment to enable python-version reading
-  pyenv deactivate
-  # Write the current virtual environment into python-version,
-  # followed by your default environments (which are useful for tox)
-  echo $venv_name > .python-version
-  cat ~/.pyenv/version >> .python-version
 }
 
+# activate virtual environment from any directory from current and up
+# Name of virtualenv
+VIRTUAL_ENV_DEFAULT=.venv
+function va() {  # No arguments
+  local venv_name="$VIRTUAL_ENV_DEFAULT"
+  local old_venv=$VIRTUAL_ENV
+  local slashes=${PWD//[^\/]/}
+  local current_directory="$PWD"
+  for (( n=${#slashes}; n>0; --n ))
+  do
+    if [ -d "$current_directory/$venv_name" ]; then
+      source "$current_directory/$venv_name/bin/activate"
+      if [[ "$old_venv" != "$VIRTUAL_ENV" ]]; then
+        echo "Activated $(python --version) virtualenv in $VIRTUAL_ENV"
+      fi
+      return
+    fi
+    local current_directory="$current_directory/.."
+  done
+  # If reached this step, no virtual environment found from here to root
+  if [[ -z $VIRTUAL_ENV ]]; then
+  else
+    deactivate
+    echo "Disabled existing virtualenv $old_venv"
+  fi
+}
+
+# Create and activate a virtual environment with all Python dependencies
+# installed. Optionally change Python interpreter.
+function ve() {  # Optional arg: python interpreter name
+  local venv_name="$VIRTUAL_ENV_DEFAULT"
+  if [ -z "$1" ]; then
+    local python_name='python'
+  else
+    local python_name="$1"
+  fi
+  if [ ! -d "$venv_name" ]; then
+    $python_name -m venv "$venv_name"
+    if [ $? -ne 0 ]; then
+      local error_code=$?
+      echo "Virtualenv creation failed, aborting"
+      return error_code
+    fi
+    source "$venv_name/bin/activate"
+    pip install -U pip
+    pydev-install  # install dependencies for editing
+    deactivate
+  else
+    echo "$venv_name already exists, activating"
+  fi
+  source $venv_name/bin/activate
+}
+compdef _command ve
+
 # Print out the Github-recommended gitignore
-export GITIGNORE_DIR=$HOME/lib/gitignore
+export GITIGNORE_DIR=$HOME/src/lib/gitignore
 function gitignore() {
   if [ ! -d "$GITIGNORE_DIR" ]; then
-    mkdir -p $HOME/lib
+    mkdir -p $HOME/src/lib
     git clone https://github.com/github/gitignore $GITIGNORE_DIR
     return 1
   elif [ $# -eq 0 ]; then
@@ -630,20 +633,15 @@ EOL
 }
 
 # Initialize Python Repo
-function pyinit() {
-  if [ $# -ne 0 ]; then
-    echo "pyinit takes no arguments"
+function poetry-init() {
+  if [ -f pyproject.toml ]; then
+    echo "pyproject.toml exists, aborting"
     return 1
   fi
-  gitignore Python.gitignore > .gitignore
-  mkinstance
-  ve
-  cat > main.py <<EOL
-#!/usr/bin/env python
-"""The main module"""
-EOL
-  chmod +x main.py
-  poetry init --no-interaction
+  poetry init --no-interaction &> /dev/null
+  sed -i '1s/^/[tool.black]\nline-length = 79\n\n/' pyproject.toml
+  touch README.md
+  echo "Python poetry project initialized!"
 }
 
 # Create New Python Repo
@@ -657,8 +655,26 @@ function pynew() {
     echo "$dir_name already exists"
     return 1
   fi
-  git init "$dir_name" && cd "$dir_name"
-  pyinit
+  git init "$dir_name"
+  cd "$dir_name"
+  poetry-init
+  gitignore Python.gitignore | grep -v instance/ > .gitignore
+  mkinstance
+  ve
+  cat > main.py <<EOL
+#!/usr/bin/env python
+"""The main module"""
+EOL
+  chmod +x main.py
+}
+
+# Templates for nvim
+function _md_template() {  # arg1: template
+  local current_date=$(date +'%Y-%m-%d_%H:%M:%S')
+  local calling_func=$funcstack[2]
+  local filepath="/tmp/${calling_func}_$current_date.md"
+  echo -e $1 > $filepath
+  nvim -c 'set nofoldenable' $filepath
 }
 
 # GIT: push current branch from origin to current branch
