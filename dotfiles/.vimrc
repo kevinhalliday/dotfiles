@@ -138,12 +138,15 @@ Plug 'tomasr/molokai'
 " Status line
 Plug 'itchyny/lightline.vim'
 
+" Previewers
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
+Plug 'tyru/open-browser.vim'
+Plug 'weirongxu/plantuml-previewer.vim'
+
 " Utils
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'jiangmiao/auto-pairs'
-Plug 'tyru/open-browser.vim'
-Plug 'weirongxu/plantuml-previewer.vim'
 Plug 'ckarnell/Antonys-macro-repeater'
 Plug 'alvan/vim-closetag'
 Plug 'wincent/ferret' " multi file search
@@ -229,6 +232,28 @@ function! _PU()
 endfunction
 command! PU call _PU()
 
+"  }}}
+"  Preview --- {{{
+function! _Preview()
+  if &filetype ==? 'rst'
+    exec 'terminal restview %'
+    exec "normal \<C-O>"
+  elseif &filetype ==? 'markdown'
+    " from markdown-preview.vim
+    exec 'MarkdownPreview'
+  elseif &filetype ==? 'dot'
+    " from wmgraphviz.vim
+    exec 'GraphvizInteractive'
+  elseif &filetype ==? 'plantuml'
+    " from plantuml-previewer.vim
+    exec 'PlantumlOpen'
+  elseif &filetype ==? 'html'
+    exec 'silent !google-chrome % &'
+  else
+    echo 'Preview not supported for this filetype'
+  endif
+endfunction
+command! Preview call _Preview()
 "  }}}
 " AutoCompletion config and key remappings ------------ {{{
 
@@ -567,7 +592,7 @@ let g:closetag_close_shortcut = '<leader>>'
 augroup filetype_recognition
   autocmd!
   autocmd BufNewFile,BufRead,BufEnter *.hql,*.q set filetype=hive
-  autocmd BufNewFile,BufRead,BufEnter *.config set filetype=yaml
+  autocmd BufNewFile,BufRead,BufEnter *.config,*.yaml,*.yml set filetype=yaml
   autocmd BufNewFile,BufRead,BufEnter *.bowerrc,*.babelrc,*.eslintrc
         \ set filetype=json
   autocmd BufNewFile,BufRead,BufEnter *.slack-term,*.prettierrc,*.graphqlconfig
@@ -594,7 +619,8 @@ augroup END
 augroup indentation_sr
   autocmd!
   autocmd Filetype * setlocal expandtab shiftwidth=2 softtabstop=2 tabstop=8
-  autocmd Filetype python,c,elm,haskell,markdown,rust,rst,kv,yaml,nginx
+  autocmd Filetype yaml setlocal expandtab shiftwidth=2 softtabstop=2 tabstop=2
+  autocmd Filetype python,c,elm,haskell,markdown,rust,rst,kv,nginx
         \ setlocal shiftwidth=4 softtabstop=4 tabstop=8
   autocmd Filetype dot setlocal autoindent cindent
   autocmd Filetype make,tsv,votl,go
@@ -631,6 +657,7 @@ augroup fold_settings
   autocmd FileType vim setlocal foldmethod=marker
   autocmd FileType vim setlocal foldlevelstart=0
   autocmd FileType * setlocal foldnestmax=1
+  autocmd FileType yaml,python setlocal foldmethod=indent nofoldenable
   autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.bash_profile,.zshrc,.tmux.conf setlocal foldmethod=marker
   autocmd BufNewFile,BufRead .zprofile,.profile,.bashrc,.bash_profile,.zshrc,.tmux.conf setlocal foldlevelstart=0
 augroup END
