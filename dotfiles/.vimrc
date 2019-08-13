@@ -444,10 +444,9 @@ augroup END
 "  Vim Filetype Formatter --- {{{
 
 " " code formatting, thanks sam
-let g:vim_filetype_formatter_verbose = 1
+" let g:vim_filetype_formatter_verbose = 1
 let g:vim_filetype_formatter_commands = {
-      \ 'python': 'yapf',
-      \ 'json': 'python3 -c "import json, sys; print(json.dumps(json.load(sys.stdin), indent=2), end=\"\")"',
+      \ 'python': 'black - -q --line-length 79',
       \ 'javascript': 'npx prettier --parser flow --stdin',
       \ 'javascript.jsx': 'npx prettier --parser flow --stdin',
       \ 'css': 'npx prettier --parser css --stdin',
@@ -474,24 +473,6 @@ let g:AutoPairs = {
       \ '`':'`'
       \ }
 augroup autopairs_filetype_overrides
-   " autocmd FileType javascript let b:AutoPairs = {
-   "    \ '(':')',
-   "    \ '[':']',
-   "    \ '{':'}',
-   "    \ "'":"'",
-   "    \ '"':'"',
-   "    \ '`':'`',
-   "    \ '<':'>',
-   "    \ }
-   " autocmd FileType javascript.jsx let b:AutoPairs = {
-   "    \ '(':')',
-   "    \ '[':']',
-   "    \ '{':'}',
-   "    \ "'":"'",
-   "    \ '"':'"',
-   "    \ '`':'`',
-   "    \ '<':'>',
-   "    \ }
    autocmd FileType python let b:AutoPairs = {
       \ '(':')',
       \ '[':']',
