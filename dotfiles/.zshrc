@@ -278,7 +278,7 @@ function chpwd() {
 # Hence the set of functions is always called together.
 function periodic() {
   # Magically find Python's virtual environment based on name
-  va
+  # va
 }
 
 # Executed before each prompt. Note that precommand functions are not
@@ -531,7 +531,7 @@ function jenkins() {
 # pydev-install dev: install only dev dependencies
 # pydev-install all: install all deps
 function pydev-install() {  ## Install default python dependencies
-  local env=(pynvim)
+  local env=(pynvim black)
   local dev=(pylint mypy pre-commit)
   if [[ "$1" == 'all' ]]; then
     pip install -U $env $dev
