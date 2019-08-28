@@ -117,8 +117,6 @@ Plug 'kien/ctrlp.vim'
 Plug 'airblade/vim-rooter'
 
 " Auto-Completion
-Plug 'davidhalter/jedi-vim'
-" Plug 'marijnh/tern_for_vim', { 'do': 'npm install'  }  " for javascript
 Plug 'Rip-Rip/clang_complete'
 Plug 'xaizek/vim-inccomplete'
 Plug 'eagletmt/neco-ghc'
@@ -272,41 +270,6 @@ augroup vimscript_complete
   autocmd FileType vim inoremap <buffer> <C-@> <C-x><C-v>
   autocmd FileType vim inoremap <buffer> <C-space> <C-x><C-v>
 augroup END
-
-" Python:
-" Open module, e.g. :Pyimport os (opens the os module)
-let g:jedi#popup_on_dot = 0
-let g:jedi#show_call_signatures = 0
-let g:jedi#auto_close_doc = 0
-let g:jedi#smart_auto_mappings = 0
-let g:jedi#force_py_version = 3
-
-" mappings
-" auto_vim_configuration creates space between where vim is opened and
-" closed in my bash terminal. This is annoying, so I disable and manually
-" configure. See 'set completeopt' in my global config for my settings
-let g:jedi#auto_vim_configuration = 0
-let g:jedi#goto_command = "<C-]>"
-let g:jedi#documentation_command = "<leader>sd"
-let g:jedi#usages_command = "<leader>su"
-let g:jedi#rename_command = "<leader>r"
-
-" removing tern in favor of LanguageClient + flow lsp combo
-" Javascript:
-" This slows scroll over first function in file
-" let g:tern_show_argument_hints = 'on_move'
-" let g:tern_show_signature_in_pum = 1
-" let g:tern#command = ['npx', 'tern']
-" augroup javascript_complete
-"   autocmd!
-"   autocmd FileType javascript nnoremap <buffer> <C-]> :TernDef<CR>
-"   autocmd FileType javascript nnoremap <buffer> <leader>sd :TernDoc<CR>
-"   autocmd FileType javascript nnoremap <buffer> <leader>sp :TernDefPreview<CR>
-"   autocmd FileType javascript nnoremap <buffer> <leader>ss :TernDefSplit<CR>
-"   autocmd FileType javascript nnoremap <buffer> <leader>st :TernDefTab<CR>
-"   autocmd FileType javascript nnoremap <buffer> <leader>su :TernRefs<CR>
-"   autocmd FileType javascript nnoremap <buffer> <leader>r :TernRename<CR>
-" augroup END
 
 " Elm:
 let g:elm_detailed_complete = 1
@@ -579,8 +542,8 @@ let g:closetag_close_shortcut = '<leader>>'
 " TODO: it's mildly annoying but the only thing that works with flow lsp
 let g:deoplete#enable_at_startup = 1
 
-" Excluding python in favor of jedi-vim \ 'python': ['pyls'],
 let g:LanguageClient_serverCommands = {
+      \ 'python': ['pyls'],
       \ 'javascript': ['npx', 'flow', 'lsp'],
       \ 'javascript.jsx': ['npx', 'flow', 'lsp'],
       \ 'svelte': ['svelteserver'],
