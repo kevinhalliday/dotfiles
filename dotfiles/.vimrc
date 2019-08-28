@@ -118,7 +118,7 @@ Plug 'airblade/vim-rooter'
 
 " Auto-Completion
 Plug 'davidhalter/jedi-vim'
-Plug 'marijnh/tern_for_vim', { 'do': 'npm install'  }  " for javascript
+" Plug 'marijnh/tern_for_vim', { 'do': 'npm install'  }  " for javascript
 Plug 'Rip-Rip/clang_complete'
 Plug 'xaizek/vim-inccomplete'
 Plug 'eagletmt/neco-ghc'
@@ -127,6 +127,12 @@ Plug 'nsf/gocode', { 'rtp': 'vim', 'do': '~/.vim/plugged/gocode/vim/symlink.sh' 
 Plug 'fatih/vim-go'
 Plug 'wannesm/wmgraphviz.vim'  " dotlanguage
 Plug 'juliosueiras/vim-terraform-completion'
+Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': 'bash install.sh',
+    \ }
+Plug 'junegunn/fzf'
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 
 " Linting
 Plug 'w0rp/ale'
@@ -285,21 +291,22 @@ let g:jedi#documentation_command = "<leader>sd"
 let g:jedi#usages_command = "<leader>su"
 let g:jedi#rename_command = "<leader>r"
 
+" removing tern in favor of LanguageClient + flow lsp combo
 " Javascript:
 " This slows scroll over first function in file
 " let g:tern_show_argument_hints = 'on_move'
-let g:tern_show_signature_in_pum = 1
-let g:tern#command = ['npx', 'tern']
-augroup javascript_complete
-  autocmd!
-  autocmd FileType javascript nnoremap <buffer> <C-]> :TernDef<CR>
-  autocmd FileType javascript nnoremap <buffer> <leader>sd :TernDoc<CR>
-  autocmd FileType javascript nnoremap <buffer> <leader>sp :TernDefPreview<CR>
-  autocmd FileType javascript nnoremap <buffer> <leader>ss :TernDefSplit<CR>
-  autocmd FileType javascript nnoremap <buffer> <leader>st :TernDefTab<CR>
-  autocmd FileType javascript nnoremap <buffer> <leader>su :TernRefs<CR>
-  autocmd FileType javascript nnoremap <buffer> <leader>r :TernRename<CR>
-augroup END
+" let g:tern_show_signature_in_pum = 1
+" let g:tern#command = ['npx', 'tern']
+" augroup javascript_complete
+"   autocmd!
+"   autocmd FileType javascript nnoremap <buffer> <C-]> :TernDef<CR>
+"   autocmd FileType javascript nnoremap <buffer> <leader>sd :TernDoc<CR>
+"   autocmd FileType javascript nnoremap <buffer> <leader>sp :TernDefPreview<CR>
+"   autocmd FileType javascript nnoremap <buffer> <leader>ss :TernDefSplit<CR>
+"   autocmd FileType javascript nnoremap <buffer> <leader>st :TernDefTab<CR>
+"   autocmd FileType javascript nnoremap <buffer> <leader>su :TernRefs<CR>
+"   autocmd FileType javascript nnoremap <buffer> <leader>r :TernRename<CR>
+" augroup END
 
 " Elm:
 let g:elm_detailed_complete = 1
@@ -532,7 +539,7 @@ let g:ctrlp_open_multiple_files = '1r'
 let g:ctrlp_use_caching = 0
 
 "  }}}
-" Plugin: close-tag {{{
+" close-tag {{{
 " filenames like *.xml, *.html, *.xhtml, ...
 " These are the file extensions where this plugin is enabled.
 "
@@ -566,7 +573,37 @@ let g:closetag_shortcut = '>'
 "
 let g:closetag_close_shortcut = '<leader>>'
 " }}}
+" Language Server Client {{{
 
+" deoplete will asynchronously add autocompletion popups
+" TODO: it's mildly annoying but the only thing that works with flow lsp
+let g:deoplete#enable_at_startup = 1
+
+" Excluding python in favor of jedi-vim \ 'python': ['pyls'],
+let g:LanguageClient_serverCommands = {
+      \ 'javascript': ['npx', 'flow', 'lsp'],
+      \ 'javascript.jsx': ['npx', 'flow', 'lsp'],
+      \ 'svelte': ['svelteserver'],
+      \ }
+let g:LanguageClient_autoStart = 1
+let g:LanguageClient_hoverPreview = 'Auto'
+let g:LanguageClient_diagnosticsEnable = 0
+
+function! ConfigureLanguageClient()
+  if has_key(g:LanguageClient_serverCommands, &filetype)
+    nnoremap <buffer> <C-]> :call LanguageClient#textDocument_definition()<CR>
+    nnoremap <buffer> <leader>sd :call LanguageClient#textDocument_hover()<CR>
+    nnoremap <buffer> <leader>sr :call LanguageClient#textDocument_rename()<CR>
+    nnoremap <buffer> <leader>su :call LanguageClient#textDocument_references()<CR>
+    setlocal omnifunc=LanguageClient#complete
+  endif
+endfunction
+
+augroup language_servers
+  autocmd FileType * call ConfigureLanguageClient()
+augroup END
+
+"  }}}
 "  }}}
 " Filetype specification ------------ {{{
 
