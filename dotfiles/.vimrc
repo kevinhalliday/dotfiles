@@ -2,6 +2,7 @@
 "
 " Author: Kevin Halliday
 "
+
 " Leader mappings -------------------- {{{
 
 let mapleader = ","
