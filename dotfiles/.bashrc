@@ -20,16 +20,6 @@ include ~/.bashrc_local
 include ~/.bash/sensitive
 
 # }}}
-# Executed Commands --- {{{
-
-# turn off ctrl-s and ctrl-q from freezing / unfreezing terminal
-stty -ixon
-
-# make ctrl-w delete words as-defined by Vim
-stty werase undef
-bind '"\C-w": backward-kill-word'
-
-# }}}
 # Aliases --- {{{
 
 # navigation
@@ -316,5 +306,17 @@ PS1_END="\[$BOLD\]\[$COLOR_WHITE\]$ \[$COLOR_RESET\]"
 PS1_PMT="\[$BOLD\]\[$COLOR_WHITE\] > \[$COLOR_RESET\]"
 
 PS1="${PS1_DIR} ${PS1_GIT} ${PS1_USR} ${PS1_END} \n ${PS1_PMT}"
+
+# }}}
+# Executed Commands --- {{{
+
+# turn off ctrl-s and ctrl-q from freezing / unfreezing terminal
+stty -ixon
+
+# make ctrl-w delete words as-defined by Vim
+stty werase undef
+bind '"\C-w": backward-kill-word'
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 # }}}

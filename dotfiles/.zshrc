@@ -201,6 +201,7 @@ if [ -f ~/.zplug/init.zsh ]; then
   zplug "greymd/docker-zsh-completion", as:plugin, defer:2
   zplug "kiurchv/asdf.plugin.zsh", defer:2
   zplug "lukechilds/zsh-better-npm-completion", defer:2
+  zplug "changyuheng/zsh-interactive-cd", as:plugin
 
   #END: List plugins
 
@@ -731,6 +732,50 @@ function dat(){
   strfile -c % "$file_name" "$file_name.dat"
 }
 
+##########################
+# Fzf extensions
+##########################
+
+# Use fd and fzf to get the args to a command.
+# Works only with zsh
+# Examples:
+# f mv # To move files. You can write the destination after selecting the files.
+# f 'echo Selected:'
+# f 'echo Selected music:' --extention mp3
+# fm rm # To rm files in current directory
+function f() {
+    sels=( "${(@f)$(fd "${fd_default[@]}" "${@:2}"| fzf)}" )
+    test -n "$sels" && print -z -- "$1 ${sels[@]:q:q}"
+}
+
+# Like f, but not recursive.
+function fm() f "$@" --max-depth 1
+
+# Modified version where you can press
+#   - CTRL-O to open with `open` command,
+#   - CTRL-E or Enter key to open with the $EDITOR
+function fo() {
+  local out file key
+  IFS=$'\n' out=("$(fzf-tmux --query="$1" --exit-0 --expect=ctrl-o,ctrl-e)")
+  key=$(head -1 <<< "$out")
+  file=$(head -2 <<< "$out" | tail -1)
+  if [ -n "$file" ]; then
+    [ "$key" = ctrl-o ] && open "$file" || ${EDITOR:-vim} "$file"
+  fi
+}
+
+# Another fd - cd into the selected directory
+function fd() {
+  local dir
+  dir=`find * -maxdepth 0 -type d -print 2> /dev/null | fzf-tmux` \
+    && cd "$dir"
+}
+
+# fh - repeat history
+fh() {
+  print -z $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | sed -r 's/ *[0-9]*\*? *//' | sed -r 's/\\/\\\\/g' | fzf-tmux +s --tac)
+}
+
 # }}}
 # Executed Commands --- {{{
 
@@ -752,5 +797,7 @@ if [[ -o interactive ]]; then
     fi
   fi
 fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # }}}
