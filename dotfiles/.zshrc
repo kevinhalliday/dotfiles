@@ -118,7 +118,7 @@ export HISTFILE=~/.zsh_history
 export SAVEHIST=5000
 
 # FZF
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*"'
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore --no-messages --hidden --follow --glob "!.git/*"'
 
 # pipenv
 export PIPENV_VENV_IN_PROJECT='doit'
@@ -139,11 +139,10 @@ export BAT_PAGER=''
 # }}}
 # Misc env setup --- {{{
 
-SDKMAN_DIR="$HOME/.sdkman"
-if [ -d "$SDKMAN_DIR" ]; then
-  export SDKMAN_DIR
-  [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && \
-    source "$SDKMAN_DIR/bin/sdkman-init.sh"
+ASDF_DIR="$HOME/.asdf"
+if [ -d "$ASDF_DIR" ]; then
+  export ASDF_DIR
+  [[ -s "$ASDF_DIR/asdf.sh" ]] && source $ASDF_DIR/asdf.sh
 fi
 
 # }}}
@@ -200,6 +199,8 @@ if [ -f ~/.zplug/init.zsh ]; then
   zplug "geometry-zsh/geometry", as:plugin
   zplug "buonomo/yarn-completion", as:plugin, defer:2 # defer 2 to run after compinit
   zplug "greymd/docker-zsh-completion", as:plugin, defer:2
+  zplug "kiurchv/asdf.plugin.zsh", defer:2
+  zplug "lukechilds/zsh-better-npm-completion", defer:2
 
   #END: List plugins
 
@@ -531,7 +532,7 @@ function jenkins() {
 # pydev-install dev: install only dev dependencies
 # pydev-install all: install all deps
 function pydev-install() {  ## Install default python dependencies
-  local env=(pynvim black)
+  local env=(pynvim black python-language-server pyls-mypy pyls-black)
   local dev=(pylint mypy pre-commit)
   if [[ "$1" == 'all' ]]; then
     pip install -U $env $dev
