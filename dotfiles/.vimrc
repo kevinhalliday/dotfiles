@@ -26,6 +26,9 @@ let maplocalleader = "\\"
 "            combination with 'menu' or 'menuone'.
 set completeopt=menuone,longest,preview
 
+" Not necessary for Neovim, but why not
+set encoding=UTF-8
+
 " Enable buffer deletion instead of having to write each buffer
 set hidden
 
@@ -104,33 +107,57 @@ autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
 autocmd InsertLeave * if pumvisible() == 0|pclose|endif
 
 " }}}
+" Util Functions ------------ {{{
+
+function s:warn(message)
+  echohl WarningMsg
+  echom a:message
+  echohl None
+  return 0
+endfunction
+
+function s:get_git_root()
+  let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
+  return v:shell_error ? '' : root
+endfunction
+
+function s:has_git_root()
+  let root = s:get_git_root()
+  return empty(root) ? 0 : 1
+endfunction
+
+
+" }}}
 " Plugin Install --------------------- {{{
 
 call plug#begin('~/.vim/plugged')
 
+" Fonts
+Plug 'ryanoasis/vim-devicons'
+
 " Commands run in vim's virtual screen and don't pollute main shell
 Plug 'fcpg/vim-altscreen'
 
+" Git Integration
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rhubarb'
+
 " File Navigation
 Plug 'scrooloose/nerdtree'
-Plug 'kien/ctrlp.vim'
-Plug 'airblade/vim-rooter'
+" Plug 'Xuyuanp/nerdtree-git-plugin'
+" removing this because it looks weird with vim-devicons, and we get
+" all updated files using fzf
+Plug 'airblade/vim-rooter' " base vim root at github root
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
 
 " Auto-Completion
-Plug 'Rip-Rip/clang_complete'
-Plug 'xaizek/vim-inccomplete'
-Plug 'eagletmt/neco-ghc'
-Plug 'racer-rust/vim-racer'
-Plug 'nsf/gocode', { 'rtp': 'vim', 'do': '~/.vim/plugged/gocode/vim/symlink.sh' }
-Plug 'fatih/vim-go'
-Plug 'wannesm/wmgraphviz.vim'  " dotlanguage
-Plug 'juliosueiras/vim-terraform-completion'
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'Shougo/neco-vim'
 Plug 'autozimu/LanguageClient-neovim', {
     \ 'branch': 'next',
     \ 'do': 'bash install.sh',
     \ }
-Plug 'junegunn/fzf'
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 
 " Linting
 Plug 'w0rp/ale'
@@ -188,10 +215,13 @@ Plug 'raimon49/requirements.txt.vim'
 Plug 'chr4/nginx.vim'
 Plug 'othree/html5.vim'
 Plug 'khalliday7/Jenkinsfile-vim-syntax'
-Plug 'fatih/vim-go'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'rdolgushin/groovy.vim'
 Plug 'khalliday7/Kevinsfile-vim-syntax'
 Plug 'lepture/vim-jinja'
+Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
+Plug 'posva/vim-vue'
+Plug 'leafgarland/typescript-vim'
 
 " Code prettifiers
 Plug 'pappasam/vim-filetype-formatter'
@@ -225,8 +255,12 @@ let g:terraform_align = 1
 let g:terraform_fold_sections = 1
 let g:terraform_remap_spacebar = 1
 
-" Remove annoying go neovim warning
+" Go: Remove annoying go neovim warning
 let g:go_version_warning = 0
+
+" Ferret:
+" disable default mappings
+let g:FerretMap = v:false
 
 "  Vim-Plug --- {{{
 " Plug update and upgrade
@@ -380,6 +414,12 @@ augroup CloseIfOnlyControlWinLeft
   au BufEnter * call s:CloseIfOnlyControlWinLeft()
 augroup END
 
+
+" Key Remappings:
+nnoremap <silent> <space>j :NERDTreeToggle<CR>
+nnoremap <silent> <space>J :call NERDTreeToggleCustom()<CR>
+nnoremap <silent> <space>k :NERDTreeFind<cr>
+
 "  }}}
 "  Vim Ale --- {{{
 
@@ -417,17 +457,16 @@ augroup END
 " let g:vim_filetype_formatter_verbose = 1
 let g:vim_filetype_formatter_commands = {
       \ 'python': 'black - -q --line-length 79',
-      \ 'javascript': 'npx prettier --parser flow --stdin',
-      \ 'javascript.jsx': 'npx prettier --parser flow --stdin',
-      \ 'css': 'npx prettier --parser css --stdin',
-      \ 'less': 'npx prettier --parser less --stdin',
-      \ 'html': 'npx prettier --parser html --stdin',
+      \ 'javascript': 'npx -q prettier --parser flow --stdin',
+      \ 'javascript.jsx': 'npx -q prettier --parser flow --stdin',
+      \ 'css': 'npx -q prettier --parser css --stdin',
+      \ 'less': 'npx -q prettier --parser less --stdin',
+      \ 'html': 'npx -q prettier --parser html --stdin',
+      \ 'vue': 'npx -q prettier --html-whitespace-sensitivity ignore --parser vue --stdin'
       \}
 
-augroup mapping_vim_filetype_formatter
-  autocmd FileType python,javascript,javascript.jsx,css,less,json,html
-        \ nnoremap <silent> <buffer> <leader>f :FiletypeFormat<cr>
-augroup END
+nnoremap <leader>f :FiletypeFormat<cr>
+vnoremap <leader>f :FiletypeFormat<cr>
 
 " }}}
 " AutoPairs --- {{{
@@ -491,27 +530,20 @@ augroup autopairs_filetype_overrides
         \ }
 augroup END
 
-"  }}}
-" Ctrl P --- {{{
-
-" move ctrl p up to last .git dir
-let g:ctrlp_working_path_mode = 'rw' " start from cwd
-let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']
-" open first in current window and others as hidden
-let g:ctrlp_open_multiple_files = '1r'
-let g:ctrlp_use_caching = 0
+" Key Remappings:
+imap <silent><CR> <CR><Plug>AutoPairsReturn
 
 "  }}}
 " close-tag {{{
 " filenames like *.xml, *.html, *.xhtml, ...
 " These are the file extensions where this plugin is enabled.
 "
-let g:closetag_filenames = '*.html,*.xhtml,*.js,*.jsx'
+let g:closetag_filenames = '*.html,*.xhtml,*.js,*.jsx,*.vue'
 
 " filetypes like xml, html, xhtml, ...
 " These are the file types where this plugin is enabled.
 "
-let g:closetag_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx'
+let g:closetag_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx,vue'
 
 " integer value [0|1]
 " This will make the list of non-closing tags case-sensitive
@@ -536,37 +568,141 @@ let g:closetag_shortcut = '>'
 "
 let g:closetag_close_shortcut = '<leader>>'
 " }}}
+" Deoplete {{{
+let g:deoplete#enable_at_startup = 1
+function! CustomDeopleteConfig()
+  " Deoplete Defaults:
+  call deoplete#custom#option({
+        \ 'auto_complete': v:true,
+        \ 'auto_complete_delay': 200,
+        \ 'max_list': 500,
+        \ 'num_processes': 2,
+        \ })
+
+  " Source Defaults:
+  call deoplete#custom#option('ignore_sources', {'_': ['buffer', 'around']})
+  call deoplete#custom#source('_', 'min_pattern_length', 1)
+  call deoplete#custom#source('_', 'converters', ['converter_remove_paren'])
+endfunction
+augroup deoplete_on_vim_startup
+  autocmd!
+  autocmd VimEnter * call CustomDeopleteConfig()
+augroup END
+" }}}
 " Language Server Client {{{
 
-" deoplete will asynchronously add autocompletion popups
-" TODO: it's mildly annoying but the only thing that works with flow lsp
-let g:deoplete#enable_at_startup = 1
-
 let g:LanguageClient_serverCommands = {
+      \ 'haskell': ['stack', 'exec', 'hie-wrapper'],
+      \ 'javascript': ['npx', '--no-install', '-q', 'flow', 'lsp'],
+      \ 'javascript.jsx': ['npx', '--no-install', 'flow', 'lsp'],
       \ 'python': ['pyls'],
-      \ 'javascript': ['npx', 'flow', 'lsp'],
-      \ 'javascript.jsx': ['npx', 'flow', 'lsp'],
-      \ 'svelte': ['svelteserver'],
+      \ 'python.jinja2': ['pyls'],
+      \ 'r': ['R', '--slave', '-e', 'languageserver::run()'],
+      \ 'ruby': ['solargraph', 'stdio'],
+      \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+      \ 'typescript': ['npx', '--no-install', '-q', 'typescript-language-server', '--stdio'],
+      \ 'typescript.tsx': ['npx', '--no-install', '-q', 'typescript-language-server', '--stdio'],
       \ }
-let g:LanguageClient_autoStart = 1
-let g:LanguageClient_hoverPreview = 'Auto'
-let g:LanguageClient_diagnosticsEnable = 0
 
-function! ConfigureLanguageClient()
-  if has_key(g:LanguageClient_serverCommands, &filetype)
-    nnoremap <buffer> <C-]> :call LanguageClient#textDocument_definition()<CR>
-    nnoremap <buffer> <leader>sd :call LanguageClient#textDocument_hover()<CR>
-    nnoremap <buffer> <leader>sr :call LanguageClient#textDocument_rename()<CR>
-    nnoremap <buffer> <leader>su :call LanguageClient#textDocument_references()<CR>
-    setlocal omnifunc=LanguageClient#complete
-  endif
+" Language server configuration here
+let g:LanguageClient_autoStart = v:true
+let g:LanguageClient_hoverPreview = 'auto'
+let g:LanguageClient_diagnosticsEnable = v:false
+let g:LanguageClient_selectionUI = 'quickfix'
+function! CustomLanguageClientConfig()
+  nnoremap <buffer> <C-]> :call LanguageClient#textDocument_definition()<CR>
+  nnoremap <buffer> <leader>sd :call LanguageClient#textDocument_hover()<CR>
+  nnoremap <buffer> <leader>sr :call LanguageClient#textDocument_rename()<CR>
+  nnoremap <buffer> <leader>sf :call LanguageClient#textDocument_formatting()<CR>
+  nnoremap <buffer> <leader>su :call LanguageClient#textDocument_references()<CR>
+  nnoremap <buffer> <leader>sa :call LanguageClient#textDocument_codeAction()<CR>
+  nnoremap <buffer> <leader>ss :call LanguageClient#textDocument_documentSymbol()<CR>
+  nnoremap <buffer> <leader>sc :call LanguageClient_contextMenu()<CR>
+  setlocal omnifunc=LanguageClient#complete
+endfunction
+augroup languageclient_on_vim_startup
+  autocmd!
+  execute 'autocmd FileType '
+        \ . join(keys(g:LanguageClient_serverCommands), ',')
+        \ . ' call CustomLanguageClientConfig()'
+augroup END
+"  }}}
+"  Fzf {{{
+
+command! -bang -nargs=* Grep call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --case-sensitive --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>).'| tr -d "\017"', 1, <bang>0)
+command! -bang -nargs=* GrepIgnoreCase call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>).'| tr -d "\017"', 1, <bang>0)
+
+let g:fzf_action = {
+      \ 'ctrl-o': 'edit',
+      \ 'ctrl-t': 'tab split',
+      \ 'ctrl-s': 'split',
+      \ 'ctrl-v': 'vsplit'
+      \ }
+
+
+function s:edit_file(items)
+  let items = a:items
+  let i = 1
+  let ln = len(items)
+  while i < ln
+    let item = items[i]
+    let parts = split(item, ' ')
+    let file_path = get(parts, 1, '')
+    let items[i] = file_path
+    let i += 1
+  endwhile
+  call s:Sink(items)
 endfunction
 
-augroup language_servers
-  autocmd FileType * call ConfigureLanguageClient()
-augroup END
+function FzfWithDevIcons(command, preview)
+  let l:fzf_files_options = ' -m --bind ctrl-n:preview-page-down,ctrl-p:preview-page-up --preview "'.a:preview.'"'
+  let opts = fzf#wrap({})
+  let opts.source = a:command.'| devicon-lookup'
+  let s:Sink = opts['sink*']
+  let opts['sink*'] = function('s:edit_file')
+  let opts.options .= l:fzf_files_options
+  call fzf#run(opts)
+endfunction
 
-"  }}}
+function FzfFiles()
+  let l:fzf_preview = 'bat --color always --style plain {2..}'
+  let l:fzf_command = $FZF_DEFAULT_COMMAND
+  call FzfWithDevIcons(l:fzf_command, l:fzf_preview)
+endfunction
+
+function FzfGitFiles()
+  if !s:has_git_root()
+    call s:warn('Not in a git directoy')
+    return
+  endif
+
+  let l:fzf_preview = 'bat --color always --style plain {2..}'
+  let l:fzf_command = "git ls-files"
+  call FzfWithDevIcons(l:fzf_command, l:fzf_preview)
+endfunction
+
+function FzfDiffFiles()
+  if !s:has_git_root()
+    call s:warn('Not in a git directoy')
+    return
+  endif
+
+  let l:fzf_preview = 'bat --color always --style changes {2..}'
+  let l:fzf_command = 'git ls-files --modified --others --exclude-standard'
+  call FzfWithDevIcons(l:fzf_command, l:fzf_preview)
+endfunction
+
+
+" Key Remappings:
+nnoremap <C-p> :call FzfFiles()<CR>
+nnoremap <C-g> :call FzfGitFiles()<CR>
+nnoremap <C-d> :call FzfDiffFiles()<CR>
+nnoremap <C-n> yiw:Grep <C-r>"<CR>
+vnoremap <C-n> y:Grep <C-r>"<CR>
+nnoremap <leader><C-n> yiw:GrepIgnoreCase <C-r>"<CR>
+vnoremap <leader><C-n> y:GrepIgnoreCase <C-r>"<CR>
+
+" }}}
 "  }}}
 " Filetype specification ------------ {{{
 
@@ -582,12 +718,15 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter *.ejs set filetype=html
   autocmd BufNewFile,BufRead,BufEnter *.m,*.oct set filetype=octave
   autocmd BufNewFile,BufRead,BufEnter *.jsx,*.flow set filetype=javascript.jsx
+  autocmd BufNewFile,BufRead,BufEnter *.ts, set filetype=typescript
+  autocmd BufNewFile,BufRead,BufEnter *.tsx, set filetype=typescript.tsx
   autocmd BufNewFile,BufRead,BufEnter *.cfg,*.ini,.coveragerc,.pylintrc
         \ set filetype=dosini
   autocmd BufNewFile,BufRead,BufEnter *.tsv set filetype=tsv
   autocmd BufNewFile,BufRead,BufEnter Dockerfile.* set filetype=Dockerfile
   autocmd BufNewFile,BufRead,BufEnter Makefile.* set filetype=make
   autocmd BufNewFile,BufRead,BufEnter *.groovy  set filetype=groovy
+  autocmd BufNewFile,BufRead,BufEnter *.vue  set filetype=vue
 augroup END
 
 
@@ -597,18 +736,25 @@ augroup END
 " Note -> apparently BufRead, BufNewFile trumps Filetype
 " Eg, if BufRead,BufNewFile * ignores any Filetype overwrites
 " This is why default settings are chosen with Filetype *
+set expandtab shiftwidth=2 softtabstop=2 tabstop=8
 augroup indentation_sr
   autocmd!
-  autocmd Filetype * setlocal expandtab shiftwidth=2 softtabstop=2 tabstop=8
-  autocmd Filetype yaml setlocal expandtab shiftwidth=2 softtabstop=2 tabstop=2
-  autocmd Filetype python,c,elm,haskell,markdown,rust,rst,kv,nginx
+  autocmd Filetype python,c,haskell,markdown,rust,rst,kv,nginx,asm,nasm,gdscript3
         \ setlocal shiftwidth=4 softtabstop=4 tabstop=8
   autocmd Filetype dot setlocal autoindent cindent
   autocmd Filetype make,tsv,votl,go
         \ setlocal tabstop=4 softtabstop=0 shiftwidth=4 noexpandtab
   " Prevent auto-indenting from occuring
   autocmd Filetype yaml setlocal indentkeys-=<:>
+
+  autocmd Filetype ron setlocal cindent
+        \ cinkeys=0{,0},0(,0),0[,0],:,0#,!^F,o,O,e
+        \ cinoptions+='(s,m2'
+        \ cinoptions+='(s,U1'
+        \ cinoptions+='j1'
+        \ cinoptions+='J1'
 augroup END
+
 
 " }}}
 " Writing (non-coding)------------------ {{{
@@ -704,8 +850,13 @@ augroup end
 " Javascript: Highlight this keyword in object / function definitions
 augroup javascript_syntax
   autocmd!
-  autocmd FileType javascript syn keyword jsBooleanTrue this
-  autocmd FileType javascript.jsx syn keyword jsBooleanTrue this
+  autocmd FileType javascript,javascript.jsx syn keyword jsBooleanTrue this
+  " For vim-styled-components, prefer syntax highlighting over speed
+  " autocmd FileType javascript,javascript.jsx :syntax sync fromstart
+  " autocmd FileType javascript,javascript.jsx :syntax sync clear
+  autocmd BufEnter *.{js,jsx,ts,tsx} :syntax sync fromstart
+  " this resets when I leave and I don't like that
+  " autocmd BufLeave *.{js,jsx,ts,tsx} :syntax sync clear
 augroup end
 
 " Syntax: select global syntax scheme
@@ -756,6 +907,14 @@ nnoremap <A-7> 7gt
 nnoremap <A-8> 8gt
 nnoremap <A-9> 9gt
 
+" MoveLines:
+nnoremap <A-j> :m .+1<CR>==
+nnoremap <A-k> :m .-2<CR>==
+inoremap <A-j> <Esc>:m .+1<CR>==gi
+inoremap <A-k> <Esc>:m .-2<CR>==gi
+vnoremap <A-j> :m '>+1<CR>gv=gv
+vnoremap <A-k> :m '<-2<CR>gv=gv
+
 " BuffersAndWindows:
 " Move from one window to another
 nnoremap <silent> <C-k> :wincmd k<CR>
@@ -772,23 +931,13 @@ nnoremap <silent> gK H
 nnoremap <silent> gM M
 "
 " QuickChangeFiletype:
-" Sometimes we want to set some filetypes due to annoying behavior of plugins
-" The following mappings make it easier to chage javascript plugin behavior
 nnoremap <leader>jx :set filetype=javascript.jsx<CR>
 nnoremap <leader>jj :set filetype=javascript<CR>
 
-" TogglePluginWindows:
-nnoremap <silent> <space>j :NERDTreeToggle<CR>
-nnoremap <silent> <space>J :call NERDTreeToggleCustom()<CR>
+" SnakeCase: Convert each name_like_this to nameLikeThis in current line.
+nnoremap <leader>cc :s#_\(\l\)#\u\1#g<CR>
+vnoremap <leader>cc :s#_\(\l\)#\u\1#g<CR>
 
-" nnoremap <silent> <space>l :TagbarToggle <CR> no use for these yet
-" nnoremap <silent> <space>u :UndotreeToggle<CR>
-
-" NERDTree: Jump to current file
-nnoremap <silent> <space>k :NERDTreeFind<cr>
-
-" AutoPairs:
-imap <silent><CR> <CR><Plug>AutoPairsReturn
 
 " }}}
 " Cleanup ------------------ {{{
