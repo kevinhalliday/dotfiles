@@ -677,7 +677,8 @@ function FzfGitFiles()
   endif
 
   let l:fzf_preview = 'bat --color always --style plain {2..}'
-  let l:fzf_command = "git ls-files"
+  " can pipe to uniq because git ls-files returns an ordered list
+  let l:fzf_command = 'git ls-files | uniq'
   call FzfWithDevIcons(l:fzf_command, l:fzf_preview)
 endfunction
 
@@ -688,7 +689,7 @@ function FzfDiffFiles()
   endif
 
   let l:fzf_preview = 'bat --color always --style changes {2..}'
-  let l:fzf_command = 'git ls-files --modified --others --exclude-standard'
+  let l:fzf_command = 'git ls-files --modified --others --exclude-standard | uniq'
   call FzfWithDevIcons(l:fzf_command, l:fzf_preview)
 endfunction
 
