@@ -736,21 +736,6 @@ function dat(){
 # Fzf extensions
 ##########################
 
-# Use fd and fzf to get the args to a command.
-# Works only with zsh
-# Examples:
-# f mv # To move files. You can write the destination after selecting the files.
-# f 'echo Selected:'
-# f 'echo Selected music:' --extention mp3
-# fm rm # To rm files in current directory
-function f() {
-    sels=( "${(@f)$(fd "${fd_default[@]}" "${@:2}"| fzf)}" )
-    test -n "$sels" && print -z -- "$1 ${sels[@]:q:q}"
-}
-
-# Like f, but not recursive.
-function fm() f "$@" --max-depth 1
-
 # Modified version where you can press
 #   - CTRL-O to open with `open` command,
 #   - CTRL-E or Enter key to open with the $EDITOR
@@ -764,16 +749,32 @@ function fo() {
   fi
 }
 
-# Another fd - cd into the selected directory
-function fd() {
+# cd into the selected directory
+# not named fd becuase fd is a binary in .cargo/bin
+function df() {
   local dir
-  dir=`find * -maxdepth 0 -type d -print 2> /dev/null | fzf-tmux` \
+  dir=`find * -type d -print 2> /dev/null | fzf-tmux` \
     && cd "$dir"
 }
 
 # fh - repeat history
-fh() {
+function fh() {
   print -z $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | sed -r 's/ *[0-9]*\*? *//' | sed -r 's/\\/\\\\/g' | fzf-tmux +s --tac)
+}
+
+# fkill - kill processes - list only the ones you can kill. Modified the earlier script.
+function fkill() {
+  local pid
+  if [ "$UID" != "0" ]; then
+      pid=$(ps -f -u $UID | sed 1d | fzf -m | awk '{print $2}')
+  else
+      pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
+  fi
+
+  if [ "x$pid" != "x" ]
+  then
+      echo $pid | xargs kill -${1:-9}
+  fi
 }
 
 # }}}
