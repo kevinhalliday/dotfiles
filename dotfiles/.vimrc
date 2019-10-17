@@ -110,23 +110,22 @@ autocmd InsertLeave * if pumvisible() == 0|pclose|endif
 " }}}
 " Util Functions ------------ {{{
 
-function s:warn(message)
+function! s:warn(message)
   echohl WarningMsg
   echom a:message
   echohl None
   return 0
 endfunction
 
-function s:get_git_root()
+function! s:get_git_root()
   let root = split(system('git rev-parse --show-toplevel'), '\n')[0]
   return v:shell_error ? '' : root
 endfunction
 
-function s:has_git_root()
+function! s:has_git_root()
   let root = s:get_git_root()
   return empty(root) ? 0 : 1
 endfunction
-
 
 " }}}
 " Plugin Install --------------------- {{{
@@ -641,7 +640,7 @@ let g:fzf_action = {
       \ }
 
 
-function s:edit_file(items)
+function! s:fzf_edit_file(items)
   let items = a:items
   let i = 1
   let ln = len(items)
@@ -655,23 +654,23 @@ function s:edit_file(items)
   call s:Sink(items)
 endfunction
 
-function FzfWithDevIcons(command, preview)
+function! FzfWithDevIcons(command, preview)
   let l:fzf_files_options = ' -m --bind ctrl-n:preview-page-down,ctrl-p:preview-page-up --preview "'.a:preview.'"'
   let opts = fzf#wrap({})
   let opts.source = a:command.'| devicon-lookup'
   let s:Sink = opts['sink*']
-  let opts['sink*'] = function('s:edit_file')
+  let opts['sink*'] = function('s:fzf_edit_file')
   let opts.options .= l:fzf_files_options
   call fzf#run(opts)
 endfunction
 
-function FzfFiles()
+function! FzfFiles()
   let l:fzf_preview = 'bat --color always --style plain {2..}'
   let l:fzf_command = $FZF_DEFAULT_COMMAND
   call FzfWithDevIcons(l:fzf_command, l:fzf_preview)
 endfunction
 
-function FzfGitFiles()
+function! FzfGitFiles()
   if !s:has_git_root()
     call s:warn('Not in a git directoy')
     return
@@ -683,7 +682,7 @@ function FzfGitFiles()
   call FzfWithDevIcons(l:fzf_command, l:fzf_preview)
 endfunction
 
-function FzfDiffFiles()
+function! FzfDiffFiles()
   if !s:has_git_root()
     call s:warn('Not in a git directoy')
     return
