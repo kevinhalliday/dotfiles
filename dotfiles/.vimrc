@@ -599,7 +599,7 @@ let g:LanguageClient_serverCommands = {
       \ 'python.jinja2': ['pyls'],
       \ 'r': ['R', '--slave', '-e', 'languageserver::run()'],
       \ 'ruby': ['solargraph', 'stdio'],
-      \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+      \ 'rust': ['rls'],
       \ 'typescript': ['npx', '--no-install', '-q', 'typescript-language-server', '--stdio'],
       \ 'typescript.tsx': ['npx', '--no-install', '-q', 'typescript-language-server', '--stdio'],
       \ }
@@ -728,6 +728,7 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter Makefile.* set filetype=make
   autocmd BufNewFile,BufRead,BufEnter *.groovy  set filetype=groovy
   autocmd BufNewFile,BufRead,BufEnter *.vue  set filetype=vue
+  autocmd BufNewFile,BufRead,BufEnter *.rs  set filetype=rust
 augroup END
 
 
