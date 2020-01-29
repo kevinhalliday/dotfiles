@@ -3,4 +3,4 @@
   name = Kevin Halliday
 [core]
   editor = nvim
-  pager =
+  pager = cat

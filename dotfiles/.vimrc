@@ -1,114 +1,128 @@
-" My lovely, mostly plagiarized, slightly repurposed vim configuration.
-"
+" My mostly borrowed, slightly repurposed vim configuration.
 " Author: Kevin Halliday
 "
-
-" Leader mappings -------------------- {{{
+" Leader mappings {{{
 
 let mapleader = ","
 let maplocalleader = "\\"
 
 " }}}
-" Global config ------------ {{{
+" Global config {{{
 
-"A comma separated list of options for Insert mode completion
-"   menuone  Use the popup menu also when there is only one match.
-"            Useful when there is additional information about the
-"            match, e.g., what file it comes from.
 
-"   longest  Only insert the longest common text of the matches.  If
-"            the menu is displayed you can use CTRL-L to add more
-"            characters.  Whether case is ignored depends on the kind
-"            of completion.  For buffer text the 'ignorecase' option is
-"            used.
+function! AlacrittySetBackground()
+  if !v:shell_error
+    let g:alacritty_background = system('alacritty-which-colorscheme')
+    let &background = g:alacritty_background
+  else
+    echo 'error calling "alacritty-which-colorscheme"'
+    echo 'default to set background=dark'
+    set background=dark
+  endif
+endfunction
 
-"   preview  Show extra information about the currently selected
-"            completion in the preview window.  Only works in
-"            combination with 'menu' or 'menuone'.
-set completeopt=menuone,longest,preview
+function! SetGlobalConfig()
+  " Code Completion:
+  set completeopt=menuone,longest
+  set wildmode=longest,list,full
+  set wildmenu
 
-" Not necessary for Neovim, but why not
-set encoding=UTF-8
+  " Hidden Buffer: enable instead of having to write each buffer
+  set hidden
 
-" Enable buffer deletion instead of having to write each buffer
-set hidden
+  " Mouse: enable GUI mouse support in all modes
+  set mouse=a
 
-" Mouse: enable GUI mouse support in all modes
-set mouse=a
+  " SwapFiles: prevent their creation
+  set nobackup
+  set noswapfile
 
-" SwapFiles: prevent their creation
-set nobackup
-set noswapfile
+  " Line Wrapping: do not wrap lines by default
+  set nowrap
 
-" Do not wrap lines by default
-set nowrap
+  " Highlight Search: do that
+  set incsearch
+  set inccommand=nosplit
+  augroup sroeca_incsearch_highlight
+    autocmd!
+    autocmd CmdlineEnter /,\? set hlsearch
+    autocmd CmdlineLeave /,\? set nohlsearch
+  augroup END
 
-" Set column to light grey at 80 characters
-if (exists('+colorcolumn'))
-  set colorcolumn=80
-  highlight ColorColumn ctermbg=9
-endif
+  filetype plugin indent on
 
-" Remove query for terminal version
-" This prevents un-editable garbage characters from being printed
-" after the 80 character highlight line
-set t_RV=
+  " Spell Checking:
+  set dictionary=$HOME/.american-english-with-propcase.txt
+  set spelllang=en_us
 
-filetype plugin indent on
+  " Single Space After Punctuation: useful when doing :%j (the opposite of gq)
+  set nojoinspaces
 
-augroup cursorline_setting
-  autocmd!
-  autocmd WinEnter,BufEnter * setlocal cursorline
-  autocmd WinLeave * setlocal nocursorline
-augroup END
+  set showtabline=2
 
-set spelllang=en_us
+  set autoread
 
-set showtabline=2
+  set grepprg=rg\ --vimgrep
 
-set autoread
+  " Paste: this is actually typed <C-/>, but term nvim thinks this is <C-_>
+  set pastetoggle=<C-_>
 
-" When you type the first tab hit will complete as much as possible,
-" the second tab hit will provide a list, the third and subsequent tabs
-" will cycle through completion options so you can complete the file
-" without further keys
-set wildmode=longest,list,full
-set wildmenu
+  set notimeout   " don't timeout on mappings
+  set ttimeout    " do timeout on terminal key codes
 
-" AirlineSettings: specifics due to airline
-set laststatus=2
-set ttimeoutlen=50
-set noshowmode
+  " Local Vimrc: If exrc is set, the current directory is searched for 3 files
+  " in order (Unix), using the first it finds: '.nvimrc', '_nvimrc', '.exrc'
+  set exrc
 
-" Pasting: enable pasting without having to do 'set paste'
-" NOTE: this is actually typed <C-/>, but vim thinks this is <C-_>
-set pastetoggle=<C-_>
+  " Default Shell:
+  set shell=$SHELL
 
-" Turn off complete vi compatibility
-set nocompatible
+  " Numbering:
+  set number
 
-" Enable using local vimrc
-set exrc
+  " Window Splitting: Set split settings (options: splitright, splitbelow)
+  set splitright
 
-" Make sure numbering is set
-set number
+  " Redraw Window:
+  augroup redraw_on_refocus
+    autocmd!
+    autocmd FocusGained * redraw!
+  augroup END
 
-" Set split settings (options: splitright, splitbelow)
-set splitright
+  " Terminal Color Support: only set guicursor if truecolor
+  if $COLORTERM ==# 'truecolor'
+    set termguicolors
+  else
+    set guicursor=
+  endif
 
-" Redraw window whenever I've regained focus
-augroup redraw_on_refocus
-  au FocusGained * :redraw!
-augroup END
+  " Set Background: for PaperColor, also sets handler
+  call AlacrittySetBackground()
+  call jobstart(
+        \ 'ls ' . $HOME . '/.alacritty.yml | entr -ps "echo alacritty_change"',
+        \ {'on_stdout': { j, d, e -> AlacrittySetBackground() }})
 
-" If you prefer the Omni-Completion tip window to close when a selection is
-" made, these lines close it on movement in insert mode or when leaving
-" insert mode
-autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
-autocmd InsertLeave * if pumvisible() == 0|pclose|endif
+  " Status Line: specifics for custom status line
+  set laststatus=2
+  set ttimeoutlen=50
+  set noshowmode
+
+  " ShowCommand: turn off character printing to vim status line
+  set noshowcmd
+
+  " Configure Updatetime: time Vim waits to do something after I stop moving
+  set updatetime=750
+
+  " Linux Dev Path: system libraries
+  set path+=/usr/include/x86_64-linux-gnu/
+
+  " Vim history for command line; can't imagine that more than 100 is needed
+  set history=100
+endfunction
+call SetGlobalConfig()
 
 " }}}
-" Util Functions ------------ {{{
+" Util Functions {{{
 
 function! s:warn(message)
   echohl WarningMsg
@@ -128,7 +142,7 @@ function! s:has_git_root()
 endfunction
 
 " }}}
-" Plugin Install --------------------- {{{
+" Plugin Install {{{
 
 call plug#begin('~/.vim/plugged')
 
@@ -143,28 +157,37 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 
 " File Navigation
-Plug 'scrooloose/nerdtree'
 " Plug 'Xuyuanp/nerdtree-git-plugin'
-" removing this because it looks weird with vim-devicons, and we get
-" all updated files using fzf
+" removing this because it looks weird with vim-devicons, and we get all updated files using fzf
+Plug 'scrooloose/nerdtree'
 Plug 'airblade/vim-rooter' " base vim root at github root
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
 " Auto-Completion
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/neco-vim'
+Plug 'Shougo/echodoc.vim'
 Plug 'autozimu/LanguageClient-neovim', {
     \ 'branch': 'next',
     \ 'do': 'bash install.sh',
     \ }
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+
+" Writing
+Plug 'junegunn/limelight.vim' " highlight text (for Goyo)
+Plug 'junegunn/goyo.vim' " Distraction-free writing
 
 " Linting
 Plug 'w0rp/ale'
 
 " Basic coloring
-Plug 'NLKNguyen/papercolor-theme'
-Plug 'tomasr/molokai'
+Plug 'rafi/awesome-vim-colorschemes'
 
 " Status line
 Plug 'itchyny/lightline.vim'
@@ -181,6 +204,7 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'ckarnell/Antonys-macro-repeater'
 Plug 'alvan/vim-closetag'
 Plug 'wincent/ferret' " multi file search
+Plug 'easymotion/vim-easymotion' " moving around in a file
 
 " Syntax highlighting
 Plug 'derekwyatt/vim-scala',
@@ -222,6 +246,7 @@ Plug 'lepture/vim-jinja'
 Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
 Plug 'posva/vim-vue'
 Plug 'leafgarland/typescript-vim'
+" Plug 'peitalin/vim-jsx-typescript'
 
 " Code prettifiers
 Plug 'pappasam/vim-filetype-formatter'
@@ -230,9 +255,13 @@ Plug 'pappasam/vim-filetype-formatter'
 Plug 'hynek/vim-python-pep8-indent'
 Plug 'vim-scripts/groovyindent-unix'
 
+" Tagbar:
+Plug 'majutsushi/tagbar'
+Plug 'lvht/tagbar-markdown'
+
 call plug#end()
 " }}}
-"  Plugin Configuration ------------ {{{
+"  Plugin Configuration {{{
 
 " Python: highlighting
 let g:python_highlight_space_errors = 0
@@ -262,7 +291,18 @@ let g:go_version_warning = 0
 " disable default mappings
 let g:FerretMap = v:false
 
-"  Vim-Plug --- {{{
+" Seoul256:
+" dark:
+"   Range:   233 (darkest) ~ 239 (lightest)
+"   Default: 237
+" light:
+"   Range:   252 (darkest) ~ 256 (lightest)
+"   Default: 253
+" set in Syntax Highlighting section
+" colo seoul256
+let g:seoul256_background = 233
+
+"  Vim-Plug: {{{
 " Plug update and upgrade
 function! _PU()
   exec 'PlugUpdate'
@@ -271,7 +311,28 @@ endfunction
 command! PU call _PU()
 
 "  }}}
-"  Preview --- {{{
+" Lightline {{{
+let g:lightline = {
+      \ 'colorscheme': 'PaperColor',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \     'gitbranch': 'fugitive#head'
+      \   },
+      \ }
+
+command! LightlineReload call LightlineReload()
+
+function! LightlineReload()
+  let g:lightline.colorscheme = 'PaperColor'
+  call lightline#init()
+  call lightline#colorscheme()
+  call lightline#update()
+endfunction
+" }}}
+"  Preview {{{
 function! _Preview()
   if &filetype ==? 'rst'
     exec 'terminal restview %'
@@ -293,73 +354,7 @@ function! _Preview()
 endfunction
 command! Preview call _Preview()
 "  }}}
-" AutoCompletion config and key remappings ------------ {{{
-
-" VimScript:
-" Autocompletion and show definition is built in to Vim
-" Set the same shortcuts as usual to find them
-augroup vimscript_complete
-  autocmd!
-  autocmd FileType vim nnoremap <buffer> <C-]> yiw:help <C-r>"<CR>
-  autocmd FileType vim inoremap <buffer> <C-@> <C-x><C-v>
-  autocmd FileType vim inoremap <buffer> <C-space> <C-x><C-v>
-augroup END
-
-" Elm:
-let g:elm_detailed_complete = 1
-let g:elm_format_autosave = 0
-augroup elm_complete
-  autocmd!
-  autocmd FileType elm nnoremap <buffer> <C-]> :ElmShowDocs<CR>
-augroup END
-
-" C_CPP:
-" Jumping back defaults to <C-O> or <C-T> (in is <C-I> per usual)
-" Defaults to <C-]> for goto definition
-" Additionally, jumping to Header file under cursor: gd
-let g:clang_library_path = '/usr/lib/llvm-6.0/lib'
-let g:clang_auto_user_options = 'compile_commands.json, path, .clang_complete'
-let g:clang_complete_auto = 0
-let g:clang_complete_macros = 1
-let g:clang_jumpto_declaration_key = "<C-]>"
-
-" Haskell:
-" Disable haskell-vim omnifunc
-let g:haskellmode_completion_ghc = 0
-let g:necoghc_enable_detailed_browse = 1
-augroup haskell_complete
-  autocmd!
-  autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
-augroup END
-
-" Rust:
-" rustup install racer
-let g:racer_cmd = $HOME . '/.cargo/bin/racer'
-" rustup component add rust-src
-let $RUST_SRC_PATH = $HOME .
-      \'/.multirust/toolchains/stable-x86_64-unknown-linux-gnu/' .
-      \'lib/rustlib/src/rust/src'
-let g:racer_experimental_completer = 1
-augroup rust_complete
-  autocmd!
-  " needs to be nmap; does not work with nnoremap
-  autocmd FileType rust nmap <buffer> <C-]> <Plug>(rust-def)
-augroup END
-
-" Writing: writing document
-" currently only supports markdown
-" jump to word definition for several text editors (including markdown)
-augroup writing_complete
-  autocmd FileType markdown,tex,rst,txt nnoremap <buffer> <C-]> :Def <cword><CR>
-augroup END
-
-" Terraform
-augroup terraform_complete
-  autocmd FileType terraform setlocal omnifunc=terraformcomplete#Complete
-augroup END
-
-"  }}}
-"  NERDTree --- {{{
+"  NERDTree {{{
 
 let g:NERDTreeMapOpenInTab = '<C-t>'
 let g:NERDTreeMapOpenInTabSilent = ''
@@ -421,37 +416,31 @@ nnoremap <silent> <space>J :call NERDTreeToggleCustom()<CR>
 nnoremap <silent> <space>k :NERDTreeFind<cr>
 
 "  }}}
-"  Vim Ale --- {{{
+"  Vim Ale {{{
 
 " Vim Ale:
 "Limit linters used for JavaScript.
 let g:ale_linters = {
       \   'javascript': ['eslint', 'flow'],
+      \   'typescript': ['tsserver'],
       \   'python': ['pylint', 'mypy']
       \}
-" highlight clear ALEErrorSign " otherwise uses error bg color (typically red)
-" highlight clear ALEWarningSign " otherwise uses error bg color (typically red)
-let g:ale_sign_error = 'X'
-let g:ale_sign_warning = '?'
-let g:ale_statusline_format = ['X %d', '? %d', '']
-" %linter% is the name of the linter that provided the message
-" %s is the error or warning message
-let g:ale_echo_msg_format = '%linter% says %s'
-" turn off ale on open, turn on with Toggle
+let g:ale_sign_error = '✖'
+let g:ale_sign_warning = '⚠'
+let g:ale_sign_info = 'ℹ'
+" let g:ale_sign_style_error =
+" let g:ale_sign_style_warning =
+
 let g:ale_enabled = 0
-" only run on save
-" let g:ale_lint_on_text_changed = 'never' -- not using currently, because
-" we can toggle ALE on and off with space at
-" Map keys to navigate between lines with errors and warnings.
 
 augroup mapping_ale_fix
-  autocmd FileType python,javascript,javascript.jsx,
+  autocmd FileType python,javascript,javascript.jsx,typescript,
         \ nnoremap  <space>ap :ALEPreviousWrap<cr> |
         \ nnoremap  <space>an :ALENextWrap<cr> |
         \ nnoremap  <space>at :ALEToggle<cr>
 augroup END
 " }}}
-"  Vim Filetype Formatter --- {{{
+"  Vim Filetype Formatter {{{
 
 " " code formatting, thanks sam
 " let g:vim_filetype_formatter_verbose = 1
@@ -459,6 +448,8 @@ let g:vim_filetype_formatter_commands = {
       \ 'python': 'black - -q --line-length 79',
       \ 'javascript': 'npx -q prettier --parser flow --stdin',
       \ 'javascript.jsx': 'npx -q prettier --parser flow --stdin',
+      \ 'typescript': 'npx -q prettier --parser typescript --stdin',
+      \ 'typescript.tsx': 'npx -q prettier --parser typescript --stdin',
       \ 'css': 'npx -q prettier --parser css --stdin',
       \ 'less': 'npx -q prettier --parser less --stdin',
       \ 'html': 'npx -q prettier --parser html --stdin',
@@ -469,8 +460,7 @@ nnoremap <leader>f :FiletypeFormat<cr>
 vnoremap <leader>f :FiletypeFormat<cr>
 
 " }}}
-" AutoPairs --- {{{
-" AutoPairs:
+" AutoPairs {{{
 " unmap CR due to incompatibility with clang-complete
 let g:AutoPairsMapCR = 0
 let g:AutoPairs = {
@@ -538,12 +528,12 @@ imap <silent><CR> <CR><Plug>AutoPairsReturn
 " filenames like *.xml, *.html, *.xhtml, ...
 " These are the file extensions where this plugin is enabled.
 "
-let g:closetag_filenames = '*.html,*.xhtml,*.js,*.jsx,*.vue'
+let g:closetag_filenames = '*.html,*.xhtml,*.js,*.jsx,*.vue,*.ts,*tsx'
 
 " filetypes like xml, html, xhtml, ...
 " These are the file types where this plugin is enabled.
 "
-let g:closetag_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx,vue'
+let g:closetag_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx,vue,typescript,typescript.tsx'
 
 " integer value [0|1]
 " This will make the list of non-closing tags case-sensitive
@@ -569,31 +559,45 @@ let g:closetag_shortcut = '>'
 let g:closetag_close_shortcut = '<leader>>'
 " }}}
 " Deoplete {{{
-let g:deoplete#enable_at_startup = 1
+
+let g:deoplete#enable_at_startup = v:true
+
 function! CustomDeopleteConfig()
+  if !exists('g:loaded_deoplete')
+    echom 'Deoplete not installed, skipping...'
+    return
+  endif
   " Deoplete Defaults:
   call deoplete#custom#option({
         \ 'auto_complete': v:true,
-        \ 'auto_complete_delay': 200,
+        \ 'auto_complete_delay': 50,
         \ 'max_list': 500,
         \ 'num_processes': 2,
         \ })
 
   " Source Defaults:
-  call deoplete#custom#option('ignore_sources', {'_': ['buffer', 'around']})
+  call deoplete#custom#option('ignore_sources', {
+        \ '_': ['buffer', 'around'],
+        \ 'markdown': ['buffer', 'around', 'neosnippet'],
+        \ })
   call deoplete#custom#source('_', 'min_pattern_length', 1)
   call deoplete#custom#source('_', 'converters', ['converter_remove_paren'])
+
+  " Source Overrides: examples below
+  " call deoplete#custom#source('LanguageClient', 'min_pattern_length', 4)
+  " call deoplete#custom#source('neosnippet', 'min_pattern_length', 2)
 endfunction
 augroup deoplete_on_vim_startup
   autocmd!
   autocmd VimEnter * call CustomDeopleteConfig()
 augroup END
+
 " }}}
 " Language Server Client {{{
 
 let g:LanguageClient_serverCommands = {
       \ 'haskell': ['stack', 'exec', 'hie-wrapper'],
-      \ 'javascript': ['npx', '--no-install', '-q', 'flow', 'lsp'],
+      \ 'javascript': ['npx', '--no-install', 'flow', 'lsp'],
       \ 'javascript.jsx': ['npx', '--no-install', 'flow', 'lsp'],
       \ 'python': ['pyls'],
       \ 'python.jinja2': ['pyls'],
@@ -605,10 +609,10 @@ let g:LanguageClient_serverCommands = {
       \ }
 
 " Language server configuration here
-let g:LanguageClient_autoStart = v:true
-let g:LanguageClient_hoverPreview = 'auto'
-let g:LanguageClient_diagnosticsEnable = v:false
-let g:LanguageClient_selectionUI = 'quickfix'
+let g:LanguageClient_autoStart = 1
+let g:LanguageClient_hoverPreview = 'Auto'
+let g:LanguageClient_diagnosticsEnable = 0
+" let g:LanguageClient_selectionUI = 'quickfix'
 function! CustomLanguageClientConfig()
   nnoremap <buffer> <C-]> :call LanguageClient#textDocument_definition()<CR>
   nnoremap <buffer> <leader>sd :call LanguageClient#textDocument_hover()<CR>
@@ -629,8 +633,8 @@ augroup END
 "  }}}
 "  Fzf {{{
 
-command! -bang -nargs=* Grep call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --case-sensitive --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>).'| tr -d "\017"', 1, <bang>0)
-command! -bang -nargs=* GrepIgnoreCase call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>).'| tr -d "\017"', 1, <bang>0)
+command! -bang -nargs=* Grep call fzf#vim#grep('rg --column --line-number --no-heading --no-messages --fixed-strings --case-sensitive --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>).'| tr -d "\017"', 1, <bang>0)
+command! -bang -nargs=* GrepIgnoreCase call fzf#vim#grep('rg --column --line-number --no-heading --no-messages --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>).'| tr -d "\017"', 1, <bang>0)
 
 let g:fzf_action = {
       \ 'ctrl-o': 'edit',
@@ -670,6 +674,12 @@ function! FzfFiles()
   call FzfWithDevIcons(l:fzf_command, l:fzf_preview)
 endfunction
 
+function! FzfHomeFiles()
+  let l:fzf_preview = 'bat --color always --style plain {2..}'
+  let l:fzf_command = 'rg --files --no-ignore --no-messages --hidden --follow --glob "!.git/*" $HOME'
+  call FzfWithDevIcons(l:fzf_command, l:fzf_preview)
+endfunction
+
 function! FzfGitFiles()
   if !s:has_git_root()
     call s:warn('Not in a git directoy')
@@ -696,6 +706,7 @@ endfunction
 
 " Key Remappings:
 nnoremap <C-p> :call FzfFiles()<CR>
+nnoremap <leader><C-p> :call FzfHomeFiles()<CR>
 nnoremap <C-g> :call FzfGitFiles()<CR>
 nnoremap <C-d> :call FzfDiffFiles()<CR>
 nnoremap <C-n> yiw:Grep <C-r>"<CR>
@@ -704,8 +715,33 @@ nnoremap <leader><C-n> yiw:GrepIgnoreCase <C-r>"<CR>
 vnoremap <leader><C-n> y:GrepIgnoreCase <C-r>"<CR>
 
 " }}}
+" Echodoc {{{
+
+let g:echodoc#enable_at_startup = v:true
+let g:echodoc#type = 'floating'
+let g:echodoc#highlight_identifier = 'Identifier'
+let g:echodoc#highlight_arguments = 'QuickScopePrimary'
+let g:echodoc#highlight_trailing = 'Type'
+
+" }}}
+" Tagbar {{{
+
+let g:tagbar_map_showproto = '`'
+let g:tagbar_show_linenumbers = -1
+let g:tagbar_autofocus = v:true
+let g:tagbar_indent = 1
+let g:tagbar_sort = v:false  " order by order in sort file
+let g:tagbar_case_insensitive = v:true
+let g:tagbar_width = 37
+let g:tagbar_silent = v:true
+let g:tagbar_foldlevel = 0
+
+nnoremap <leader>t :TagbarToggle<CR>
+
+" }}}
+
 "  }}}
-" Filetype specification ------------ {{{
+" Filetype specification {{{
 
 augroup filetype_recognition
   autocmd!
@@ -733,7 +769,7 @@ augroup END
 
 
 " }}}
-" Indentation (tabs, spaces, width, etc)------------- {{{
+" Indentation (tabs, spaces, width, etc) {{{
 
 " Note -> apparently BufRead, BufNewFile trumps Filetype
 " Eg, if BufRead,BufNewFile * ignores any Filetype overwrites
@@ -759,7 +795,7 @@ augroup END
 
 
 " }}}
-" Writing (non-coding)------------------ {{{
+" Writing (non-coding) {{{
 
 " Notes:
 "   indenting and de-indenting in insert mode are:
@@ -779,7 +815,7 @@ augroup writing
 augroup END
 
 " }}}
-" Folding Settings --------------- {{{
+" Folding Settings {{{
 
 augroup fold_settings
   autocmd!
@@ -792,7 +828,7 @@ augroup fold_settings
 augroup END
 
 " }}}
-" Trailing whitespace ------------- {{{
+" Trailing whitespace {{{
 
 " This section should go before syntax highlighting
 " because autocommands must be declared before syntax library is loaded
@@ -820,39 +856,19 @@ augroup fix_whitespace_save
 augroup END
 
 " }}}
-" Syntax highlighting ---------------- {{{
+" Syntax highlighting {{{
 
-" Papercolor: options
-let g:PaperColor_Theme_Options = {
-      \   'theme' : {
-      \     'default': {
-      \       'transparent_background': 1,
-      \       'override': {
-      \         'folded_fg' : ['#00ff00', ''],
-      \         'folded_bg' : ['#585858', ''],
-      \       }
-      \     }
-      \   }
-      \ }
-let g:PaperColor_Theme_Options['language'] = {
-      \   'python': {
-      \     'highlight_builtins' : 1
-      \   }
-      \ }
-
-let g:vim_jsx_pretty_colorful_config = 1
-
-" Python: Highlight self and cls keyword in class definitions
+" Python: Highlight args and kwargs, since they are conventionally special
 augroup python_syntax
   autocmd!
-  autocmd FileType python syn keyword pythonBuiltinObj self
-  autocmd FileType python syn keyword pythonBuiltinObj cls
+  autocmd FileType python syntax keyword pythonBuiltinObj args
+  autocmd FileType python syntax keyword pythonBuiltinObj kwargs
 augroup end
 
-" Javascript: Highlight this keyword in object / function definitions
+" Javascript:
 augroup javascript_syntax
   autocmd!
-  autocmd FileType javascript,javascript.jsx syn keyword jsBooleanTrue this
+  " autocmd FileType javascript syntax keyword jsBooleanTrue this
   " For vim-styled-components, prefer syntax highlighting over speed
   " autocmd FileType javascript,javascript.jsx :syntax sync fromstart
   " autocmd FileType javascript,javascript.jsx :syntax sync clear
@@ -861,17 +877,90 @@ augroup javascript_syntax
   " autocmd BufLeave *.{js,jsx,ts,tsx} :syntax sync clear
 augroup end
 
-" Syntax: select global syntax scheme
-" Make sure this is at end of section
+" QuickScope: choose primary and secondary colors
+augroup qs_colors
+  autocmd!
+  autocmd ColorScheme * highlight QuickScopePrimary guifg='LimeGreen' ctermfg=Green gui=underline
+  autocmd ColorScheme * highlight QuickScopeSecondary guifg='turquoise1' ctermfg=Cyan gui=underline
+augroup END
+
+" Spell Checking:
+augroup spelling_options
+  autocmd!
+  autocmd ColorScheme * highlight clear SpellBad
+  autocmd ColorScheme * highlight clear SpellRare
+  autocmd ColorScheme * highlight clear SpellCap
+  autocmd ColorScheme * highlight clear SpellLocal
+  autocmd ColorScheme * highlight SpellBad ctermfg=DarkRed guifg='red1' gui=underline,italic
+  autocmd ColorScheme * highlight SpellRare ctermfg=DarkGreen guifg='ForestGreen' gui=underline,italic
+  autocmd ColorScheme * highlight SpellCap ctermfg=Yellow guifg='yellow' gui=underline,italic
+  autocmd ColorScheme * highlight SpellLocal ctermfg=DarkMagenta guifg='magenta' gui=underline,italic
+augroup END
+
+" Trailing Whitespace: (initial highlight below doesn't matter)
+highlight EOLWS ctermbg=DarkCyan
+match EOLWS /\s\+$/
+augroup whitespace_color
+  autocmd!
+  " mkdLineBreak is a link group; special 'link' syntax required here
+  autocmd ColorScheme * highlight link mkdLineBreak NONE
+  autocmd ColorScheme * highlight EOLWS guibg='CornflowerBlue' ctermbg=DarkCyan
+
+  autocmd InsertEnter * highlight clear EOLWS
+  autocmd InsertLeave * highlight EOLWS guibg='CornflowerBlue' ctermbg=DarkCyan
+
+  autocmd FileType defx highlight clear EOLWS
+augroup END
+
+" Cursorline: disable, then override if necessary
+highlight CursorLine cterm=NONE
+augroup cursorline_setting
+  autocmd!
+  autocmd FileType tagbar setlocal cursorline
+augroup END
+
+" ********************************************************************
+" Papercolor: options
+" ********************************************************************
+let g:PaperColor_Theme_Options = {}
+let g:PaperColor_Theme_Options.theme = {}
+
+" Bold And Italics:
+let g:PaperColor_Theme_Options.theme.default = {
+      \ 'allow_bold': 1,
+      \ 'allow_italic': 1,
+      \ }
+
+" Folds And Highlights:
+let g:PaperColor_Theme_Options.theme['default.dark'] = {}
+let g:PaperColor_Theme_Options.theme['default.dark'].override = {
+      \ 'folded_bg' : ['gray22', '0'],
+      \ 'folded_fg' : ['gray69', '6'],
+      \ 'visual_fg' : ['gray12', '0'],
+      \ 'visual_bg' : ['gray', '6'],
+      \ }
+" Language Specific Overrides:
+let g:PaperColor_Theme_Options.language = {
+      \    'python': {
+      \      'highlight_builtins' : 1,
+      \    },
+      \    'cpp': {
+      \      'highlight_standard_library': 1,
+      \    },
+      \    'c': {
+      \      'highlight_builtins' : 1,
+      \    }
+      \ }
+
+" Load:
 try
-  set t_Co=256 " says terminal has 256 colors
-  set background=dark
   colorscheme PaperColor
 catch
+  echo 'An error occured while configuring PaperColor'
 endtry
 
 " }}}
-" Key remappings ----------------------- {{{
+" Key remappings {{{
 "
 " Omnicompletion:
 " <C-@> is signal sent by terminal when pressing <C-Space>
@@ -883,12 +972,22 @@ inoremap <C-space> <C-x><C-o>
 inoremap <C-a> <esc>I
 inoremap <C-e> <esc>A
 
+" Copy to clipboard
+" <C-e> moves page up without moving cursor.
+" <C-y> does the opposite, we remap it to <A-e>
+nnoremap <A-e> <C-y>
+
+" Copy to clipboard
+nnoremap <C-y> "+y
+vnoremap <C-y> "+y
+
 " Paste:
-inoremap <C-v> <esc>p
+inoremap <C-v> <esc>pa
 
 " Escape:
 " Make escape also clear highlighting
 nnoremap <silent> <esc> :noh<return><esc>
+inoremap jk <esc>
 
 " MoveVisual: up and down visually only if count is specified before
 " Otherwise, you want to move up lines numerically
@@ -910,12 +1009,12 @@ nnoremap <A-8> 8gt
 nnoremap <A-9> 9gt
 
 " MoveLines:
-nnoremap <A-j> :m .+1<CR>==
-nnoremap <A-k> :m .-2<CR>==
-inoremap <A-j> <Esc>:m .+1<CR>==gi
-inoremap <A-k> <Esc>:m .-2<CR>==gi
-vnoremap <A-j> :m '>+1<CR>gv=gv
-vnoremap <A-k> :m '<-2<CR>gv=gv
+" nnoremap <A-j> :m .+1<CR>==
+" nnoremap <A-k> :m .-2<CR>==
+" inoremap <A-j> <Esc>:m .+1<CR>==gi
+" inoremap <A-k> <Esc>:m .-2<CR>==gi
+" vnoremap <A-j> :m '>+1<CR>gv=gv
+" vnoremap <A-k> :m '<-2<CR>gv=gv
 
 " BuffersAndWindows:
 " Move from one window to another
@@ -942,7 +1041,7 @@ vnoremap <leader>cc :s#_\(\l\)#\u\1#g<CR>
 
 
 " }}}
-" Cleanup ------------------ {{{
+" Cleanup {{{
 " commands that need to run at the end of my vimrc
 
 " disable unsafe commands in your project-specific .vimrc files

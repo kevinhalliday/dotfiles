@@ -4,6 +4,23 @@
 # Environment Setup
 #######################################################################
 
+# Path Functions {{{
+
+function path_ladd() {
+  # Takes 1 argument and adds it to the beginning of the PATH
+  if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+    PATH="$1${PATH:+":$PATH"}"
+  fi
+}
+
+function path_radd() {
+  # Takes 1 argument and adds it to the end of the PATH
+  if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+    PATH="${PATH:+"$PATH:"}$1"
+  fi
+}
+
+# }}}
 # Exported variable: LS_COLORS --- {{{
 
 # Colors when using the LS command
@@ -118,7 +135,10 @@ export HISTFILE=~/.zsh_history
 export SAVEHIST=5000
 
 # FZF
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore --no-messages --hidden --follow --glob "!.git/*"'
+# export FZF_COMPLETION_TRIGGER=''
+# export FZF_DEFAULT_OPTS="--bind=ctrl-o:accept --ansi"
+FZF_DEFAULT_COMMAND='rg --files --no-ignore --no-messages --hidden --follow --glob "!.git/*"'
+export FZF_DEFAULT_COMMAND
 
 # pipenv
 export PIPENV_VENV_IN_PROJECT='doit'
@@ -139,10 +159,15 @@ export BAT_PAGER=''
 # }}}
 # Misc env setup --- {{{
 
-ASDF_DIR="$HOME/.asdf"
-if [ -d "$ASDF_DIR" ]; then
-  export ASDF_DIR
-  [[ -s "$ASDF_DIR/asdf.sh" ]] && source $ASDF_DIR/asdf.sh
+HOME_BIN="$HOME/bin"
+if [ -d "$HOME_BIN" ]; then
+  path_ladd "$HOME_BIN"
+fi
+
+POETRY_LOC="$HOME/.poetry/bin"
+if [ -d "$POETRY_LOC" ]; then
+  path_ladd "$POETRY_LOC"
+  source $HOME/.poetry/env
 fi
 
 # }}}
@@ -177,7 +202,7 @@ GEOMETRY_COLOR_EXIT_VALUE="magenta"
 GEOMETRY_COLOR_PROMPT="white"
 GEOMETRY_COLOR_ROOT="red"
 GEOMETRY_COLOR_DIR="220"
-
+GEOMETRY_STATUS_COLOR="default"
 GEOMETRY_PROMPT_SUFFIX=""
 
 PROMPT_GEOMETRY_GIT_TIME=false
@@ -194,14 +219,19 @@ if [ -f ~/.zplug/init.zsh ]; then
   # BEGIN: List plugins
 
   # use double quotes: the plugin manager author says we must for some reason
+  # use double quotes: the plugin manager author says we must for some reason
+  zplug "paulirish/git-open", as:plugin
+  zplug "greymd/docker-zsh-completion", as:plugin
+  zplug "buonomo/yarn-completion", as:plugin, defer:2 # defer 2 to run after compinit
+  zplug "lukechilds/zsh-better-npm-completion", defer:2
   zplug "zsh-users/zsh-completions", as:plugin
   zplug "zsh-users/zsh-syntax-highlighting", as:plugin
+  zplug "junegunn/fzf-bin", \
+    from:gh-r, \
+    as:command, \
+    rename-to:fzf
+  zplug "junegunn/fzf", use:"shell/*.zsh", defer:2
   zplug "geometry-zsh/geometry", as:plugin
-  zplug "buonomo/yarn-completion", as:plugin, defer:2 # defer 2 to run after compinit
-  zplug "greymd/docker-zsh-completion", as:plugin, defer:2
-  zplug "kiurchv/asdf.plugin.zsh", defer:2
-  zplug "lukechilds/zsh-better-npm-completion", defer:2
-  zplug "changyuheng/zsh-interactive-cd", as:plugin
 
   #END: List plugins
 
@@ -365,6 +395,12 @@ bindkey '^n' history-beginning-search-forward
 WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
 
 # }}}
+# ASDF: needs to run after ZSH setup {{{
+
+source $HOME/.asdf/asdf.sh
+source $HOME/.asdf/completions/asdf.bash
+
+# }}}
 # Aliases --- {{{
 
 # Easier directory navigation for going up a directory tree
@@ -476,13 +512,38 @@ function t() {
   fi
   HAS_SESSION=$(tmux has-session -t $SESSION 2>/dev/null)
   if [ $HAS_SESSION ]; then
-    tmux attach -t $SESSION
+    if [[ "$(alacritty-which-colorscheme)" = 'light' ]]; then
+      tmux -2 select-window -t $SESSION:1
+      tmux source-file ~/.tmux-light
+    fi
+    tmux -2 attach -t $SESSION
   else
     tmux -2 new-session -d -s $SESSION
-    tmux -2 select-window -t $SESSION:1
-    tmux -2 rename-window edit
+    if [[ "$(alacritty-which-colorscheme)" = 'light' ]]; then
+      tmux -2 select-window -t $SESSION:1
+      tmux source-file ~/.tmux-light
+    fi
     tmux -2 attach -t $SESSION
   fi
+}
+
+# Alacritty Helpers
+function dark() {
+  alacritty-dark
+  if [ ! -z "$TMUX" ]; then
+    tmux source-file ~/.tmux.conf
+  fi
+  GEOMETRY_COLOR_DIR="220"
+  clear
+}
+
+function light() {
+  alacritty-light
+  if [ ! -z "$TMUX" ]; then
+    tmux source-file ~/.tmux-light
+  fi
+  GEOMETRY_COLOR_DIR="136"
+  clear
 }
 
 # Fix window dimensions: tty mode
@@ -498,6 +559,17 @@ function fixwindow() {
     setfont Uni3-Terminus24x12.psf.gz
   fi
 }
+
+# Pipe man stuff to neovim
+function m() {
+  man --location $@ &> /dev/null
+  if [ $? -eq 0 ]; then
+    man --pager=cat $@ | nvim -c 'set ft=man' -
+  else
+    man $@
+  fi
+}
+compdef _man m
 
 # dictionary lookups
 function def() {  # arg1: word
@@ -521,10 +593,6 @@ function gn() {  # arg1: filename
   gio open $1
 }
 
-function plantuml() {
-  java -jar ~/java/plantuml.jar ${@}
-}
-
 function jenkins() {
   java -jar ~/java/jenkins.war ${@}
 }
@@ -533,8 +601,8 @@ function jenkins() {
 # pydev-install dev: install only dev dependencies
 # pydev-install all: install all deps
 function pydev-install() {  ## Install default python dependencies
-  local env=(pynvim black python-language-server pyls-mypy pyls-black)
-  local dev=(pylint mypy pre-commit)
+  local env=(toml-sort isort pynvim restview python-language-server black pylint)
+  local dev=(mypy pre-commit)
   if [[ "$1" == 'all' ]]; then
     pip install -U $env $dev
   elif [[ "$1" == 'dev' ]]; then
@@ -598,6 +666,38 @@ function ve() {  # Optional arg: python interpreter name
 }
 compdef _command ve
 
+# Choose a virtualenv from backed up virtualenvs
+# Assumes in current directory, set up with zsh auto completion based on
+# current directory.
+function vc() {  # Optional arg: python venv version
+  if [ -z "$VIRTUAL_ENV" ]; then
+    echo "No virtualenv active, skipping backup"
+  else
+    mkdir -p venv.bak
+    local python_version=$(python --version | cut -d ' ' -f 2)
+    local bak_dir="venv.bak/$python_version"
+    if [ ! -d "$bak_dir" ]; then
+      mv "$VIRTUAL_ENV" "$bak_dir"
+    else
+      echo "ERROR: $bak_dir already exists"
+      return 1
+    fi
+  fi
+  if [ -z "$1" ]; then
+    return 0
+  fi
+  local choose_dir="venv.bak/$1"
+  if [ ! -d "$choose_dir" ]; then
+    echo "ERROR: no such virtualenv $1 backed up"
+    return 1
+  fi
+  mv "$choose_dir" .venv
+}
+_vc_completion() {
+  _directories -W $PWD/venv.bak
+}
+compdef _vc_completion vc
+
 # Print out the Github-recommended gitignore
 export GITIGNORE_DIR=$HOME/src/lib/gitignore
 function gitignore() {
@@ -624,6 +724,46 @@ function gitignore() {
   fi
 }
 compdef "_files -W $GITIGNORE_DIR/" gitignore
+
+# GIT: prune/cleanup the local references to remote branch
+# and delete merged local branches
+function gc() {
+  local refs="$(git remote prune origin --dry-run)"
+  if [ -z "$refs" ]
+  then
+    echo "No prunable references found"
+  else
+    echo $refs
+    while true; do
+     read yn\?"Do you wish to prune these local references to remote branches?"
+     case $yn in
+       [Yy]* ) break;;
+       [Nn]* ) return;;
+       * ) echo "Please answer yes or no.";;
+     esac
+    done
+    git remote prune origin
+    echo "Pruned!"
+  fi
+​
+  local branches="$(git branch --merged master | grep -v '^[ *]*master$')"
+  if [ -z "$branches" ]
+  then
+    echo "No merged branches found"
+  else
+    echo $branches
+    while true; do
+     read yn\?"Do you wish to delete these merged local branches?"
+     case $yn in
+       [Yy]* ) break;;
+       [Nn]* ) return;;
+       * ) echo "Please answer yes or no.";;
+     esac
+    done
+    echo $branches | xargs git branch -d
+    echo "Deleted!"
+  fi
+}
 
 # Create instance folder with only .gitignore ignored
 function mkinstance() {
@@ -657,7 +797,7 @@ function pynew() {
     echo "$dir_name already exists"
     return 1
   fi
-  git init "$dir_name"
+  mkdir "$dir_name"
   cd "$dir_name"
   poetry-init
   gitignore Python.gitignore | grep -v instance/ > .gitignore
@@ -668,15 +808,6 @@ function pynew() {
 """The main module"""
 EOL
   chmod +x main.py
-}
-
-# Templates for nvim
-function _md_template() {  # arg1: template
-  local current_date=$(date +'%Y-%m-%d_%H:%M:%S')
-  local calling_func=$funcstack[2]
-  local filepath="/tmp/${calling_func}_$current_date.md"
-  echo -e $1 > $filepath
-  nvim -c 'set nofoldenable' $filepath
 }
 
 # GIT: push current branch from origin to current branch
@@ -776,6 +907,20 @@ function fkill() {
       echo $pid | xargs kill -${1:-9}
   fi
 }
+
+# cd to the current git root
+function gr() {
+  local dir
+  dir=`git rev-parse --show-toplevel`
+
+  if [ $? -eq 0 ]; then
+    cd "$dir"
+    return 0
+  else
+    return 1
+  fi
+}
+
 
 # }}}
 # Executed Commands --- {{{
