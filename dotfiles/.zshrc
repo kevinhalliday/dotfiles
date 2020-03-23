@@ -485,6 +485,8 @@ alias so='source ~/.zshrc'
 alias kepler='cd ~/src/KeplerGroup/'
 alias rocket='cd ~/src/KeplerGroup/KIP-Rocket/'
 alias library='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Create-Library'
+alias clz-ui='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Creative-Landing-Zone-UI'
+alias clz-api='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Creative-Landing-Zone-API'
 alias khalliday='cd ~/src/khalliday7/'
 alias playground='cd ~/src/playground/'
 

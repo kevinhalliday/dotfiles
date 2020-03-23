@@ -325,7 +325,6 @@ augroup END
 
 " }}}
 " General: Filetype specification {{{
-
 augroup filetype_recognition
   autocmd!
   autocmd BufNewFile,BufRead,BufEnter *.hql,*.q set filetype=hive
@@ -338,7 +337,7 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter *.ejs set filetype=html
   autocmd BufNewFile,BufRead,BufEnter *.m,*.oct set filetype=octave
   autocmd BufNewFile,BufRead,BufEnter *.jsx,*.flow set filetype=javascript.jsx
-  autocmd BufNewFile,BufRead,BufEnter *.ts, set filetype=typescript
+  autocmd BufNewFile,BufRead,BufEnter *.ts, set filetype=typescript.tsx
   autocmd BufNewFile,BufRead,BufEnter *.tsx, set filetype=typescript.tsx
   autocmd BufNewFile,BufRead,BufEnter *.cfg,*.ini,.coveragerc,.pylintrc
         \ set filetype=dosini
@@ -368,6 +367,7 @@ augroup custom_comment_config
   autocmd FileType sh setlocal formatoptions=jcroql
   autocmd FileType typescript.tsx,typescript
         \ setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+  autocmd FileType markdown setlocal commentstring=<!--\ %s\ -->
 augroup END
 
 " }}}
@@ -457,13 +457,14 @@ function! s:abolish_correct()
   Abolish {les,compar,compari}sion{,s} {les,compari,compari}son{}
 endfunction
 
+" what is textobj#sentence#init?
+" autocmd FileType markdown,rst,text,gitcommit
+"       \ setlocal wrap linebreak nolist
+"       \ | call textobj#sentence#init()
 augroup writing
   autocmd!
   autocmd VimEnter * call s:abolish_correct()
-  " what is textobj#sentence#init?
-  autocmd FileType markdown,rst,text,gitcommit
-        \ setlocal wrap linebreak nolist
-        " \ | call textobj#sentence#init()
+  autocmd FileType markdown,rst,text,gitcommit setlocal wrap linebreak nolist
   autocmd FileType requirements setlocal nospell
   autocmd BufNewFile,BufRead *.html,*.tex setlocal wrap linebreak nolist
   autocmd FileType markdown nnoremap <buffer> <leader>f :TableFormat<CR>
@@ -520,12 +521,14 @@ augroup end
 augroup javascript_syntax
   autocmd!
   autocmd FileType javascript syntax keyword jsBooleanTrue this
+  autocmd BufEnter * :syntax sync fromstart
 augroup end
 
 " Typescript: fixes
 augroup typescript_syntax
   autocmd!
   autocmd ColorScheme * highlight link typescriptExceptions Exception
+  autocmd BufEnter * :syntax sync fromstart
 augroup end
 
 " QuickScope: choose primary and secondary colors
@@ -984,8 +987,9 @@ let g:closetag_emptyTags_caseSensitive = 1
 " dict
 " Disables auto-close if not in a "valid" region (based on filetype)
 "
+" \ 'typescript': 'jsxRegion,tsxRegion',
+" \ 'typescript.tsx': 'jsxRegion,tsxRegion',
 let g:closetag_regions = {
-    \ 'typescript.tsx': 'jsxRegion,tsxRegion',
     \ 'javascript': 'jsxRegion',
     \ 'javascript.jsx': 'jsxRegion',
     \ }
@@ -1377,6 +1381,9 @@ function! DefaultKeyMappings()
 
   " Escape: also clears highlighting
   nnoremap <silent> <esc> :noh<return><esc>
+
+  " Yank/Paste:
+  inoremap <C-v> <esc>pi
 
   " J: basically, unmap in normal mode unless range explicitly specified
   " nnoremap <silent> <expr> J v:count == 0 ? '<esc>' : 'J'
