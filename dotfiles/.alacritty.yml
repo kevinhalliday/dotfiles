@@ -93,7 +93,7 @@ cursor:
   unfocused_hollow: true
 
 # color_start
-# /home/khalliday/lib/alacritty-theme/themes/tomorrow_night_bright.yaml
+# /home/khalliday/src/lib/alacritty-theme/themes/tomorrow_night_bright.yaml
 # Colors (Tomorrow Night Bright)
 colors:
   # Default colors
