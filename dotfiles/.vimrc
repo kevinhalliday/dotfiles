@@ -1,5 +1,4 @@
-" My mostly borrowed, slightly repurposed vim configuration.
-" Author: Kevin Halliday
+" Make typing more fun.
 
 " General: Leader mappings {{{
 
@@ -141,6 +140,9 @@ call plug#begin('~/.vim/plugged')
 " Fonts
 Plug 'ryanoasis/vim-devicons'
 
+" Repls
+Plug 'pappasam/nvim-repl'
+
 " Commands run in vim's virtual screen and don't pollute main shell
 Plug 'fcpg/vim-altscreen'
 
@@ -181,8 +183,6 @@ for coc_plugin in [
       \ 'neoclide/coc-eslint',
       \ 'neoclide/coc-pairs',
       \ 'neoclide/coc-yaml',
-      \ 'neoclide/coc-jest',
-      \ 'neoclide/coc-smartf',
       \ ]
   Plug coc_plugin, { 'do': 'yarn install --frozen-lockfile && yarn build' }
 endfor
@@ -515,6 +515,7 @@ augroup python_syntax
   autocmd!
   autocmd FileType python syntax keyword pythonBuiltinObj args
   autocmd FileType python syntax keyword pythonBuiltinObj kwargs
+  autocmd FileType python syntax keyword pythonBuiltinObj self
 augroup end
 
 " Javascript: Highlight this keyword in object / function definitions
@@ -987,11 +988,11 @@ let g:closetag_emptyTags_caseSensitive = 1
 " dict
 " Disables auto-close if not in a "valid" region (based on filetype)
 "
-" \ 'typescript': 'jsxRegion,tsxRegion',
-" \ 'typescript.tsx': 'jsxRegion,tsxRegion',
 let g:closetag_regions = {
     \ 'javascript': 'jsxRegion',
     \ 'javascript.jsx': 'jsxRegion',
+    \ 'typescript': 'jsxRegion,tsxRegion',
+    \ 'typescript.tsx': 'jsxRegion,tsxRegion',
     \ }
 
 " Shortcut for closing tags, default is '>'
@@ -1306,6 +1307,20 @@ let g:mkdp_preview_options = {
       \ }
 
 " }}}
+" Plugins: nvim-repl {{{
+
+let g:repl_filetype_commands = {
+      \ 'bash': 'bash',
+      \ 'javascript': 'node',
+      \ 'python': 'bpython -q',
+      \ 'sh': 'sh',
+      \ 'vim': 'nvim --clean -ERZM',
+      \ 'zsh': 'zsh',
+      \ }
+
+let g:repl_default = &shell
+
+" }}}
 " Plugin: Preview Compiled Stuff in Viewer {{{
 
 function! s:preview()
@@ -1383,7 +1398,7 @@ function! DefaultKeyMappings()
   nnoremap <silent> <esc> :noh<return><esc>
 
   " Yank/Paste:
-  inoremap <C-v> <esc>pi
+  inoremap <C-v> <C-o>p
 
   " J: basically, unmap in normal mode unless range explicitly specified
   " nnoremap <silent> <expr> J v:count == 0 ? '<esc>' : 'J'
@@ -1478,10 +1493,8 @@ function! DefaultKeyMappings()
 
   " diagnostics (these aren't working)
   nnoremap <leader>d :CocDiagnosticToggle<CR>
-  nnoremap <leader>df <Plug>(coc-fix-current)
-  nnoremap <leader>di <Plug>(coc-diagnostic-info)
-  nnoremap <leader>dn <Plug>(coc-diagnostic-next)
-  nnoremap <leader>dp <Plug>(coc-diagnostic-prev)
+  nmap <leader>n <Plug>(coc-diagnostic-next)
+  nmap <leader>p <Plug>(coc-diagnostic-prev)
 
   " next and previous items in a list
   nnoremap <silent> <leader>sn :<C-u>CocNext<CR>
@@ -1549,6 +1562,12 @@ function! DefaultKeyMappings()
         \ pumvisible() ? '<C-n>' : '<Esc><ScrollWheelDown>'
   inoremap <expr> <LeftMouse>
         \ pumvisible() ? '<CR><Backspace>' : '<Esc><LeftMouse>'
+
+  "Repl:
+  nnoremap <leader><leader>e :ReplToggle<CR>
+  nnoremap <leader><leader>c :ReplClear<CR>
+  nmap <leader>e <Plug>ReplSendLine
+  vmap <leader>e <Plug>ReplSendVisual
 
 endfunction
 
