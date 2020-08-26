@@ -170,6 +170,12 @@ if [ -d "$POETRY_LOC" ]; then
   source $HOME/.poetry/env
 fi
 
+# used by pipx
+LOCAL_BIN="$HOME/.local/bin"
+if [ -d "$LOCAL_BIN" ]; then
+  path_ladd "$LOCAL_BIN"
+fi
+
 # }}}
 
 #######################################################################
@@ -1036,5 +1042,7 @@ if [[ -o interactive ]]; then
 fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+[ -f ~/.bash/sensitive ] && source ~/.bash/sensitive
 
 # }}}

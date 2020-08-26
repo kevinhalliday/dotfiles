@@ -15,6 +15,8 @@ env:
   TERM: xterm-256color
 
 window:
+  dynamic_title: true
+
   # Window dimensions in character columns and lines
   # (changes require restart)
   dimensions:
@@ -39,7 +41,7 @@ dpi:
   y: 96.0
 
 # Display tabs using this many cells (changes require restart)
-tabspaces: 8
+# tabspaces: 8
 
 # When true, bold text is drawn using the bright variant of colors.
 draw_bold_text_with_bright_colors: true
@@ -47,13 +49,13 @@ draw_bold_text_with_bright_colors: true
 # Font configuration (changes require restart)
 font:
   normal:
-    family: FuraCode Nerd Font
+    family: FiraCode Nerd Font Mono
     style: Retina
   bold:
-    family: FuraCode Nerd Font
+    family: FiraCode Nerd Font Mono
     style: Bold
   italic:
-    family: FuraCode Nerd Font
+    family: FiraCode Nerd Font Mono
     style: Italic
   size: 12.0
 
@@ -123,7 +125,12 @@ colors:
     magenta: '0xb77ee0'
     cyan: '0x54ced6'
     white: '0x2a2a2a'
-visual_bell:
+
+  cursor:
+    text: '0xeeeeee'
+    cursor: '0x878787'
+
+bell:
   animation: EaseOutExpo
   duration: 0
 
@@ -141,7 +148,7 @@ scrolling:
 
   # Automatically scroll to the bottom when new text is written
   # to the terminal.
-  auto_scroll: false
+  # auto_scroll: false
 
 # Mouse bindings
 #
@@ -173,8 +180,6 @@ mouse:
 selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>"
 
-dynamic_title: true
-
 # Live config reload (changes require restart)
 live_config_reload: true
 
@@ -183,8 +188,8 @@ live_config_reload: true
 #
 # You can set shell.program to the path of your favorite shell, e.g. /bin/fish.
 # Entries in shell.args are passed unmodified as arguments to the shell.
-#shell:
-#  program: /bin/bash
+shell:
+  program: /usr/bin/zsh
 #  args:
 #    - --login
 
