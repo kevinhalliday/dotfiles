@@ -295,8 +295,6 @@ export LISTMAX=0
 # }}}
 # ZShell Hook Functions {{{
 
-# NOTE: precmd is defined within the prompt section
-
 # Executed whenever the current working directory is changed
 function chpwd() {
   # Magically find Python's virtual environment based on name
@@ -309,16 +307,12 @@ function chpwd() {
 # scheduled time is not reset if the list of functions is altered.
 # Hence the set of functions is always called together.
 function periodic() {
-  # Magically find Python's virtual environment based on name
-  # va
 }
 
 # Executed before each prompt. Note that precommand functions are not
 # re-executed simply because the command line is redrawn, as happens, for
 # example, when a notification about an exiting job is displayed.
 function precmd() {
-  # Gather information about the version control system
-  # vcs_info
 }
 
 # Executed just after a command has been read and is about to be executed
@@ -467,9 +461,8 @@ alias gm='git commit --verbose'
 alias gma='git add --all && git commit --verbose'
 alias gp='git remote prune origin'
 alias gd='git diff'
-
-# upgrade
-alias upgrade='sudo mintupdate'
+# show a tree of all commits, including dangling unnamed branches
+alias githist='git log --graph --decorate --oneline $(git rev-list -g --all)'
 
 # battery
 alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "state|time\ to\ full|percentage"'
@@ -529,14 +522,70 @@ function t() {
   fi
 }
 
+function alacritty-install() {
+  cargo build --release
+
+  # Install
+  sudo cp target/release/alacritty /usr/local/bin # or anywhere else in $PATH
+  sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
+  sudo desktop-file-install extra/linux/Alacritty.desktop
+  sudo update-desktop-database
+
+  # terminfo
+  sudo tic -xe alacritty,alacritty-direct extra/alacritty.info
+
+  # man page
+  sudo mkdir -p /usr/local/share/man/man1
+  gzip -c extra/alacritty.man | \
+    sudo tee /usr/local/share/man/man1/alacritty.1.gz > /dev/null
+}
+
+
+# upgrade relevant local systems
+function upgrade() {
+  sudo apt update
+  sudo apt upgrade -y
+  sudo apt autoremove -y
+  pushd
+  cd ~/src/lib/alacritty
+  git pull
+  alacritty-install
+  popd
+  asdf uninstall neovim nightly
+  asdf install neovim nightly
+  nvim -c 'PU'
+}
+
+function dark-prompt {
+  GEOMETRY_COLOR_DIR='136'
+}
+
+function light-prompt {
+  GEOMETRY_COLOR_DIR='220'
+}
+
+function update-prompt-colors() {
+  local colorscheme="$(alacritty-which-colorscheme)"
+  if [[ $colorscheme = 'light' ]]; then
+    dark-prompt
+  elif [[ $colorscheme = 'dark' ]]; then
+    light-prompt
+  fi
+}
+
+update-prompt-colors
+# if [ -n "$TMUX" ]; then
+#   tmux set-hook after-select-pane 'run "update-prompt-colors > /dev/null"'
+#   tmux set-hook after-select-window 'run "update-prompt-colors > /dev/null"'
+# fi
+
 # Alacritty Helpers
 function dark() {
   alacritty-dark
   if [ ! -z "$TMUX" ]; then
     tmux source-file ~/.tmux.conf
   fi
-  GEOMETRY_COLOR_DIR="220"
-  clear
+  light-prompt
 }
 
 function light() {
@@ -544,22 +593,7 @@ function light() {
   if [ ! -z "$TMUX" ]; then
     tmux source-file ~/.tmux-light
   fi
-  GEOMETRY_COLOR_DIR="136"
-  clear
-}
-
-# Fix window dimensions: tty mode
-# Set consolefonts to appropriate size based on monitor resolution
-# For each new monitor, you'll need to do this manually
-# Console fonts found here: /usr/share/consolefonts
-function fixwindow() {
-  echo "Getting window dimensions, waiting 5 seconds..."
-  MONITOR_RESOLUTIONS=$(sleep 5 && xrandr -d :0 | grep '*')
-  if $(echo $MONITOR_RESOLUTIONS | grep -q "3840x2160"); then
-    setfont Uni3-Terminus32x16.psf.gz
-  elif $(echo $MONITOR_RESOLUTIONS | grep -q "2560x1440"); then
-    setfont Uni3-Terminus24x12.psf.gz
-  fi
+  dark-prompt
 }
 
 # Pipe man stuff to neovim
@@ -599,19 +633,75 @@ function jenkins() {
   java -jar ~/java/jenkins.war ${@}
 }
 
+function rustdev-install() {
+  cargo install bat
+  cargo install fd-find
+  cargo install ripgrep
+  cargo install cargo-deb
+  cargo install cargo-edit
+  asdf reshim rust
+}
+
+function nodedev-install() {
+  local env=(
+    dockerfile-language-server-nodejs
+    git+https://github.com/Perlence/tstags.git
+    jsctags
+    neovim
+    npm
+    prettier
+    write-good
+  )
+  npm install --no-save -g $env
+  asdf reshim nodejs
+}
+
 # pydev-install: install only env dependencies
 # pydev-install dev: install only dev dependencies
 # pydev-install all: install all deps
 function pydev-install() {  ## Install default python dependencies
-  local env=(toml-sort isort pynvim restview python-language-server black pylint)
-  local dev=(mypy pre-commit)
-  if [[ "$1" == 'all' ]]; then
-    pip install -U $env $dev
-  elif [[ "$1" == 'dev' ]]; then
-    pip install -U $dev
+  local for_pip=(
+    bpython
+    mypy
+    neovim-remote
+    pip
+    pylint
+    pynvim
+    wheel
+  )
+  pip install -U $for_pip
+  asdf reshim python
+}
+
+function pyglobal-install() {  ## Install global Python applications
+  local for_pipx=(
+    awscli
+    black
+    bpython
+    cookiecutter
+    docformatter
+    docker-compose
+    isort
+    jedi-language-server
+    jupyterlab
+    jupytext
+    pre-commit
+    restview
+    toml-sort
+  )
+  if command -v pipx > /dev/null; then
+    for arg in $for_pipx; do
+      pipx install "$arg"
+      pipx upgrade "$arg"
+    done
   else
-    pip install -U $env
+    echo 'pipx not installed. Install with "pip install pipx"'
   fi
+}
+
+function godev-install() {  ## Install default golang dependencies
+  go get github.com/mattn/efm-langserver
+  asdf reshim golang
 }
 
 # activate virtual environment from any directory from current and up
@@ -700,6 +790,7 @@ _vc_completion() {
 }
 compdef _vc_completion vc
 
+
 # Print out the Github-recommended gitignore
 export GITIGNORE_DIR=$HOME/src/lib/gitignore
 function gitignore() {
@@ -783,9 +874,9 @@ function poetry-init() {
     return 1
   fi
   poetry init --no-interaction &> /dev/null
-  sed -i '1s/^/[tool.black]\nline-length = 79\n\n/' pyproject.toml
+  cat-pyproject >> pyproject.toml
+  toml-sort --in-place pyproject.toml
   touch README.md
-  echo "Python poetry project initialized!"
 }
 
 # Create New Python Repo
@@ -806,10 +897,8 @@ function pynew() {
   mkinstance
   ve
   cat > main.py <<EOL
-#!/usr/bin/env python
 """The main module"""
 EOL
-  chmod +x main.py
 }
 
 # GIT: push current branch from origin to current branch

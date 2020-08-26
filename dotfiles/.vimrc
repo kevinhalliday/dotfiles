@@ -169,20 +169,23 @@ Plug 'tpope/vim-speeddating'
 Plug 'tpope/vim-rsi'
 
 " Auto-Completion and Diagnostics
+" \ 'coc-extensions/coc-svelte',
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 for coc_plugin in [
-      \ 'coc-extensions/coc-svelte',
+      \ 'davidroeca/coc-svelte-language-tools',
       \ 'fannheyward/coc-markdownlint',
       \ 'neoclide/coc-css',
       \ 'neoclide/coc-html',
       \ 'neoclide/coc-json',
-      \ 'neoclide/coc-python',
+      \ 'pappasam/coc-jedi',
       \ 'neoclide/coc-rls',
       \ 'neoclide/coc-snippets',
       \ 'neoclide/coc-tsserver',
       \ 'neoclide/coc-eslint',
       \ 'neoclide/coc-pairs',
       \ 'neoclide/coc-yaml',
+      \ 'iamcco/coc-diagnostic',
+      \ 'iamcco/coc-vimlsp',
       \ ]
   Plug coc_plugin, { 'do': 'yarn install --frozen-lockfile && yarn build' }
 endfor
@@ -247,6 +250,7 @@ Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
 Plug 'posva/vim-vue'
 Plug 'leafgarland/typescript-vim'
 Plug 'peitalin/vim-jsx-typescript'
+Plug 'evanleck/vim-svelte'
 
 " Code prettifiers
 Plug 'pappasam/vim-filetype-formatter'
@@ -339,6 +343,7 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter *.jsx,*.flow set filetype=javascript.jsx
   autocmd BufNewFile,BufRead,BufEnter *.ts, set filetype=typescript.tsx
   autocmd BufNewFile,BufRead,BufEnter *.tsx, set filetype=typescript.tsx
+  autocmd BufNewFile,BufRead,BufEnter *.svelte, set filetype=svelte
   autocmd BufNewFile,BufRead,BufEnter *.cfg,*.ini,.coveragerc,.pylintrc
         \ set filetype=dosini
   autocmd BufNewFile,BufRead,BufEnter *.tsv set filetype=tsv
@@ -889,13 +894,14 @@ nnoremap <silent> <space>k :NERDTreeFind<cr>
 " let g:vim_filetype_formatter_verbose = 1
 let g:vim_filetype_formatter_commands = {
       \ 'python': 'black - -q --line-length 79',
-      \ 'javascript': 'npx -q prettier --parser flow --stdin',
-      \ 'javascript.jsx': 'npx -q prettier --parser flow --stdin',
-      \ 'typescript': 'npx -q prettier --parser typescript --stdin',
-      \ 'typescript.tsx': 'npx -q prettier --parser typescript --stdin',
-      \ 'css': 'npx -q prettier --parser css --stdin',
-      \ 'less': 'npx -q prettier --parser less --stdin',
-      \ 'html': 'npx -q prettier --parser html --stdin',
+      \ 'javascript': 'npx -q prettier --parser flow',
+      \ 'javascript.jsx': 'npx -q prettier --parser flow',
+      \ 'typescript': 'npx -q prettier --parser typescript',
+      \ 'typescript.tsx': 'npx -q prettier --parser typescript',
+      \ 'svelte': 'npx -q prettier',
+      \ 'css': 'npx -q prettier --parser css',
+      \ 'less': 'npx -q prettier --parser less',
+      \ 'html': 'npx -q prettier --parser html',
       \ 'vue': 'npx -q prettier --html-whitespace-sensitivity ignore --parser vue --stdin'
       \}
 
@@ -1135,39 +1141,39 @@ augroup Smartf
 augroup end
 
 " Customization:
-function! s:coc_diagnostic_disable()
-  call coc#config('diagnostic.enable', v:false)
-  let g:coc_custom_diagnostic_enabled = v:false
-  silent CocRestart
-  echom 'Disabled: Coc Diagnostics'
-endfunction
+" function! s:coc_diagnostic_disable()
+"   call coc#config('diagnostic.enable', v:false)
+"   let g:coc_custom_diagnostic_enabled = v:false
+"   silent CocRestart
+"   echom 'Disabled: Coc Diagnostics'
+" endfunction
 
-function! s:coc_diagnostic_enable()
-  call coc#config('diagnostic.enable', v:true)
-  let g:coc_custom_diagnostic_enabled = v:true
-  echom 'Enabled: Coc Diagnostics'
-endfunction
+" function! s:coc_diagnostic_enable()
+"   call coc#config('diagnostic.enable', v:true)
+"   let g:coc_custom_diagnostic_enabled = v:true
+"   echom 'Enabled: Coc Diagnostics'
+" endfunction
 
-function! s:coc_diagnostic_toggle()
-  if g:coc_custom_diagnostic_enabled == v:true
-    call s:coc_diagnostic_disable()
-  else
-    call s:coc_diagnostic_enable()
-  endif
-endfunction
+" function! s:coc_diagnostic_toggle()
+"   if g:coc_custom_diagnostic_enabled == v:true
+"     call s:coc_diagnostic_disable()
+"   else
+"     call s:coc_diagnostic_enable()
+"   endif
+" endfunction
 
-function! s:coc_init()
-  let g:coc_custom_diagnostic_enabled = v:true
-endfunction
+" function! s:coc_init()
+"   let g:coc_custom_diagnostic_enabled = v:true
+" endfunction
 
-augroup coc_initialization
-  autocmd!
-  autocmd VimEnter * call s:coc_init()
-augroup END
+" augroup coc_initialization
+"   autocmd!
+"   autocmd VimEnter * call s:coc_init()
+" augroup END
 
-command! CocDiagnosticToggle call s:coc_diagnostic_toggle()
-command! CocDiagnosticEnable call s:coc_diagnostic_enable()
-command! CocDiagnosticDisable call s:coc_diagnostic_disable()
+" command! CocDiagnosticToggle call s:coc_diagnostic_toggle()
+" command! CocDiagnosticEnable call s:coc_diagnostic_enable()
+" command! CocDiagnosticDisable call s:coc_diagnostic_disable()
 
 " }}}
 " Plugin: Restructured Text {{{
@@ -1307,12 +1313,16 @@ let g:mkdp_preview_options = {
       \ }
 
 " }}}
+" Plugin: vimtext {{{
+  let g:tex_flavor = 'latex'
+" }}}
 " Plugins: nvim-repl {{{
 
 let g:repl_filetype_commands = {
       \ 'bash': 'bash',
       \ 'javascript': 'node',
-      \ 'python': 'bpython -q',
+      \ 'typescript': 'ts-node',
+      \ 'python': 'python',
       \ 'sh': 'sh',
       \ 'vim': 'nvim --clean -ERZM',
       \ 'zsh': 'zsh',
@@ -1401,7 +1411,7 @@ function! DefaultKeyMappings()
   inoremap <C-v> <C-o>p
 
   " J: basically, unmap in normal mode unless range explicitly specified
-  " nnoremap <silent> <expr> J v:count == 0 ? '<esc>' : 'J'
+  nnoremap <silent> <expr> J v:count == 0 ? '<esc>' : 'J'
 
   " Exit: Preview, Help, QuickFix, and Location List
   inoremap <silent> <C-c> <Esc>:pclose <BAR> cclose <BAR> lclose <CR>a
@@ -1482,45 +1492,41 @@ function! DefaultKeyMappings()
   " Run Or Build:
   nnoremap <leader><leader>r :Run<CR>
 
-  " Coc: settings for coc.nvim
-  " see https://github.com/neoclide/coc.nvim
-  nmap <silent> <C-]> <Plug>(coc-definition)
-  nnoremap <silent> <C-K> :call <SID>show_documentation()<CR>
-  nmap <silent> <leader>st <Plug>(coc-type-definition)
-  nmap <silent> <leader>si <Plug>(coc-implementation)
-  nmap <silent> <leader>su <Plug>(coc-references)
-  nmap <silent> <leader>sr <Plug>(coc-rename)
-
-  " diagnostics (these aren't working)
-  nnoremap <leader>d :CocDiagnosticToggle<CR>
-  nmap <leader>n <Plug>(coc-diagnostic-next)
-  nmap <leader>p <Plug>(coc-diagnostic-prev)
-
-  " next and previous items in a list
-  nnoremap <silent> <leader>sn :<C-u>CocNext<CR>
-  nnoremap <silent> <leader>sp :<C-u>CocPrev<CR>
-  nnoremap <silent> <leader>sl :<C-u>CocListResume<CR>
-  " Show commands
-  nnoremap <silent> <leader>sc :<C-u>CocList commands<cr>
-  " Find symbol of current document
-  nnoremap <silent> <leader>ss :<C-u>CocList outline<cr>
-  " Search workspace symbols
-  nnoremap <silent> <leader>sw :<C-u>CocList -I symbols<cr>
-  " Use <c-space> to trigger completion
-  inoremap <silent><expr> <c-space> coc#refresh()
-  " Scroll in floating window
-  nnoremap <expr><C-d> coc#util#has_float() ? coc#util#float_scroll(1) : "\<C-d>"
-  nnoremap <expr><C-u> coc#util#has_float() ? coc#util#float_scroll(0) : "\<C-u>"
-  " snippets
-  imap <C-l> <Plug>(coc-snippets-expand)
-  vmap <C-j> <Plug>(coc-snippets-select)
-  " Use <C-j> for both expand and jump (make expand higher priority.)
-  imap <C-j> <Plug>(coc-snippets-expand-jump)
+   " Coc: settings for coc.nvim
+  nmap     <silent>        <C-]> <Plug>(coc-definition)
+  nmap     <silent>        <C-LeftMouse> <Plug>(coc-definition)
+  nnoremap <silent>        <C-k> <cmd>call <SID>show_documentation()<CR>
+  nnoremap <silent>        <C-h> <cmd>call CocActionAsync('showSignatureHelp')<CR>
+  inoremap <silent>        <C-h> <cmd>call CocActionAsync('showSignatureHelp')<CR>
+  nmap     <silent>        <leader>st <Plug>(coc-type-definition)
+  nmap     <silent>        <leader>si <Plug>(coc-implementation)
+  nmap     <silent>        <leader>su <Plug>(coc-references)
+  nmap     <silent>        <leader>sr <Plug>(coc-rename)
+  nmap     <silent>        <leader>sa v<Plug>(coc-codeaction-selected)
+  vmap     <silent>        <leader>sa <Plug>(coc-codeaction-selected)
+  xmap     <silent>        af <Plug>(coc-funcobj-a)
+  omap     <silent>        af <Plug>(coc-funcobj-a)
+  xmap     <silent>        ac <Plug>(coc-classobj-a)
+  omap     <silent>        ac <Plug>(coc-classobj-a)
+  nnoremap <silent>        <leader>sn <cmd>CocNext<CR>
+  nnoremap <silent>        <leader>sp <cmd>CocPrev<CR>
+  nnoremap <silent>        <leader>sl <cmd>CocListResume<CR>
+  nnoremap <silent>        <leader>sc <cmd>CocList commands<cr>
+  nnoremap <silent>        <leader>so <cmd>CocList -A outline<cr>
+  nnoremap <silent>        <leader>sw <cmd>CocList -A -I symbols<cr>
+  inoremap <silent> <expr> <c-space> coc#refresh()
+  nnoremap <silent> <expr> <C-e> coc#util#has_float() ? coc#util#float_scroll(1) : "\<C-e>"
+  nnoremap <silent> <expr> <C-y> coc#util#has_float() ? coc#util#float_scroll(0) : "\<C-y>"
+  imap     <silent> <expr> <C-l> coc#expandable() ? "<Plug>(coc-snippets-expand)" : "\<C-y>"
+  inoremap <silent> <expr> <CR> pumvisible() ? '<CR>' : '<C-g>u<CR><c-r>=coc#on_enter()<CR>'
+  nnoremap                 <leader>d <cmd>call CocActionAsync('diagnosticToggle')<CR>
+  nmap     <silent>        <leader>n <Plug>(coc-diagnostic-next)
+  nmap     <silent>        <leader>p <Plug>(coc-diagnostic-prev)
 
 
   " coc-smartf: press <esc> to cancel.
-  nmap f <Plug>(coc-smartf-forward)
-  nmap F <Plug>(coc-smartf-backward)
+  " nmap f <Plug>(coc-smartf-forward)
+  " nmap F <Plug>(coc-smartf-backward)
   " nmap ; <Plug>(coc-smartf-repeat)
   " nmap , <Plug>(coc-smartf-repeat-opposite)
 
@@ -1532,8 +1538,8 @@ function! DefaultKeyMappings()
   nnoremap <leader>y "+y
   " Normal mode paste checks whether the current line has text
   " if yes, insert new line, if no, start paste on the current line
-  nnoremap <expr> <leader>p
-        \ len(getline('.')) == 0 ? '"+p' : 'o<esc>"+p'
+  " nnoremap <expr> <leader>p
+  "       \ len(getline('.')) == 0 ? '"+p' : 'o<esc>"+p'
 
   " Mouse Copy: system copy mouse characteristics
   vnoremap <RightMouse> "+y
