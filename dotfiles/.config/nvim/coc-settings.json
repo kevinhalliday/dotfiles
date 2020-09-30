@@ -64,6 +64,7 @@
     "pylint": {
       "sourceName": "pylint",
       "command": "pylint",
+      "debounce": 100,
       "args": [
         "--output-format",
         "text",
