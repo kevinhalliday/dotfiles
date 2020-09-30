@@ -152,7 +152,9 @@ Plug 'tpope/vim-rhubarb'
 
 " File Navigation
 Plug 'kh3phr3n/tabline'
-Plug 'scrooloose/nerdtree'
+Plug 'Shougo/defx.nvim'
+Plug 'kristijanhusak/defx-git'
+Plug 'kristijanhusak/defx-icons'
 Plug 'airblade/vim-rooter' " base vim root at github root
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
@@ -169,10 +171,9 @@ Plug 'tpope/vim-speeddating'
 Plug 'tpope/vim-rsi'
 
 " Auto-Completion and Diagnostics
-" \ 'coc-extensions/coc-svelte',
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 for coc_plugin in [
-      \ 'davidroeca/coc-svelte-language-tools',
+      \ 'coc-extensions/coc-svelte',
       \ 'fannheyward/coc-markdownlint',
       \ 'neoclide/coc-css',
       \ 'neoclide/coc-html',
@@ -186,6 +187,7 @@ for coc_plugin in [
       \ 'neoclide/coc-yaml',
       \ 'iamcco/coc-diagnostic',
       \ 'iamcco/coc-vimlsp',
+      \ 'josa42/coc-docker',
       \ ]
   Plug coc_plugin, { 'do': 'yarn install --frozen-lockfile && yarn build' }
 endfor
@@ -306,26 +308,15 @@ function! StripNewlines(instring)
   return substitute(a:instring, '\v^\n*(.{-})\n*$', '\1', '')
 endfunction
 
-" function! StatuslineGitBranch()
-"   let b:gitbranch = ''
-"   if &modifiable
-"     try
-"       let branch_name = StripNewlines(system(
-"             \ 'git -C ' .
-"             \ expand('%:p:h') .
-"             \ ' rev-parse --abbrev-ref HEAD'))
-"       if !v:shell_error
-"         let b:gitbranch = '[git::' . branch_name . ']'
-"       endif
-"     catch
-"     endtry
-"   endif
-" endfunction
-
-augroup get_git_branch
+augroup custom_statusline
   autocmd!
-  " autocmd VimEnter,WinEnter,BufEnter * call StatuslineGitBranch()
-augroup END
+  autocmd FileType defx setlocal statusline=\ defx\ %#CursorLine#
+augroup end
+
+augroup custom_cursorline
+  autocmd!
+  autocmd FileType tagbar,defx,qf setlocal cursorline
+augroup end
 
 " }}}
 " General: Filetype specification {{{
@@ -824,68 +815,6 @@ function! _PU()
   exec 'PlugUpgrade'
 endfunction
 command! PU call _PU()
-
-"  }}}
-" Plugin: NERDTree {{{
-
-let g:NERDTreeMapOpenInTab = '<C-t>'
-let g:NERDTreeMapOpenInTabSilent = ''
-let g:NERDTreeMapOpenSplit = '<C-s>'
-let g:NERDTreeMapOpenVSplit = '<C-v>'
-let g:NERDTreeMapJumpNextSibling = '<C-n>'
-let g:NERDTreeMapJumpPrevSibling = '<C-p>'
-let g:NERDTreeMapJumpFirstChild = '<C-k>'
-let g:NERDTreeMapJumpLastChild = '<C-j>'
-
-let g:NERDTreeShowLineNumbers = 1
-let g:NERDTreeCaseSensitiveSort = 0
-let g:NERDTreeWinPos = 'left'
-let g:NERDTreeWinSize = 31
-let g:NERDTreeAutoDeleteBuffer = 1
-let g:NERDTreeSortOrder = ['*', '\/$']
-let g:NERDTreeIgnore=[
-      \'venv$[[dir]]',
-      \'.venv$[[dir]]',
-      \'__pycache__$[[dir]]',
-      \'.egg-info$[[dir]]',
-      \'node_modules$[[dir]]',
-      \'elm-stuff$[[dir]]',
-      \'\.aux$[[file]]',
-      \'\.toc$[[file]]',
-      \'\.pdf$[[file]]',
-      \'\.out$[[file]]',
-      \'\.o$[[file]]',
-      \]
-
-function! NERDTreeToggleCustom()
-  if exists('t:NERDTreeBufName') && bufwinnr(t:NERDTreeBufName) != -1
-    " if NERDTree is open in window in current tab...
-    exec 'NERDTreeClose'
-  else
-    exec 'NERDTree %'
-  endif
-endfunction
-
-function! s:CloseIfOnlyControlWinLeft()
-  if winnr("$") != 1
-    return
-  endif
-  if (exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1)
-        \ || &buftype == 'quickfix'
-    q
-  endif
-endfunction
-
-augroup CloseIfOnlyControlWinLeft
-  au!
-  au BufEnter * call s:CloseIfOnlyControlWinLeft()
-augroup END
-
-
-" Key Remappings:
-nnoremap <silent> <space>j :NERDTreeToggle<CR>
-nnoremap <silent> <space>J :call NERDTreeToggleCustom()<CR>
-nnoremap <silent> <space>k :NERDTreeFind<cr>
 
 "  }}}
 "  Plugin: Vim Filetype Formatter {{{
@@ -1398,6 +1327,128 @@ let g:FerretMap = v:false
 let g:seoul256_background = 233
 
 "  }}}
+"  Plugin: defx {{{
+
+let g:custom_defx_state = tempname()
+
+let g:defx_ignored_files = join([
+      \ '*.aux',
+      \ '*.egg-info/',
+      \ '*.o',
+      \ '*.out',
+      \ '*.pdf',
+      \ '*.pyc',
+      \ '*.toc',
+      \ '.*',
+      \ '__pycache__/',
+      \ 'build/',
+      \ 'dist/',
+      \ 'docs/_build/',
+      \ 'fonts/',
+      \ 'node_modules/',
+      \ 'pip-wheel-metadata/',
+      \ 'plantuml-images/',
+      \ 'site/',
+      \ 'target/',
+      \ 'venv.bak/',
+      \ 'venv/',
+      \ ], ',')
+
+let g:custom_defx_mappings = [
+      \ ['!             ', "defx#do_action('execute_command')"],
+      \ ['*             ', "defx#do_action('toggle_select_all')"],
+      \ [';             ', "defx#do_action('repeat')"],
+      \ ['<2-LeftMouse> ', "defx#is_directory() ? defx#do_action('open_tree', 'toggle') : defx#do_action('drop')"],
+      \ ['<C-g>         ', "defx#do_action('print')"],
+      \ ['<C-h>         ', "defx#do_action('resize', 31)"],
+      \ ['<C-i>         ', "defx#do_action('open_directory')"],
+      \ ['<C-o>         ', "defx#do_action('cd', ['..'])"],
+      \ ['<C-r>         ', "defx#do_action('redraw')"],
+      \ ['<C-t>         ', "defx#do_action('open', 'tabe')"],
+      \ ['<C-v>         ', "defx#do_action('open', 'vsplit')"],
+      \ ['<C-x>         ', "defx#do_action('open', 'split')"],
+      \ ['<CR>          ', "defx#do_action('drop')"],
+      \ ['<RightMouse>  ', "defx#do_action('cd', ['..'])"],
+      \ ['O             ', "defx#do_action('open_tree', 'recursive:3')"],
+      \ ['p             ', "defx#do_action('preview')"],
+      \ ['a             ', "defx#do_action('toggle_select')"],
+      \ ['cc            ', "defx#do_action('copy')"],
+      \ ['cd            ', "defx#do_action('change_vim_cwd')"],
+      \ ['i             ', "defx#do_action('toggle_ignored_files')"],
+      \ ['ma            ', "defx#do_action('new_file')"],
+      \ ['md            ', "defx#do_action('remove')"],
+      \ ['mm            ', "defx#do_action('rename')"],
+      \ ['o             ', "defx#is_directory() ? defx#do_action('open_tree', 'toggle') : defx#do_action('drop')"],
+      \ ['P             ', "defx#do_action('paste')"],
+      \ ['q             ', "defx#do_action('quit')"],
+      \ ['ss            ', "defx#do_action('multi', [['toggle_sort', 'TIME'], 'redraw'])"],
+      \ ['t             ', "defx#do_action('open_tree', 'toggle')"],
+      \ ['u             ', "defx#do_action('cd', ['..'])"],
+      \ ['x             ', "defx#do_action('execute_system')"],
+      \ ['yy            ', "defx#do_action('yank_path')"],
+      \ ['~             ', "defx#do_action('cd')"],
+      \ ]
+
+function! s:autocmd_custom_defx()
+  if !exists('g:loaded_defx')
+    return
+  endif
+  call defx#custom#column('filename', {
+        \ 'min_width': 100,
+        \ 'max_width': 100,
+        \ })
+endfunction
+
+function! s:open_defx_if_directory()
+  if !exists('g:loaded_defx')
+    echom 'Defx not installed, skipping...'
+    return
+  endif
+  if isdirectory(expand(expand('%:p')))
+    Defx `expand('%:p')`
+        \ -buffer-name=defx
+        \ -columns=mark:git:indent:icons:filename:type:size:time
+  endif
+endfunction
+
+function! s:defx_redraw()
+  if !exists('g:loaded_defx')
+    return
+  endif
+  call defx#redraw()
+endfunction
+
+function! s:defx_buffer_remappings() abort
+  " Define mappings
+  for [key, value] in g:custom_defx_mappings
+    execute 'nnoremap <silent><buffer><expr> ' . key . ' ' . value
+  endfor
+  nnoremap <silent><buffer> ?
+        \ :for [key, value] in g:custom_defx_mappings <BAR>
+        \ echo '' . key . ': ' . value <BAR>
+        \ endfor<CR>
+endfunction
+
+augroup custom_defx
+  autocmd!
+  autocmd VimEnter * call s:autocmd_custom_defx()
+  autocmd BufEnter * call s:open_defx_if_directory()
+  autocmd BufLeave,BufWinLeave \[defx\]* silent call defx#call_action('add_session')
+augroup end
+
+augroup custom_remap_defx
+  autocmd!
+  autocmd FileType defx call s:defx_buffer_remappings()
+  autocmd FileType defx nmap     <buffer> <silent> gp <Plug>(defx-git-prev)
+  autocmd FileType defx nmap     <buffer> <silent> gn <Plug>(defx-git-next)
+  autocmd FileType defx nmap     <buffer> <silent> gs <Plug>(defx-git-stage)
+  autocmd FileType defx nmap     <buffer> <silent> gu <Plug>(defx-git-reset)
+  autocmd FileType defx nmap     <buffer> <silent> gd <Plug>(defx-git-discard)
+  autocmd FileType defx nnoremap <buffer> <silent> <C-l> <cmd>ResizeWindowWidth<CR>
+augroup end
+
+
+"  }}}
 " General: Key remappings {{{
 
 " This is defined as a function to allow me to reset all my key remappings
@@ -1455,6 +1506,36 @@ function! DefaultKeyMappings()
   " ToggleRelativeNumber: uses custom functions
   nnoremap <silent> <leader>R :ToggleNumber<CR>
   nnoremap <silent> <leader>r :ToggleRelativeNumber<CR>
+
+    " TogglePluginWindows:
+  nnoremap <silent> <space>j <cmd>Defx
+        \ -buffer-name=defx
+        \ -columns=mark:git:indent:icons:filename:type
+        \ -direction=topleft
+        \ -search=`expand('%:p')`
+        \ -session-file=`g:custom_defx_state`
+        \ -ignored-files=`g:defx_ignored_files`
+        \ -split=vertical
+        \ -toggle
+        \ -floating-preview
+        \ -vertical-preview
+        \ -preview-height=50
+        \ -winwidth=31
+        \ <CR>
+  nnoremap <silent> <space>J <cmd>Defx `expand('%:p:h')`
+        \ -buffer-name=defx
+        \ -columns=mark:git:indent:icons:filename:type
+        \ -direction=topleft
+        \ -search=`expand('%:p')`
+        \ -ignored-files=`g:defx_ignored_files`
+        \ -split=vertical
+        \ -floating-preview
+        \ -vertical-preview
+        \ -preview-height=50
+        \ -winwidth=31
+        \ <CR>
+  nnoremap <silent> <space>l <cmd>TagbarToggle <CR>
+  nnoremap <silent> <space>u <cmd>UndotreeToggle<CR>
 
   " Choosewin: (just like tmux)
   " nnoremap <C-w>q :ChooseWin<CR>
@@ -1578,8 +1659,6 @@ function! DefaultKeyMappings()
 endfunction
 
 call DefaultKeyMappings()
-
-
 
 " }}}
 " General: Cleanup {{{
