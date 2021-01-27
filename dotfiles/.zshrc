@@ -112,8 +112,10 @@ export LESS_TERMCAP_ue=$'\E[0m'        # reset underline
 export MANPAGER='nvim -c "set ft=man" -'
 
 # tmuxinator
-export EDITOR=/usr/bin/nvim
-export SHELL=/usr/bin/zsh
+# export EDITOR=/usr/bin/nvim
+# export SHELL=/usr/bin/zsh
+export EDITOR=/usr/local/bin/nvim
+export SHELL=/usr/local/bin/zsh
 
 # environment variable controlling difference between HI-DPI / Non HI_DPI
 # turn off because it messes up my pdf tooling
@@ -367,7 +369,7 @@ zmodload -i zsh/complist
 fpath+=~/.zfunc
 
 # }}}
-# ZShell Key-Bindings --- {{{
+# # ZShell Key-Bindings --- {{{
 
 # emacs
 bindkey -e
@@ -394,11 +396,15 @@ bindkey '^n' history-beginning-search-forward
 # Omitted: /=
 WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
 
-# }}}
+# # }}}
 # ASDF: needs to run after ZSH setup {{{
 
-source $HOME/.asdf/asdf.sh
-source $HOME/.asdf/completions/asdf.bash
+# for mac - https://github.com/asdf-vm/asdf/issues/428
+export ASDF_DIR="$(brew --prefix asdf)"
+source "$ASDF_DIR/asdf.sh"
+
+# source $HOME/.asdf/asdf.sh
+# source $HOME/.asdf/completions/asdf.bash
 
 # }}}
 # Aliases --- {{{
@@ -439,7 +445,8 @@ alias igrep="grep --perl-regexp -Ir \
 --exclude-dir='venv'"
 
 # enable color support of ls and also add handy aliases
-alias ls='ls --color=auto'
+# alias ls='ls --color=auto'
+alias ls='ls -G'
 alias dir='dir --color=auto'
 alias vdir='vdir --color=auto'
 

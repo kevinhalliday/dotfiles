@@ -21,6 +21,8 @@ window:
     columns: 80
     lines: 24
 
+  dynamic_title: true
+
   # Adds this many blank pixels of padding around the window
   # Units are physical pixels; this is not DPI aware.
   # (change requires restart)
@@ -39,7 +41,7 @@ dpi:
   y: 96.0
 
 # Display tabs using this many cells (changes require restart)
-tabspaces: 8
+# tabspaces: 8
 
 # When true, bold text is drawn using the bright variant of colors.
 draw_bold_text_with_bright_colors: true
@@ -47,13 +49,13 @@ draw_bold_text_with_bright_colors: true
 # Font configuration (changes require restart)
 font:
   normal:
-    family: FuraCode Nerd Font
+    family: FiraCode Nerd Font
     style: Retina
   bold:
-    family: FuraCode Nerd Font
+    family: FiraCode Nerd Font
     style: Bold
   italic:
-    family: FuraCode Nerd Font
+    family: FiraCode Nerd Font
     style: Italic
   size: 12.0
 
@@ -96,6 +98,7 @@ cursor:
 # /home/khalliday/src/lib/alacritty-theme/themes/tomorrow_night_bright.yaml
 # Colors (Tomorrow Night Bright)
 colors:
+  # COLORSCHEME: /Users/khalliday/src/lib/alacritty-theme/themes/tomorrow_night_bright.yaml
   # Default colors
   primary:
     background: '0x000000'
@@ -103,50 +106,31 @@ colors:
 
   # Normal colors
   normal:
-    black:   '0x000000'
-    red:     '0xd54e53'
-    green:   '0xb9ca4a'
-    yellow:  '0xe6c547'
-    blue:    '0x7aa6da'
+    black: '0x000000'
+    red: '0xd54e53'
+    green: '0xb9ca4a'
+    yellow: '0xe6c547'
+    blue: '0x7aa6da'
     magenta: '0xc397d8'
-    cyan:    '0x70c0ba'
-    white:   '0x424242'
+    cyan: '0x70c0ba'
+    white: '0x424242'
 
   # Bright colors
   bright:
-    black:   '0x666666'
-    red:     '0xff3334'
-    green:   '0x9ec400'
-    yellow:  '0xe7c547'
-    blue:    '0x7aa6da'
+    black: '0x666666'
+    red: '0xff3334'
+    green: '0x9ec400'
+    yellow: '0xe7c547'
+    blue: '0x7aa6da'
     magenta: '0xb77ee0'
-    cyan:    '0x54ced6'
-    white:   '0x2a2a2a'
-# color_end
+    cyan: '0x54ced6'
+    white: '0x2a2a2a'
+  cursor:
+    text: '0xeeeeee'
+    cursor: '0x878787'
 
-# Visual Bell
-#
-# Any time the BEL code is received, Alacritty "rings" the visual bell. Once
-# rung, the terminal background will be set to white and transition back to the
-# default background color. You can control the rate of this transition by
-# setting the `duration` property (represented in milliseconds). You can also
-# configure the transition function by setting the `animation` property.
-#
-# Possible values for `animation`
-# `Ease`
-# `EaseOut`
-# `EaseOutSine`
-# `EaseOutQuad`
-# `EaseOutCubic`
-# `EaseOutQuart`
-# `EaseOutQuint`
-# `EaseOutExpo`
-# `EaseOutCirc`
-# `Linear`
-#
-# To completely disable the visual bell, set its duration to 0.
-#
-visual_bell:
+  # Normal colors
+bell:
   animation: EaseOutExpo
   duration: 0
 
@@ -164,7 +148,7 @@ scrolling:
 
   # Automatically scroll to the bottom when new text is written
   # to the terminal.
-  auto_scroll: false
+  # auto_scroll: false
 
 # Mouse bindings
 #
@@ -182,11 +166,11 @@ scrolling:
 # - PasteSelection
 # - Copy (TODO)
 mouse_bindings:
-  - { mouse: Middle, action: PasteSelection }
+  - {mouse: Middle, action: PasteSelection}
 
 mouse:
-  double_click: { threshold: 300 }
-  triple_click: { threshold: 300 }
+  double_click: {threshold: 300}
+  triple_click: {threshold: 300}
   url:
     launcher: xdg-open
     modifiers: Shift
@@ -195,8 +179,6 @@ mouse:
 
 selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>"
-
-dynamic_title: true
 
 # Live config reload (changes require restart)
 live_config_reload: true
@@ -289,62 +271,62 @@ live_config_reload: true
 #   - ~AppKeypad
 #   - AppKeypad
 key_bindings:
-  - { key: V,        mods: Control|Shift,    action: Paste               }
-  - { key: C,        mods: Control|Shift,    action: Copy                }
-  - { key: Paste,                   action: Paste                        }
-  - { key: Copy,                    action: Copy                         }
-  - { key: Q,        mods: Command, action: Quit                         }
-  - { key: W,        mods: Command, action: Quit                         }
-  - { key: Insert,   mods: Shift,   action: PasteSelection               }
-  - { key: Home,                    chars: "\x1bOH",   mode: AppCursor   }
-  - { key: Home,                    chars: "\x1b[H",   mode: ~AppCursor  }
-  - { key: Home,     mods: Shift,   action: ScrollToTop                  }
-  - { key: End,                     chars: "\x1bOF",   mode: AppCursor   }
-  - { key: End,                     chars: "\x1b[F",   mode: ~AppCursor  }
-  - { key: PageUp,   mods: Control, chars: "\x1b[5;5~"                   }
-  - { key: PageUp,   mods: Shift,   action: ScrollPageUp                 }
-  - { key: PageUp,                  chars: "\x1b[5~"                     }
-  - { key: PageDown, mods: Control, chars: "\x1b[6;5~"                   }
-  - { key: PageDown, mods: Shift,   action: ScrollPageDown               }
-  - { key: PageDown,                chars: "\x1b[6~"                     }
-  - { key: End,      mods: Shift,   action: ScrollToBottom               }
-  - { key: Left,     mods: Shift,   chars: "\x1b[1;2D"                   }
-  - { key: Left,     mods: Control, chars: "\x1b[1;5D"                   }
-  - { key: Left,     mods: Alt,     chars: "\x1b[1;3D"                   }
-  - { key: Left,                    chars: "\x1b[D",   mode: ~AppCursor  }
-  - { key: Left,                    chars: "\x1bOD",   mode: AppCursor   }
-  - { key: Right,    mods: Shift,   chars: "\x1b[1;2C"                   }
-  - { key: Right,    mods: Control, chars: "\x1b[1;5C"                   }
-  - { key: Right,    mods: Alt,     chars: "\x1b[1;3C"                   }
-  - { key: Right,                   chars: "\x1b[C",   mode: ~AppCursor  }
-  - { key: Right,                   chars: "\x1bOC",   mode: AppCursor   }
-  - { key: Up,       mods: Shift,   chars: "\x1b[1;2A"                   }
-  - { key: Up,       mods: Control, chars: "\x1b[1;5A"                   }
-  - { key: Up,       mods: Alt,     chars: "\x1b[1;3A"                   }
-  - { key: Up,                      chars: "\x1b[A",   mode: ~AppCursor  }
-  - { key: Up,                      chars: "\x1bOA",   mode: AppCursor   }
-  - { key: Down,     mods: Shift,   chars: "\x1b[1;2B"                   }
-  - { key: Down,     mods: Control, chars: "\x1b[1;5B"                   }
-  - { key: Down,     mods: Alt,     chars: "\x1b[1;3B"                   }
-  - { key: Down,                    chars: "\x1b[B",   mode: ~AppCursor  }
-  - { key: Down,                    chars: "\x1bOB",   mode: AppCursor   }
-  - { key: Tab,      mods: Shift,   chars: "\x1b[Z"                      }
-  - { key: F1,                      chars: "\x1bOP"                      }
-  - { key: F2,                      chars: "\x1bOQ"                      }
-  - { key: F3,                      chars: "\x1bOR"                      }
-  - { key: F4,                      chars: "\x1bOS"                      }
-  - { key: F5,                      chars: "\x1b[15~"                    }
-  - { key: F6,                      chars: "\x1b[17~"                    }
-  - { key: F7,                      chars: "\x1b[18~"                    }
-  - { key: F8,                      chars: "\x1b[19~"                    }
-  - { key: F9,                      chars: "\x1b[20~"                    }
-  - { key: F10,                     chars: "\x1b[21~"                    }
-  - { key: F11,                     chars: "\x1b[23~"                    }
-  - { key: F12,                     chars: "\x1b[24~"                    }
-  - { key: Back,                    chars: "\x7f"                        }
-  - { key: Back,     mods: Alt,     chars: "\x1b\x7f"                    }
-  - { key: Insert,                  chars: "\x1b[2~"                     }
-  - { key: Delete,                  chars: "\x1b[3~"                     }
-  - { key: Equals,   mods: Control,       action: IncreaseFontSize       }
-  - { key: Subtract, mods: Control,       action: DecreaseFontSize       }
-  - { key: Key0,     mods: Control,       action: ResetFontSize          }
+  - {key: V, mods: Control|Shift, action: Paste}
+  - {key: C, mods: Control|Shift, action: Copy}
+  - {key: Paste, action: Paste}
+  - {key: Copy, action: Copy}
+  - {key: Q, mods: Command, action: Quit}
+  - {key: W, mods: Command, action: Quit}
+  - {key: Insert, mods: Shift, action: PasteSelection}
+  - {key: Home, chars: "\eOH", mode: AppCursor}
+  - {key: Home, chars: "\e[H", mode: ~AppCursor}
+  - {key: Home, mods: Shift, action: ScrollToTop}
+  - {key: End, chars: "\eOF", mode: AppCursor}
+  - {key: End, chars: "\e[F", mode: ~AppCursor}
+  - {key: PageUp, mods: Control, chars: "\e[5;5~"}
+  - {key: PageUp, mods: Shift, action: ScrollPageUp}
+  - {key: PageUp, chars: "\e[5~"}
+  - {key: PageDown, mods: Control, chars: "\e[6;5~"}
+  - {key: PageDown, mods: Shift, action: ScrollPageDown}
+  - {key: PageDown, chars: "\e[6~"}
+  - {key: End, mods: Shift, action: ScrollToBottom}
+  - {key: Left, mods: Shift, chars: "\e[1;2D"}
+  - {key: Left, mods: Control, chars: "\e[1;5D"}
+  - {key: Left, mods: Alt, chars: "\e[1;3D"}
+  - {key: Left, chars: "\e[D", mode: ~AppCursor}
+  - {key: Left, chars: "\eOD", mode: AppCursor}
+  - {key: Right, mods: Shift, chars: "\e[1;2C"}
+  - {key: Right, mods: Control, chars: "\e[1;5C"}
+  - {key: Right, mods: Alt, chars: "\e[1;3C"}
+  - {key: Right, chars: "\e[C", mode: ~AppCursor}
+  - {key: Right, chars: "\eOC", mode: AppCursor}
+  - {key: Up, mods: Shift, chars: "\e[1;2A"}
+  - {key: Up, mods: Control, chars: "\e[1;5A"}
+  - {key: Up, mods: Alt, chars: "\e[1;3A"}
+  - {key: Up, chars: "\e[A", mode: ~AppCursor}
+  - {key: Up, chars: "\eOA", mode: AppCursor}
+  - {key: Down, mods: Shift, chars: "\e[1;2B"}
+  - {key: Down, mods: Control, chars: "\e[1;5B"}
+  - {key: Down, mods: Alt, chars: "\e[1;3B"}
+  - {key: Down, chars: "\e[B", mode: ~AppCursor}
+  - {key: Down, chars: "\eOB", mode: AppCursor}
+  - {key: Tab, mods: Shift, chars: "\e[Z"}
+  - {key: F1, chars: "\eOP"}
+  - {key: F2, chars: "\eOQ"}
+  - {key: F3, chars: "\eOR"}
+  - {key: F4, chars: "\eOS"}
+  - {key: F5, chars: "\e[15~"}
+  - {key: F6, chars: "\e[17~"}
+  - {key: F7, chars: "\e[18~"}
+  - {key: F8, chars: "\e[19~"}
+  - {key: F9, chars: "\e[20~"}
+  - {key: F10, chars: "\e[21~"}
+  - {key: F11, chars: "\e[23~"}
+  - {key: F12, chars: "\e[24~"}
+  - {key: Back, chars: "\x7F"}
+  - {key: Back, mods: Alt, chars: "\e\x7F"}
+  - {key: Insert, chars: "\e[2~"}
+  - {key: Delete, chars: "\e[3~"}
+  - {key: Equals, mods: Control, action: IncreaseFontSize}
+  - {key: Subtract, mods: Control, action: DecreaseFontSize}
+  - {key: Key0, mods: Control, action: ResetFontSize}

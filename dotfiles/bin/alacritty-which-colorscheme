@@ -1,10 +1,12 @@
-#!/usr/bin/zsh
+#!/bin/zsh
 
-local current=$(basename \
-  $(alacritty-colorscheme -c $HOME/.alacritty.yml --show-applied))
+echo -n 'dark'
 
-if [[ $current == 'tomorrow_night_bright.yaml' ]]; then
-  echo -n 'dark'
-else
-  echo -n 'light'
-fi
+# local current=$(basename \
+#   $(alacritty-colorscheme -c $HOME/.alacritty.yml --show-applied))
+
+# if [[ $current == 'tomorrow_night_bright.yaml' ]]; then
+#   echo -n 'dark'
+# else
+#   echo -n 'light'
+# fi

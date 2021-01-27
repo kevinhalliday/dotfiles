@@ -228,7 +228,7 @@ Plug 'aklt/plantuml-syntax'
 Plug 'NLKNguyen/c-syntax.vim'
 Plug 'hashivim/vim-terraform'
 Plug 'hashivim/vim-vagrant'
-Plug 'lervag/vimtex'
+" Plug 'lervag/vimtex'
 Plug 'tomlion/vim-solidity'
 Plug 'jparise/vim-graphql'
 Plug 'magicalbanana/sql-syntax-vim'
@@ -889,14 +889,14 @@ nnoremap <silent> <space>k :NERDTreeFind<cr>
 " let g:vim_filetype_formatter_verbose = 1
 let g:vim_filetype_formatter_commands = {
       \ 'python': 'black - -q --line-length 79',
-      \ 'javascript': 'npx -q prettier --parser flow --stdin',
-      \ 'javascript.jsx': 'npx -q prettier --parser flow --stdin',
-      \ 'typescript': 'npx -q prettier --parser typescript --stdin',
-      \ 'typescript.tsx': 'npx -q prettier --parser typescript --stdin',
-      \ 'css': 'npx -q prettier --parser css --stdin',
-      \ 'less': 'npx -q prettier --parser less --stdin',
-      \ 'html': 'npx -q prettier --parser html --stdin',
-      \ 'vue': 'npx -q prettier --html-whitespace-sensitivity ignore --parser vue --stdin'
+      \ 'javascript': 'npx -q prettier',
+      \ 'javascript.jsx': 'npx -q prettier',
+      \ 'typescript': 'npx -q prettier --parser typescript',
+      \ 'typescript.tsx': 'npx -q prettier --parser typescript',
+      \ 'css': 'npx -q prettier --parser css',
+      \ 'less': 'npx -q prettier --parser less',
+      \ 'html': 'npx -q prettier --parser html',
+      \ 'vue': 'npx -q prettier --html-whitespace-sensitivity ignore --parser vue'
       \}
 
 nnoremap <leader>f :FiletypeFormat<cr>
