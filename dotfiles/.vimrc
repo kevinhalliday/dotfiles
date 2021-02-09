@@ -176,13 +176,14 @@ for coc_plugin in [
       \ 'neoclide/coc-css',
       \ 'neoclide/coc-html',
       \ 'neoclide/coc-json',
-      \ 'neoclide/coc-python',
       \ 'neoclide/coc-rls',
+      \ 'pappasam/coc-jedi',
       \ 'neoclide/coc-snippets',
       \ 'neoclide/coc-tsserver',
       \ 'neoclide/coc-eslint',
       \ 'neoclide/coc-pairs',
       \ 'neoclide/coc-yaml',
+      \ 'iamcco/coc-spell-checker',
       \ ]
   Plug coc_plugin, { 'do': 'yarn install --frozen-lockfile && yarn build' }
 endfor
@@ -1523,6 +1524,9 @@ function! DefaultKeyMappings()
   nmap F <Plug>(coc-smartf-backward)
   " nmap ; <Plug>(coc-smartf-repeat)
   " nmap , <Plug>(coc-smartf-repeat-opposite)
+
+  vmap <leader>a <Plug>(coc-codeaction-selected)<cr>
+  nmap <leader>a <Plug>(coc-codeaction-selected)<cr>
 
   """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   " Mouse Configuration: remaps mouse to work better in terminal
