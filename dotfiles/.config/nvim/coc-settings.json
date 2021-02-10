@@ -3,7 +3,8 @@
   "suggest.noselect": true,
   "pairs.enableCharacters": ["(", "[", "{", "<", "\"", "'"],
   "yaml.schemas": {
-    "https://raw.githubusercontent.com/docker/compose/master/compose/config/config_schema_v3.8.json": "/*docker-compose.yml"
+    "https://raw.githubusercontent.com/docker/compose/master/compose/config/config_schema_v3.8.json": ["/*docker-compose.yml", "/*docker-compose.yaml"],
+    "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/3.0.3/schemas/v3.0/schema.json": ["/*open-api*.yml", "/*open-api*.yaml"]
   },
   "suggest.completionItemKindLabels": {
     "keyword": "\uf1de",
@@ -32,9 +33,24 @@
     "typeParameter": "\uf728",
     "default": "\uf29c"
   },
+  "jedi.jediSettings.autoImportModules": ["numpy", "alembic", "pydantic"],
   "diagnostic.enable": true,
   "diagnostic-languageserver.filetypes": {
     "python": ["pylint", "mypy"]
+  },
+  "diagnostic-languageserver.formatters": {
+    "black": {
+      "command": "black",
+      "args": ["black", "-q", "-"]
+    },
+    "isort": {
+      "command": "isort",
+      "args": ["-q", "-"]
+    },
+    "docformatter": {
+      "command": "docformatter",
+      "args": ["-"]
+    }
   },
   "diagnostic-languageserver.linters": {
     "mypy": {
@@ -83,7 +99,7 @@
           "message": 4
         }
       ],
-      "rootPatterns": ["pyproject.toml", "setup.py", ".git"],
+      "rootPatterns": ["pyproject.toml", ".git"],
       "securities": {
         "informational": "hint",
         "refactor": "info",
@@ -95,5 +111,15 @@
       "offsetColumn": 1,
       "formatLines": 1
     }
-  }
+  },
+  "cSpell.userWords": [
+    "Envs",
+    "Halliday",
+    "Subschemas",
+    "healthcheck",
+    "predeploy",
+    "respawn",
+    "subschema",
+    "typecheck"
+  ]
 }

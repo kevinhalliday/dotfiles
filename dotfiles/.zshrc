@@ -488,6 +488,7 @@ alias clz-ui='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Creative-Landing-Zone-UI'
 alias clz-api='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Creative-Landing-Zone-API'
 alias ai-ui='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Augmented-Insights-UI'
 alias ai-api='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Augmented-Insights-API'
+alias gateway='cd ~/src/KeplerGroup/KIP-Rocket/KIP-GraphQL-Gateway'
 alias khalliday='cd ~/src/khalliday7/'
 alias playground='cd ~/src/playground/'
 
@@ -882,8 +883,8 @@ function poetry-init() {
     return 1
   fi
   poetry init --no-interaction &> /dev/null
-  cat-pyproject >> pyproject.toml
-  toml-sort --in-place pyproject.toml
+  # cat-pyproject >> pyproject.toml
+  # toml-sort --in-place pyproject.toml
   touch README.md
 }
 

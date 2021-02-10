@@ -150,12 +150,16 @@ Plug 'fcpg/vim-altscreen'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 
+" TreeSitter:
+Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'nvim-treesitter/playground'
+
 " File Navigation
 Plug 'kh3phr3n/tabline'
 Plug 'Shougo/defx.nvim'
 Plug 'kristijanhusak/defx-git'
 Plug 'kristijanhusak/defx-icons'
-Plug 'airblade/vim-rooter' " base vim root at github root
+Plug 'airblade/vim-rooter' " bse vim root at github root
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
@@ -175,10 +179,10 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 for coc_plugin in [
       \ 'coc-extensions/coc-svelte',
       \ 'fannheyward/coc-markdownlint',
+      \ 'pappasam/coc-jedi',
       \ 'neoclide/coc-css',
       \ 'neoclide/coc-html',
       \ 'neoclide/coc-json',
-      \ 'pappasam/coc-jedi',
       \ 'neoclide/coc-rls',
       \ 'neoclide/coc-snippets',
       \ 'neoclide/coc-tsserver',
@@ -188,6 +192,7 @@ for coc_plugin in [
       \ 'iamcco/coc-diagnostic',
       \ 'iamcco/coc-vimlsp',
       \ 'josa42/coc-docker',
+      \ 'iamcco/coc-spell-checker',
       \ ]
   Plug coc_plugin, { 'do': 'yarn install --frozen-lockfile && yarn build' }
 endfor
@@ -197,7 +202,8 @@ Plug 'junegunn/limelight.vim' " highlight text (for Goyo)
 Plug 'junegunn/goyo.vim' " Distraction-free writing
 
 " Basic coloring
-Plug 'rafi/awesome-vim-colorschemes'
+Plug 'NLKNguyen/papercolor-theme'
+Plug 'pappasam/papercolor-theme-slim'
 
 " Previewers
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
@@ -233,14 +239,13 @@ Plug 'aklt/plantuml-syntax'
 Plug 'NLKNguyen/c-syntax.vim'
 Plug 'hashivim/vim-terraform'
 Plug 'hashivim/vim-vagrant'
-" Plug 'lervag/vimtex'
+Plug 'lervag/vimtex'
 Plug 'tomlion/vim-solidity'
 Plug 'jparise/vim-graphql'
 Plug 'magicalbanana/sql-syntax-vim'
-Plug 'pangloss/vim-javascript'
+" Plug 'pangloss/vim-javascript'
 Plug 'maxmellon/vim-jsx-pretty'
 Plug 'groenewege/vim-less'
-Plug 'farfanoide/vim-kivy'
 Plug 'raimon49/requirements.txt.vim'
 Plug 'chr4/nginx.vim'
 Plug 'othree/html5.vim'
@@ -250,8 +255,9 @@ Plug 'khalliday7/Kevinsfile-vim-syntax'
 Plug 'lepture/vim-jinja'
 Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
 Plug 'posva/vim-vue'
-Plug 'leafgarland/typescript-vim'
-Plug 'peitalin/vim-jsx-typescript'
+" Plug 'leafgarland/typescript-vim'
+" Plug 'peitalin/vim-jsx-typescript'
+Plug 'pappasam/vim-jsx-typescript', {'branch': 'change-to-typescriptreact' }
 Plug 'evanleck/vim-svelte', { 'branch': 'main' }
 
 " Code prettifiers
@@ -605,7 +611,7 @@ let g:PaperColor_Theme_Options.language = {
 
 " Load:
 try
-  colorscheme PaperColor
+  colorscheme PaperColorSlim
 catch
   echo 'An error occured while configuring PaperColor'
 endtry
@@ -907,16 +913,60 @@ vnoremap <leader>f :FiletypeFormat<cr>
 " filenames like *.xml, *.html, *.xhtml, ...
 " These are the file extensions where this plugin is enabled.
 "
-let g:closetag_filenames = '*.html,*.xhtml,*.js,*.jsx,*.vue,*.ts,*tsx'
+"let g:closetag_filenames = '*.html,*.xhtml,*.phtml,*.js,*.jsx,*.vue,*.tsx,*.jsx'
+"let g:closetag_xhtml_filenames = '*.html,*.xhtml,*.phtml,*.js,*.jsx,*.vue,*.tsx,*.jsx'
+
+"" filetypes like xml, html, xhtml, ...
+"" These are the file types where this plugin is enabled.
+""
+"let g:closetag_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx,vue,typescript,typescript.tsx'
+"let g:closetag_xhtml_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx,vue,typescript,typescript.tsx'
+
+"" integer value [0|1]
+"" This will make the list of non-closing tags case-sensitive
+"" (e.g. `<Link>` will be closed while `<link>` won't.)
+""
+"let g:closetag_emptyTags_caseSensitive = 1
+
+"" dict
+"" Disables auto-close if not in a "valid" region (based on filetype)
+""
+"let g:closetag_regions = {
+"    \ 'javascript.jsx': 'jsxRegion',
+"    \ 'typescript.tsx': 'jsxRegion,tsxRegion',
+"    \ }
+
+"" Shortcut for closing tags, default is '>'
+""
+"let g:closetag_shortcut = '>'
+
+"" Add > at current position without closing the current tag, default is ''
+""
+"let g:closetag_close_shortcut = '<leader>>'
+"
+
+" filenames like *.xml, *.html, *.xhtml, ...
+" These are the file extensions where this plugin is enabled.
+"
+let g:closetag_filenames = '*.html,*.xhtml,*.phtml'
+
+" filenames like *.xml, *.xhtml, ...
+" This will make the list of non-closing tags self-closing in the specified files.
+"
+let g:closetag_xhtml_filenames = '*.xhtml,*.jsx'
 
 " filetypes like xml, html, xhtml, ...
 " These are the file types where this plugin is enabled.
 "
-let g:closetag_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx,vue,typescript,typescript.tsx'
+let g:closetag_filetypes = 'html,xhtml,phtml'
+
+" filetypes like xml, xhtml, ...
+" This will make the list of non-closing tags self-closing in the specified files.
+"
+let g:closetag_xhtml_filetypes = 'xhtml,jsx'
 
 " integer value [0|1]
-" This will make the list of non-closing tags case-sensitive
-" (e.g. `<Link>` will be closed while `<link>` won't.)
+" This will make the list of non-closing tags case-sensitive (e.g. `<Link>` will be closed while `<link>` won't.)
 "
 let g:closetag_emptyTags_caseSensitive = 1
 
@@ -924,10 +974,8 @@ let g:closetag_emptyTags_caseSensitive = 1
 " Disables auto-close if not in a "valid" region (based on filetype)
 "
 let g:closetag_regions = {
-    \ 'javascript': 'jsxRegion',
-    \ 'javascript.jsx': 'jsxRegion',
-    \ 'typescript': 'jsxRegion,tsxRegion',
     \ 'typescript.tsx': 'jsxRegion,tsxRegion',
+    \ 'javascript.jsx': 'jsxRegion',
     \ }
 
 " Shortcut for closing tags, default is '>'
@@ -937,6 +985,7 @@ let g:closetag_shortcut = '>'
 " Add > at current position without closing the current tag, default is ''
 "
 let g:closetag_close_shortcut = '<leader>>'
+
 " }}}
 " Plugin: Fzf {{{
 
@@ -1449,6 +1498,42 @@ augroup end
 
 
 "  }}}
+"  Plugin: treesitter {{{
+
+function s:init_treesitter()
+  if !exists('g:loaded_nvim_treesitter')
+    echom 'nvim-treesitter does not exist, skipping...'
+    return
+  endif
+lua << EOF
+require('nvim-treesitter.configs').setup({
+  highlight = { enable = true },
+  textobjects = { enable = true },
+  ensure_installed = {
+    'bash',
+    'c',
+    'css',
+    'go',
+    'html',
+    'javascript',
+    'json',
+    'lua',
+    'python',
+    'query',
+    'rust',
+    'toml',
+    'tsx',
+    'typescript',
+}})
+EOF
+endfunction
+
+augroup custom_treesitter
+  autocmd!
+  autocmd VimEnter * call s:init_treesitter()
+augroup end
+
+"  }}}
 " General: Key remappings {{{
 
 " This is defined as a function to allow me to reset all my key remappings
@@ -1596,13 +1681,19 @@ function! DefaultKeyMappings()
   nnoremap <silent>        <leader>so <cmd>CocList -A outline<cr>
   nnoremap <silent>        <leader>sw <cmd>CocList -A -I symbols<cr>
   inoremap <silent> <expr> <c-space> coc#refresh()
-  nnoremap <silent> <expr> <C-e> coc#util#has_float() ? coc#util#float_scroll(1) : "\<C-e>"
-  nnoremap <silent> <expr> <C-y> coc#util#has_float() ? coc#util#float_scroll(0) : "\<C-y>"
+  nnoremap <silent> <expr> <C-e> coc#float#has_float() ? coc#float#scroll(1) : "\<C-e>"
+  nnoremap <silent> <expr> <C-y> coc#float#has_float() ? coc#float#scroll(0) : "\<C-y>"
   imap     <silent> <expr> <C-l> coc#expandable() ? "<Plug>(coc-snippets-expand)" : "\<C-y>"
   inoremap <silent> <expr> <CR> pumvisible() ? '<CR>' : '<C-g>u<CR><c-r>=coc#on_enter()<CR>'
   nnoremap                 <leader>d <cmd>call CocActionAsync('diagnosticToggle')<CR>
   nmap     <silent>        <leader>n <Plug>(coc-diagnostic-next)
   nmap     <silent>        <leader>p <Plug>(coc-diagnostic-prev)
+
+  " coc-spell-check:
+  " <leader>aw for current word
+  " <leader>aap for current paragraph
+  vmap <leader>a <Plug>(coc-codeaction-selected)
+  nmap <leader>a <Plug>(coc-codeaction-selected)
 
 
   " coc-smartf: press <esc> to cancel.
