@@ -151,7 +151,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 
 " TreeSitter:
-Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'nvim-treesitter/nvim-treesitter', { 'do': 'TSUpdate' }
 Plug 'nvim-treesitter/playground'
 
 " File Navigation
@@ -175,6 +175,7 @@ Plug 'tpope/vim-speeddating'
 Plug 'tpope/vim-rsi'
 
 " Auto-Completion and Diagnostics
+" \ 'iamcco/coc-spell-checker',
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 for coc_plugin in [
       \ 'coc-extensions/coc-svelte',
@@ -183,16 +184,17 @@ for coc_plugin in [
       \ 'neoclide/coc-css',
       \ 'neoclide/coc-html',
       \ 'neoclide/coc-json',
+      \ 'neoclide/coc-yaml',
       \ 'neoclide/coc-rls',
       \ 'neoclide/coc-snippets',
       \ 'neoclide/coc-tsserver',
       \ 'neoclide/coc-eslint',
       \ 'neoclide/coc-pairs',
-      \ 'neoclide/coc-yaml',
       \ 'iamcco/coc-diagnostic',
       \ 'iamcco/coc-vimlsp',
       \ 'josa42/coc-docker',
-      \ 'iamcco/coc-spell-checker',
+      \ 'josa42/coc-sh',
+      \ 'pantharshit00/coc-prisma',
       \ ]
   Plug coc_plugin, { 'do': 'yarn install --frozen-lockfile && yarn build' }
 endfor
@@ -202,7 +204,7 @@ Plug 'junegunn/limelight.vim' " highlight text (for Goyo)
 Plug 'junegunn/goyo.vim' " Distraction-free writing
 
 " Basic coloring
-Plug 'NLKNguyen/papercolor-theme'
+" Plug 'NLKNguyen/papercolor-theme'
 Plug 'pappasam/papercolor-theme-slim'
 
 " Previewers
@@ -211,54 +213,56 @@ Plug 'tyru/open-browser.vim'
 Plug 'weirongxu/plantuml-previewer.vim'
 
 " Utils
+Plug 'windwp/nvim-ts-autotag'
 Plug 'tpope/vim-surround'
 Plug 'ckarnell/Antonys-macro-repeater'
-Plug 'alvan/vim-closetag'
 Plug 'wincent/ferret' " multi file search
 Plug 'dkarter/bullets.vim'
-" Plug 'jiangmiao/auto-pairs' " trying out coc-autopairs
 
 " Syntax highlighting
-Plug 'derekwyatt/vim-scala',
-Plug 'rust-lang/rust.vim'
-Plug 'hdima/python-syntax',
-Plug 'autowitch/hive.vim'
-Plug 'elzr/vim-json',
-Plug 'vimoutliner/vimoutliner'
-Plug 'cespare/vim-toml'
-Plug 'Glench/Vim-Jinja2-Syntax'
-Plug 'godlygeek/tabular'
-Plug 'plasticboy/vim-markdown'
-Plug 'ElmCast/elm-vim'
-Plug 'mopp/rik_octave.vim'
-Plug 'ekalinin/Dockerfile.vim'
-Plug 'StanAngeloff/php.vim'
-Plug 'vim-scripts/SAS-Syntax'
-Plug 'neovimhaskell/haskell-vim'
-Plug 'aklt/plantuml-syntax'
-Plug 'NLKNguyen/c-syntax.vim'
+" reomve when treesitter configured approriatley
+Plug 'pantharshit00/vim-prisma'
+
+" Plug 'derekwyatt/vim-scala',
+" Plug 'rust-lang/rust.vim'
+" Plug 'hdima/python-syntax',
+" Plug 'autowitch/hive.vim'
+" Plug 'elzr/vim-json',
+" Plug 'vimoutliner/vimoutliner'
+" Plug 'cespare/vim-toml'
+" Plug 'Glench/Vim-Jinja2-Syntax'
+" Plug 'godlygeek/tabular'
+" Plug 'plasticboy/vim-markdown'
+" Plug 'ElmCast/elm-vim'
+" Plug 'mopp/rik_octave.vim'
+" Plug 'ekalinin/Dockerfile.vim'
+" Plug 'StanAngeloff/php.vim'
+" Plug 'vim-scripts/SAS-Syntax'
+" Plug 'neovimhaskell/haskell-vim'
+" Plug 'aklt/plantuml-syntax'
+" Plug 'NLKNguyen/c-syntax.vim'
 Plug 'hashivim/vim-terraform'
-Plug 'hashivim/vim-vagrant'
-Plug 'lervag/vimtex'
-Plug 'tomlion/vim-solidity'
-Plug 'jparise/vim-graphql'
-Plug 'magicalbanana/sql-syntax-vim'
+" Plug 'hashivim/vim-vagrant'
+" Plug 'lervag/vimtex'
+" Plug 'tomlion/vim-solidity'
+" Plug 'jparise/vim-graphql'
+" Plug 'magicalbanana/sql-syntax-vim'
 " Plug 'pangloss/vim-javascript'
-Plug 'maxmellon/vim-jsx-pretty'
-Plug 'groenewege/vim-less'
-Plug 'raimon49/requirements.txt.vim'
+" Plug 'maxmellon/vim-jsx-pretty'
+" Plug 'groenewege/vim-less'
+" Plug 'raimon49/requirements.txt.vim'
 Plug 'chr4/nginx.vim'
-Plug 'othree/html5.vim'
+" Plug 'othree/html5.vim'
 Plug 'khalliday7/Jenkinsfile-vim-syntax'
 Plug 'rdolgushin/groovy.vim'
-Plug 'khalliday7/Kevinsfile-vim-syntax'
-Plug 'lepture/vim-jinja'
-Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
-Plug 'posva/vim-vue'
+" Plug 'khalliday7/Kevinsfile-vim-syntax'
+" Plug 'lepture/vim-jinja'
+" Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
+" Plug 'posva/vim-vue'
 " Plug 'leafgarland/typescript-vim'
-" Plug 'peitalin/vim-jsx-typescript'
-Plug 'pappasam/vim-jsx-typescript', {'branch': 'change-to-typescriptreact' }
-Plug 'evanleck/vim-svelte', { 'branch': 'main' }
+Plug 'peitalin/vim-jsx-typescript'
+" Plug 'pappasam/vim-jsx-typescript', {'branch': 'change-to-typescriptreact' }
+" Plug 'evanleck/vim-svelte', { 'branch': 'main' }
 
 " Code prettifiers
 Plug 'pappasam/vim-filetype-formatter'
@@ -337,9 +341,6 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter *.handlebars set filetype=html
   autocmd BufNewFile,BufRead,BufEnter *.ejs set filetype=html
   autocmd BufNewFile,BufRead,BufEnter *.m,*.oct set filetype=octave
-  autocmd BufNewFile,BufRead,BufEnter *.jsx,*.flow set filetype=javascript.jsx
-  autocmd BufNewFile,BufRead,BufEnter *.ts, set filetype=typescript.tsx
-  autocmd BufNewFile,BufRead,BufEnter *.tsx, set filetype=typescript.tsx
   autocmd BufNewFile,BufRead,BufEnter *.svelte, set filetype=svelte
   autocmd BufNewFile,BufRead,BufEnter *.cfg,*.ini,.coveragerc,.pylintrc
         \ set filetype=dosini
@@ -349,6 +350,8 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter *.groovy  set filetype=groovy
   autocmd BufNewFile,BufRead,BufEnter *.vue  set filetype=vue
   autocmd BufNewFile,BufRead,BufEnter *.rs  set filetype=rust
+  autocmd BufNewFile,BufRead,BufEnter *.prisma  set filetype=prisma
+  autocmd BufNewFile,BufRead,BufEnter .eslintrc.json,tsconfig.json  set filetype=jsonc
 augroup END
 
 
@@ -367,10 +370,11 @@ augroup custom_comment_config
   autocmd FileType jsonc
         \ setlocal commentstring=//\ %s comments=:// formatoptions=jcroql
   autocmd FileType sh setlocal formatoptions=jcroql
-  autocmd FileType typescript.tsx,typescript
-        \ setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+  autocmd FileType typescript.tsx,typescript,typescriptreact
+        \ setlocal commentstring=//\ %s
   autocmd FileType markdown setlocal commentstring=<!--\ %s\ -->
 augroup END
+        " \ setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
 
 " }}}
 " General: Indentation (tabs, spaces, width, etc) {{{
@@ -457,6 +461,7 @@ function! s:abolish_correct()
   Abolish {c,m}arraige{,s}            {}arriage{}
   Abolish {despa,sepe}rat{e,es,ed,ing,ely,ion,ions,or} {despe,sepa}rat{}
   Abolish {les,compar,compari}sion{,s} {les,compari,compari}son{}
+  Abolish healtcheck                  healthcheck
 endfunction
 
 " what is textobj#sentence#init?
@@ -814,6 +819,75 @@ command! ToggleNumber call <SID>toggle_number()
 command! ToggleRelativeNumber call <SID>toggle_relative_number()
 
 " }}}
+" General: spacesurround {{{
+" Helper functions to format surrounding text as I type
+" The function is: Surround<Key>, where key is the intended mapping key
+" 1. Add two spaces around cursor when pressing space bar.
+" 2. Spaces will be deleted if cursor is in middle with 1 space on either side.
+"     For example: ( | ), pressing <bs> or <c-w> should delete surrounding
+"     spaces
+let s:surround_spaces = {
+      \ '()': 1,
+      \ '[]': 1,
+      \ '{}': 1,
+      \ }
+function! SurroundSpace()
+  let char_left = getline('.')[col('.') - 2]
+  let char_right = getline('.')[col('.') - 1]
+  let left_right = char_left . char_right
+  if has_key(s:surround_spaces, left_right)
+    call feedkeys("\<space>\<space>\<left>", 'ni')
+  else
+    call feedkeys("\<space>", 'ni')
+  endif
+endfunction
+" delete surround items if surrounding cursor with no space
+" for example: (|)
+" when pressing delete, surrounding parentheses will be deleted
+let s:surround_delete = {
+      \ "''": 1,
+      \ '""': 1,
+      \ '()': 1,
+      \ '<>': 1,
+      \ '[]': 1,
+      \ '{}': 1,
+      \ }
+function! SurroundBackspace()
+  let char_left = getline('.')[col('.') - 3]
+  let char_left_mid = getline('.')[col('.') - 2]
+  let char_right_mid = getline('.')[col('.') - 1]
+  let char_right = getline('.')[col('.')]
+  let mid_left_right = char_left_mid . char_right_mid
+  let left_right = char_left . char_right
+  if has_key(s:surround_delete, mid_left_right)
+    call feedkeys("\<bs>\<right>\<bs>", 'ni')
+  elseif mid_left_right != '  '
+    call feedkeys("\<bs>", 'ni')
+  elseif has_key(s:surround_spaces, left_right)
+    execute "normal! \<right>di" . left_right[1]
+  else
+    call feedkeys("\<bs>", 'ni')
+  endif
+endfunction
+function! SurroundCw()
+  let char_left = getline('.')[col('.') - 3]
+  let char_left_mid = getline('.')[col('.') - 2]
+  let char_right_mid = getline('.')[col('.') - 1]
+  let char_right = getline('.')[col('.')]
+  let mid_left_right = char_left_mid . char_right_mid
+  let left_right = char_left . char_right
+  if has_key(s:surround_delete, mid_left_right)
+    call feedkeys("\<bs>\<right>\<bs>", 'ni')
+  elseif mid_left_right != '  '
+    call feedkeys("\<c-w>", 'ni')
+  elseif has_key(s:surround_spaces, left_right)
+    execute "normal! \<right>di" . left_right[1]
+  else
+    call feedkeys("\<c-w>", 'ni')
+  endif
+endfunction
+
+" }}}
 " Plugin: Vim-Plug: {{{
 " Plug update and upgrade
 function! _PU()
@@ -833,6 +907,7 @@ let g:vim_filetype_formatter_commands = {
       \ 'javascript.jsx': 'npx -q prettier --parser flow',
       \ 'typescript': 'npx -q prettier --parser typescript',
       \ 'typescript.tsx': 'npx -q prettier --parser typescript',
+      \ 'typescriptreact': 'npx -q prettier --parser typescript',
       \ 'svelte': 'npx -q prettier',
       \ 'css': 'npx -q prettier --parser css',
       \ 'less': 'npx -q prettier --parser less',
@@ -842,149 +917,6 @@ let g:vim_filetype_formatter_commands = {
 
 nnoremap <leader>f :FiletypeFormat<cr>
 vnoremap <leader>f :FiletypeFormat<cr>
-
-" }}}
-" Plugin: AutoPairs {{{
-" unmap CR due to incompatibility with clang-complete
-" tring out coc autopairs
-" let g:AutoPairsMapCR = 0
-" let g:AutoPairs = {
-"       \ '(':')',
-"       \ '[':']',
-"       \ '{':'}',
-"       \ "'":"'",
-"       \ '"':'"',
-"       \ '`':'`'
-"       \ }
-" augroup autopairs_filetype_overrides
-"    autocmd FileType python let b:AutoPairs = {
-"       \ '(':')',
-"       \ '[':']',
-"       \ '{':'}',
-"       \ "'":"'",
-"       \ '"':'"',
-"       \ '`':'`',
-"       \ '"""': '"""',
-"       \ "'''": "'''",
-"       \ }
-"   autocmd FileType rust let b:AutoPairs = {
-"         \ '(':')',
-"         \ '[':']',
-"         \ '{':'}',
-"         \ '"':'"',
-"         \ '`':'`'
-"         \ }
-"    autocmd FileType markdown let b:AutoPairs = {
-"         \ '(':')',
-"         \ '[':']',
-"         \ '{':'}',
-"         \ "'":"'",
-"         \ '"':'"',
-"         \ '`':'`',
-"         \ '"""': '"""',
-"         \ "'''": "'''",
-"         \ '```': '```',
-"         \ }
-"   autocmd FileType plantuml let b:AutoPairs = {
-"         \ '{':'}',
-"         \ '"':'"',
-"         \ '`':'`'
-"         \ }
-"   autocmd FileType tex let b:AutoPairs = {
-"         \ '(':')',
-"         \ '[':']',
-"         \ '{':'}',
-"         \ '`': "'"
-"         \ }
-"   autocmd FileType vim let b:AutoPairs = {
-"         \ '(':')',
-"         \ '[':']',
-"         \ '{':'}',
-"         \ "'":"'",
-"         \ '`':'`',
-"         \ }
-" augroup END
-
-" " Key Remappings:
-" imap <silent><CR> <CR><Plug>AutoPairsReturn
-
-"  }}}
-" Plugin: close-tag {{{
-" filenames like *.xml, *.html, *.xhtml, ...
-" These are the file extensions where this plugin is enabled.
-"
-"let g:closetag_filenames = '*.html,*.xhtml,*.phtml,*.js,*.jsx,*.vue,*.tsx,*.jsx'
-"let g:closetag_xhtml_filenames = '*.html,*.xhtml,*.phtml,*.js,*.jsx,*.vue,*.tsx,*.jsx'
-
-"" filetypes like xml, html, xhtml, ...
-"" These are the file types where this plugin is enabled.
-""
-"let g:closetag_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx,vue,typescript,typescript.tsx'
-"let g:closetag_xhtml_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx,vue,typescript,typescript.tsx'
-
-"" integer value [0|1]
-"" This will make the list of non-closing tags case-sensitive
-"" (e.g. `<Link>` will be closed while `<link>` won't.)
-""
-"let g:closetag_emptyTags_caseSensitive = 1
-
-"" dict
-"" Disables auto-close if not in a "valid" region (based on filetype)
-""
-"let g:closetag_regions = {
-"    \ 'javascript.jsx': 'jsxRegion',
-"    \ 'typescript.tsx': 'jsxRegion,tsxRegion',
-"    \ }
-
-"" Shortcut for closing tags, default is '>'
-""
-"let g:closetag_shortcut = '>'
-
-"" Add > at current position without closing the current tag, default is ''
-""
-"let g:closetag_close_shortcut = '<leader>>'
-"
-
-" filenames like *.xml, *.html, *.xhtml, ...
-" These are the file extensions where this plugin is enabled.
-"
-let g:closetag_filenames = '*.html,*.xhtml,*.phtml'
-
-" filenames like *.xml, *.xhtml, ...
-" This will make the list of non-closing tags self-closing in the specified files.
-"
-let g:closetag_xhtml_filenames = '*.xhtml,*.jsx'
-
-" filetypes like xml, html, xhtml, ...
-" These are the file types where this plugin is enabled.
-"
-let g:closetag_filetypes = 'html,xhtml,phtml'
-
-" filetypes like xml, xhtml, ...
-" This will make the list of non-closing tags self-closing in the specified files.
-"
-let g:closetag_xhtml_filetypes = 'xhtml,jsx'
-
-" integer value [0|1]
-" This will make the list of non-closing tags case-sensitive (e.g. `<Link>` will be closed while `<link>` won't.)
-"
-let g:closetag_emptyTags_caseSensitive = 1
-
-" dict
-" Disables auto-close if not in a "valid" region (based on filetype)
-"
-let g:closetag_regions = {
-    \ 'typescript.tsx': 'jsxRegion,tsxRegion',
-    \ 'javascript.jsx': 'jsxRegion',
-    \ }
-
-" Shortcut for closing tags, default is '>'
-"
-let g:closetag_shortcut = '>'
-
-" Add > at current position without closing the current tag, default is ''
-"
-let g:closetag_close_shortcut = '<leader>>'
 
 " }}}
 " Plugin: Fzf {{{
@@ -1076,16 +1008,6 @@ function! FzfDiffFiles()
   call FzfWithDevIcons(l:fzf_command, l:fzf_preview)
 endfunction
 
-
-" Key Remappings:
-nnoremap <C-p> :call FzfFiles()<CR>
-nnoremap <C-a> :call FzfHomeFiles()<CR>
-nnoremap <C-g> :call FzfGitFiles()<CR>
-nnoremap <C-d> :call FzfDiffFiles()<CR>
-nnoremap <C-n> yiw:Grep <C-r>"<CR>
-vnoremap <C-n> y:Grep <C-r>"<CR>
-nnoremap <leader><C-n> yiw:GrepIgnoreCase <C-r>"<CR>
-vnoremap <leader><C-n> y:GrepIgnoreCase <C-r>"<CR>
 
 " }}}
 " Plugin: Tagbar {{{
@@ -1299,8 +1221,8 @@ let g:mkdp_preview_options = {
 let g:repl_filetype_commands = {
       \ 'bash': 'bash',
       \ 'javascript': 'node',
-      \ 'typescript': 'ts-node',
-      \ 'python': 'python',
+      \ 'typescript': 'npx ts-node',
+      \ 'python': 'bpython -q',
       \ 'sh': 'sh',
       \ 'vim': 'nvim --clean -ERZM',
       \ 'zsh': 'zsh',
@@ -1415,7 +1337,7 @@ let g:custom_defx_mappings = [
       \ ['<C-r>         ', "defx#do_action('redraw')"],
       \ ['<C-t>         ', "defx#do_action('open', 'tabe')"],
       \ ['<C-v>         ', "defx#do_action('open', 'vsplit')"],
-      \ ['<C-x>         ', "defx#do_action('open', 'split')"],
+      \ ['<C-x>         ', "defx#do_action('drop', 'split')"],
       \ ['<CR>          ', "defx#do_action('drop')"],
       \ ['<RightMouse>  ', "defx#do_action('cd', ['..'])"],
       \ ['O             ', "defx#do_action('open_tree', 'recursive:3')"],
@@ -1447,6 +1369,8 @@ function! s:autocmd_custom_defx()
         \ 'max_width': 100,
         \ })
 endfunction
+
+let g:defx_icons_column_length = 2
 
 function! s:open_defx_if_directory()
   if !exists('g:loaded_defx')
@@ -1507,23 +1431,32 @@ function s:init_treesitter()
   endif
 lua << EOF
 require('nvim-treesitter.configs').setup({
-  highlight = { enable = true },
+  highlight = {
+    enable = true,
+  },
   textobjects = { enable = true },
+  autotag = { enable = true  },
   ensure_installed = {
     'bash',
     'c',
     'css',
+    'dockerfile',
     'go',
+    'graphql',
     'html',
     'javascript',
+    'jsdoc',
     'json',
+    'jsonc',
     'lua',
     'python',
     'query',
     'rust',
+    'svelte',
     'toml',
     'tsx',
     'typescript',
+    'yaml',
 }})
 EOF
 endfunction
@@ -1692,8 +1625,9 @@ function! DefaultKeyMappings()
   " coc-spell-check:
   " <leader>aw for current word
   " <leader>aap for current paragraph
-  vmap <leader>a <Plug>(coc-codeaction-selected)
-  nmap <leader>a <Plug>(coc-codeaction-selected)
+  vmap     <silent>         <leader>a <Plug>(coc-codeaction-selected)
+  nmap     <silent>         <leader>a <Plug>(coc-codeaction-selected)
+  nnoremap <silent>         <leader>s <cmd>CocCommand cSpell.toggleEnableSpellChecker<CR>
 
 
   " coc-smartf: press <esc> to cancel.
@@ -1747,6 +1681,20 @@ function! DefaultKeyMappings()
   nmap <leader>e <Plug>ReplSendLine
   vmap <leader>e <Plug>ReplSendVisual
 
+  " spacesurround:
+  inoremap <silent>        <space>  <cmd>call SurroundSpace()<CR>
+  inoremap <silent>        <bs>     <cmd>call SurroundBackspace()<CR>
+  inoremap <silent>        <C-w>    <cmd>call SurroundCw()<CR>
+
+  " Key Remappings:
+  nnoremap <C-p> :call FzfFiles()<CR>
+  nnoremap <leader><C-p> :call FzfHomeFiles()<CR>
+  nnoremap <leader>g<C-p> :call FzfGitFiles()<CR>
+  nnoremap <leader>d<C-p> :call FzfDiffFiles()<CR>
+  nnoremap <C-n> yiw:Grep <C-r>"<CR>
+  vnoremap <C-n> y:Grep <C-r>"<CR>
+  nnoremap <leader><C-n> yiw:GrepIgnoreCase <C-r>"<CR>
+  vnoremap <leader><C-n> y:GrepIgnoreCase <C-r>"<CR>
 endfunction
 
 call DefaultKeyMappings()
