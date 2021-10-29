@@ -109,11 +109,11 @@ export LESS_TERMCAP_us=$'\E[1;32m'     # begin underline
 export LESS_TERMCAP_ue=$'\E[0m'        # reset underline
 
 # Configure man pager
-export MANPAGER='nvim -c "set ft=man" -'
+export MANPAGER='nvim +Man!'
 
 # tmuxinator
-export EDITOR=/usr/bin/nvim
-export SHELL=/usr/bin/zsh
+export EDITOR=nvim
+export SHELL=zsh
 
 # environment variable controlling difference between HI-DPI / Non HI_DPI
 # turn off because it messes up my pdf tooling
@@ -605,6 +605,11 @@ function light() {
   dark-prompt
 }
 
+function update_zoom() {
+  curl -Lsf https://zoom.us/client/latest/zoom_amd64.deb -o /tmp/zoom_amd64.deb
+  sudo dpkg -i /tmp/zoom_amd64.deb
+}
+
 # Pipe man stuff to neovim
 function m() {
   man --location $@ &> /dev/null
@@ -981,8 +986,7 @@ function fo() {
 }
 
 # cd into the selected directory
-# not named fd becuase fd is a binary in .cargo/bin
-function df() {
+function cdf() {
   local dir
   dir=`find * -type d -print 2> /dev/null | fzf-tmux` \
     && cd "$dir"
