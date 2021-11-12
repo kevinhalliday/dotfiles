@@ -137,6 +137,9 @@ call SetGlobalConfig()
 
 call plug#begin('~/.vim/plugged')
 
+" Copilot
+Plug 'github/copilot.vim'
+
 " Fonts
 Plug 'ryanoasis/vim-devicons'
 
@@ -220,49 +223,13 @@ Plug 'wincent/ferret' " multi file search
 Plug 'dkarter/bullets.vim'
 
 " Syntax highlighting
-" reomve when treesitter configured approriatley
 Plug 'pantharshit00/vim-prisma'
-
-" Plug 'derekwyatt/vim-scala',
-" Plug 'rust-lang/rust.vim'
-" Plug 'hdima/python-syntax',
-" Plug 'autowitch/hive.vim'
-" Plug 'elzr/vim-json',
-" Plug 'vimoutliner/vimoutliner'
-" Plug 'cespare/vim-toml'
-" Plug 'Glench/Vim-Jinja2-Syntax'
-" Plug 'godlygeek/tabular'
-" Plug 'plasticboy/vim-markdown'
-" Plug 'ElmCast/elm-vim'
-" Plug 'mopp/rik_octave.vim'
-" Plug 'ekalinin/Dockerfile.vim'
-" Plug 'StanAngeloff/php.vim'
-" Plug 'vim-scripts/SAS-Syntax'
-" Plug 'neovimhaskell/haskell-vim'
-" Plug 'aklt/plantuml-syntax'
-" Plug 'NLKNguyen/c-syntax.vim'
 Plug 'hashivim/vim-terraform'
-" Plug 'hashivim/vim-vagrant'
-" Plug 'lervag/vimtex'
-" Plug 'tomlion/vim-solidity'
-" Plug 'jparise/vim-graphql'
-" Plug 'magicalbanana/sql-syntax-vim'
-" Plug 'pangloss/vim-javascript'
-" Plug 'maxmellon/vim-jsx-pretty'
-" Plug 'groenewege/vim-less'
-" Plug 'raimon49/requirements.txt.vim'
 Plug 'chr4/nginx.vim'
-" Plug 'othree/html5.vim'
 Plug 'khalliday7/Jenkinsfile-vim-syntax'
 Plug 'rdolgushin/groovy.vim'
-" Plug 'khalliday7/Kevinsfile-vim-syntax'
-" Plug 'lepture/vim-jinja'
-" Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
-" Plug 'posva/vim-vue'
-" Plug 'leafgarland/typescript-vim'
-Plug 'peitalin/vim-jsx-typescript'
-" Plug 'pappasam/vim-jsx-typescript', {'branch': 'change-to-typescriptreact' }
-" Plug 'evanleck/vim-svelte', { 'branch': 'main' }
+" Plug 'peitalin/vim-jsx-typescript'
+Plug 'jxnblk/vim-mdx-js'
 
 " Code prettifiers
 Plug 'pappasam/vim-filetype-formatter'
@@ -1467,11 +1434,18 @@ augroup custom_treesitter
 augroup end
 
 "  }}}
+"  Plugin: copilot.vim {{{
+
+let g:copilot_no_tab_map = v:true
+
+"  }}}
 " General: Key remappings {{{
 
 " This is defined as a function to allow me to reset all my key remappings
 " without needing to repeate myself. Useful with Goyo for now
 function! DefaultKeyMappings()
+  " Copilot
+  imap <silent><script><expr> <C-j> copilot#Accept("\<CR>")
 
   " Escape: also clears highlighting
   nnoremap <silent> <esc> :noh<return><esc>
