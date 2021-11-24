@@ -5,4 +5,8 @@
   editor = nvim
   pager = cat
 [pull]
-	rebase = false
+  rebase = false
+[pager]
+  diff = delta
+[interactive]
+  diffFilter = delta --color-only --features=interactive

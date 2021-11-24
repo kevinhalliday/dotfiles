@@ -2,10 +2,6 @@
   "suggest.autoTrigger": "always",
   "suggest.noselect": true,
   "pairs.enableCharacters": ["(", "[", "{", "<", "\"", "'"],
-  "yaml.schemas": {
-    "https://raw.githubusercontent.com/docker/compose/master/compose/config/config_schema_v3.8.json": ["/*docker-compose.yml", "/*docker-compose.yaml"],
-    "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/3.0.3/schemas/v3.0/schema.json": ["/*open-api*.yml", "/*open-api*.yaml"]
-  },
   "suggest.completionItemKindLabels": {
     "keyword": "\uf1de",
     "variable": "\ue79b",
@@ -36,7 +32,17 @@
   "jedi.jediSettings.autoImportModules": ["numpy", "alembic", "pydantic"],
   "diagnostic.enable": true,
   "diagnostic-languageserver.filetypes": {
-    "python": ["pylint", "mypy"]
+    "python": ["pylint", "mypy"],
+    "sh": "shellcheck"
+  },
+  "typescript.showUnused": false,
+  "prisma": {},
+  "languageserver": {
+    "nginx-language-server": {
+      "command": "nginx-language-server",
+      "filetypes": ["nginx"],
+      "rootPatterns": ["nginx.conf", ".git"]
+    }
   },
   "diagnostic-languageserver.formatters": {
     "black": {
@@ -111,15 +117,5 @@
       "offsetColumn": 1,
       "formatLines": 1
     }
-  },
-  "cSpell.userWords": [
-    "Envs",
-    "Halliday",
-    "Subschemas",
-    "healthcheck",
-    "predeploy",
-    "respawn",
-    "subschema",
-    "typecheck"
-  ]
+  }
 }
