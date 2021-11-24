@@ -32,7 +32,7 @@ sudo apt install -y \
   curl \
   dict \
   dict-gcide \
-  dict-moby-thesaurus \
+  # dict-moby-thesaurus \
   entr \
   expect-dev \
   exuberant-ctags \
@@ -87,7 +87,7 @@ sudo apt install -y \
   python-openssl \
   screenkey \
   shellcheck \
-  snapd \
+  # snapd \
   software-properties-common \
   stow \
   texlive-full \

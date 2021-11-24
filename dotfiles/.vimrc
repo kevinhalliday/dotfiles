@@ -150,10 +150,16 @@ Plug 'fcpg/vim-altscreen'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 
+" TreeSitter:
+Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'nvim-treesitter/playground'
+
 " File Navigation
 Plug 'kh3phr3n/tabline'
-Plug 'scrooloose/nerdtree'
-Plug 'airblade/vim-rooter' " base vim root at github root
+Plug 'Shougo/defx.nvim'
+Plug 'kristijanhusak/defx-git'
+Plug 'kristijanhusak/defx-icons'
+Plug 'airblade/vim-rooter' " bse vim root at github root
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
@@ -173,6 +179,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 for coc_plugin in [
       \ 'coc-extensions/coc-svelte',
       \ 'fannheyward/coc-markdownlint',
+      \ 'pappasam/coc-jedi',
       \ 'neoclide/coc-css',
       \ 'neoclide/coc-html',
       \ 'neoclide/coc-json',
@@ -183,6 +190,9 @@ for coc_plugin in [
       \ 'neoclide/coc-eslint',
       \ 'neoclide/coc-pairs',
       \ 'neoclide/coc-yaml',
+      \ 'iamcco/coc-diagnostic',
+      \ 'iamcco/coc-vimlsp',
+      \ 'josa42/coc-docker',
       \ 'iamcco/coc-spell-checker',
       \ ]
   Plug coc_plugin, { 'do': 'yarn install --frozen-lockfile && yarn build' }
@@ -193,7 +203,8 @@ Plug 'junegunn/limelight.vim' " highlight text (for Goyo)
 Plug 'junegunn/goyo.vim' " Distraction-free writing
 
 " Basic coloring
-Plug 'rafi/awesome-vim-colorschemes'
+Plug 'NLKNguyen/papercolor-theme'
+Plug 'pappasam/papercolor-theme-slim'
 
 " Previewers
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
@@ -233,10 +244,9 @@ Plug 'hashivim/vim-vagrant'
 Plug 'tomlion/vim-solidity'
 Plug 'jparise/vim-graphql'
 Plug 'magicalbanana/sql-syntax-vim'
-Plug 'pangloss/vim-javascript'
+" Plug 'pangloss/vim-javascript'
 Plug 'maxmellon/vim-jsx-pretty'
 Plug 'groenewege/vim-less'
-Plug 'farfanoide/vim-kivy'
 Plug 'raimon49/requirements.txt.vim'
 Plug 'chr4/nginx.vim'
 Plug 'othree/html5.vim'
@@ -246,8 +256,10 @@ Plug 'khalliday7/Kevinsfile-vim-syntax'
 Plug 'lepture/vim-jinja'
 Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
 Plug 'posva/vim-vue'
-Plug 'leafgarland/typescript-vim'
-Plug 'peitalin/vim-jsx-typescript'
+" Plug 'leafgarland/typescript-vim'
+" Plug 'peitalin/vim-jsx-typescript'
+Plug 'pappasam/vim-jsx-typescript', {'branch': 'change-to-typescriptreact' }
+Plug 'evanleck/vim-svelte', { 'branch': 'main' }
 
 " Code prettifiers
 Plug 'pappasam/vim-filetype-formatter'
@@ -303,26 +315,15 @@ function! StripNewlines(instring)
   return substitute(a:instring, '\v^\n*(.{-})\n*$', '\1', '')
 endfunction
 
-" function! StatuslineGitBranch()
-"   let b:gitbranch = ''
-"   if &modifiable
-"     try
-"       let branch_name = StripNewlines(system(
-"             \ 'git -C ' .
-"             \ expand('%:p:h') .
-"             \ ' rev-parse --abbrev-ref HEAD'))
-"       if !v:shell_error
-"         let b:gitbranch = '[git::' . branch_name . ']'
-"       endif
-"     catch
-"     endtry
-"   endif
-" endfunction
-
-augroup get_git_branch
+augroup custom_statusline
   autocmd!
-  " autocmd VimEnter,WinEnter,BufEnter * call StatuslineGitBranch()
-augroup END
+  autocmd FileType defx setlocal statusline=\ defx\ %#CursorLine#
+augroup end
+
+augroup custom_cursorline
+  autocmd!
+  autocmd FileType tagbar,defx,qf setlocal cursorline
+augroup end
 
 " }}}
 " General: Filetype specification {{{
@@ -340,6 +341,7 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter *.jsx,*.flow set filetype=javascript.jsx
   autocmd BufNewFile,BufRead,BufEnter *.ts, set filetype=typescript.tsx
   autocmd BufNewFile,BufRead,BufEnter *.tsx, set filetype=typescript.tsx
+  autocmd BufNewFile,BufRead,BufEnter *.svelte, set filetype=svelte
   autocmd BufNewFile,BufRead,BufEnter *.cfg,*.ini,.coveragerc,.pylintrc
         \ set filetype=dosini
   autocmd BufNewFile,BufRead,BufEnter *.tsv set filetype=tsv
@@ -610,7 +612,7 @@ let g:PaperColor_Theme_Options.language = {
 
 " Load:
 try
-  colorscheme PaperColor
+  colorscheme PaperColorSlim
 catch
   echo 'An error occured while configuring PaperColor'
 endtry
@@ -822,76 +824,14 @@ endfunction
 command! PU call _PU()
 
 "  }}}
-" Plugin: NERDTree {{{
-
-let g:NERDTreeMapOpenInTab = '<C-t>'
-let g:NERDTreeMapOpenInTabSilent = ''
-let g:NERDTreeMapOpenSplit = '<C-s>'
-let g:NERDTreeMapOpenVSplit = '<C-v>'
-let g:NERDTreeMapJumpNextSibling = '<C-n>'
-let g:NERDTreeMapJumpPrevSibling = '<C-p>'
-let g:NERDTreeMapJumpFirstChild = '<C-k>'
-let g:NERDTreeMapJumpLastChild = '<C-j>'
-
-let g:NERDTreeShowLineNumbers = 1
-let g:NERDTreeCaseSensitiveSort = 0
-let g:NERDTreeWinPos = 'left'
-let g:NERDTreeWinSize = 31
-let g:NERDTreeAutoDeleteBuffer = 1
-let g:NERDTreeSortOrder = ['*', '\/$']
-let g:NERDTreeIgnore=[
-      \'venv$[[dir]]',
-      \'.venv$[[dir]]',
-      \'__pycache__$[[dir]]',
-      \'.egg-info$[[dir]]',
-      \'node_modules$[[dir]]',
-      \'elm-stuff$[[dir]]',
-      \'\.aux$[[file]]',
-      \'\.toc$[[file]]',
-      \'\.pdf$[[file]]',
-      \'\.out$[[file]]',
-      \'\.o$[[file]]',
-      \]
-
-function! NERDTreeToggleCustom()
-  if exists('t:NERDTreeBufName') && bufwinnr(t:NERDTreeBufName) != -1
-    " if NERDTree is open in window in current tab...
-    exec 'NERDTreeClose'
-  else
-    exec 'NERDTree %'
-  endif
-endfunction
-
-function! s:CloseIfOnlyControlWinLeft()
-  if winnr("$") != 1
-    return
-  endif
-  if (exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1)
-        \ || &buftype == 'quickfix'
-    q
-  endif
-endfunction
-
-augroup CloseIfOnlyControlWinLeft
-  au!
-  au BufEnter * call s:CloseIfOnlyControlWinLeft()
-augroup END
-
-
-" Key Remappings:
-nnoremap <silent> <space>j :NERDTreeToggle<CR>
-nnoremap <silent> <space>J :call NERDTreeToggleCustom()<CR>
-nnoremap <silent> <space>k :NERDTreeFind<cr>
-
-"  }}}
 "  Plugin: Vim Filetype Formatter {{{
 
 " code formatting, thanks sam
 " let g:vim_filetype_formatter_verbose = 1
 let g:vim_filetype_formatter_commands = {
       \ 'python': 'black - -q --line-length 79',
-      \ 'javascript': 'npx -q prettier',
-      \ 'javascript.jsx': 'npx -q prettier',
+      \ 'javascript': 'npx -q prettier --parser typescript',
+      \ 'javascript.jsx': 'npx -q prettier typescript',
       \ 'typescript': 'npx -q prettier --parser typescript',
       \ 'typescript.tsx': 'npx -q prettier --parser typescript',
       \ 'css': 'npx -q prettier --parser css',
@@ -973,16 +913,60 @@ vnoremap <leader>f :FiletypeFormat<cr>
 " filenames like *.xml, *.html, *.xhtml, ...
 " These are the file extensions where this plugin is enabled.
 "
-let g:closetag_filenames = '*.html,*.xhtml,*.js,*.jsx,*.vue,*.ts,*tsx'
+"let g:closetag_filenames = '*.html,*.xhtml,*.phtml,*.js,*.jsx,*.vue,*.tsx,*.jsx'
+"let g:closetag_xhtml_filenames = '*.html,*.xhtml,*.phtml,*.js,*.jsx,*.vue,*.tsx,*.jsx'
+
+"" filetypes like xml, html, xhtml, ...
+"" These are the file types where this plugin is enabled.
+""
+"let g:closetag_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx,vue,typescript,typescript.tsx'
+"let g:closetag_xhtml_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx,vue,typescript,typescript.tsx'
+
+"" integer value [0|1]
+"" This will make the list of non-closing tags case-sensitive
+"" (e.g. `<Link>` will be closed while `<link>` won't.)
+""
+"let g:closetag_emptyTags_caseSensitive = 1
+
+"" dict
+"" Disables auto-close if not in a "valid" region (based on filetype)
+""
+"let g:closetag_regions = {
+"    \ 'javascript.jsx': 'jsxRegion',
+"    \ 'typescript.tsx': 'jsxRegion,tsxRegion',
+"    \ }
+
+"" Shortcut for closing tags, default is '>'
+""
+"let g:closetag_shortcut = '>'
+
+"" Add > at current position without closing the current tag, default is ''
+""
+"let g:closetag_close_shortcut = '<leader>>'
+"
+
+" filenames like *.xml, *.html, *.xhtml, ...
+" These are the file extensions where this plugin is enabled.
+"
+let g:closetag_filenames = '*.html,*.xhtml,*.phtml'
+
+" filenames like *.xml, *.xhtml, ...
+" This will make the list of non-closing tags self-closing in the specified files.
+"
+let g:closetag_xhtml_filenames = '*.xhtml,*.jsx'
 
 " filetypes like xml, html, xhtml, ...
 " These are the file types where this plugin is enabled.
 "
-let g:closetag_filetypes = 'html,xhtml,javascript,javascript.jsx,jsx,vue,typescript,typescript.tsx'
+let g:closetag_filetypes = 'html,xhtml,phtml'
+
+" filetypes like xml, xhtml, ...
+" This will make the list of non-closing tags self-closing in the specified files.
+"
+let g:closetag_xhtml_filetypes = 'xhtml,jsx'
 
 " integer value [0|1]
-" This will make the list of non-closing tags case-sensitive
-" (e.g. `<Link>` will be closed while `<link>` won't.)
+" This will make the list of non-closing tags case-sensitive (e.g. `<Link>` will be closed while `<link>` won't.)
 "
 let g:closetag_emptyTags_caseSensitive = 1
 
@@ -990,10 +974,8 @@ let g:closetag_emptyTags_caseSensitive = 1
 " Disables auto-close if not in a "valid" region (based on filetype)
 "
 let g:closetag_regions = {
-    \ 'javascript': 'jsxRegion',
-    \ 'javascript.jsx': 'jsxRegion',
-    \ 'typescript': 'jsxRegion,tsxRegion',
     \ 'typescript.tsx': 'jsxRegion,tsxRegion',
+    \ 'javascript.jsx': 'jsxRegion',
     \ }
 
 " Shortcut for closing tags, default is '>'
@@ -1003,6 +985,7 @@ let g:closetag_shortcut = '>'
 " Add > at current position without closing the current tag, default is ''
 "
 let g:closetag_close_shortcut = '<leader>>'
+
 " }}}
 " Plugin: Fzf {{{
 
@@ -1136,39 +1119,39 @@ augroup Smartf
 augroup end
 
 " Customization:
-function! s:coc_diagnostic_disable()
-  call coc#config('diagnostic.enable', v:false)
-  let g:coc_custom_diagnostic_enabled = v:false
-  silent CocRestart
-  echom 'Disabled: Coc Diagnostics'
-endfunction
+" function! s:coc_diagnostic_disable()
+"   call coc#config('diagnostic.enable', v:false)
+"   let g:coc_custom_diagnostic_enabled = v:false
+"   silent CocRestart
+"   echom 'Disabled: Coc Diagnostics'
+" endfunction
 
-function! s:coc_diagnostic_enable()
-  call coc#config('diagnostic.enable', v:true)
-  let g:coc_custom_diagnostic_enabled = v:true
-  echom 'Enabled: Coc Diagnostics'
-endfunction
+" function! s:coc_diagnostic_enable()
+"   call coc#config('diagnostic.enable', v:true)
+"   let g:coc_custom_diagnostic_enabled = v:true
+"   echom 'Enabled: Coc Diagnostics'
+" endfunction
 
-function! s:coc_diagnostic_toggle()
-  if g:coc_custom_diagnostic_enabled == v:true
-    call s:coc_diagnostic_disable()
-  else
-    call s:coc_diagnostic_enable()
-  endif
-endfunction
+" function! s:coc_diagnostic_toggle()
+"   if g:coc_custom_diagnostic_enabled == v:true
+"     call s:coc_diagnostic_disable()
+"   else
+"     call s:coc_diagnostic_enable()
+"   endif
+" endfunction
 
-function! s:coc_init()
-  let g:coc_custom_diagnostic_enabled = v:true
-endfunction
+" function! s:coc_init()
+"   let g:coc_custom_diagnostic_enabled = v:true
+" endfunction
 
-augroup coc_initialization
-  autocmd!
-  autocmd VimEnter * call s:coc_init()
-augroup END
+" augroup coc_initialization
+"   autocmd!
+"   autocmd VimEnter * call s:coc_init()
+" augroup END
 
-command! CocDiagnosticToggle call s:coc_diagnostic_toggle()
-command! CocDiagnosticEnable call s:coc_diagnostic_enable()
-command! CocDiagnosticDisable call s:coc_diagnostic_disable()
+" command! CocDiagnosticToggle call s:coc_diagnostic_toggle()
+" command! CocDiagnosticEnable call s:coc_diagnostic_enable()
+" command! CocDiagnosticDisable call s:coc_diagnostic_disable()
 
 " }}}
 " Plugin: Restructured Text {{{
@@ -1308,12 +1291,16 @@ let g:mkdp_preview_options = {
       \ }
 
 " }}}
+" Plugin: vimtext {{{
+  let g:tex_flavor = 'latex'
+" }}}
 " Plugins: nvim-repl {{{
 
 let g:repl_filetype_commands = {
       \ 'bash': 'bash',
       \ 'javascript': 'node',
-      \ 'python': 'bpython -q',
+      \ 'typescript': 'ts-node',
+      \ 'python': 'python',
       \ 'sh': 'sh',
       \ 'vim': 'nvim --clean -ERZM',
       \ 'zsh': 'zsh',
@@ -1389,6 +1376,164 @@ let g:FerretMap = v:false
 let g:seoul256_background = 233
 
 "  }}}
+"  Plugin: defx {{{
+
+let g:custom_defx_state = tempname()
+
+let g:defx_ignored_files = join([
+      \ '*.aux',
+      \ '*.egg-info/',
+      \ '*.o',
+      \ '*.out',
+      \ '*.pdf',
+      \ '*.pyc',
+      \ '*.toc',
+      \ '.*',
+      \ '__pycache__/',
+      \ 'build/',
+      \ 'dist/',
+      \ 'docs/_build/',
+      \ 'fonts/',
+      \ 'node_modules/',
+      \ 'pip-wheel-metadata/',
+      \ 'plantuml-images/',
+      \ 'site/',
+      \ 'target/',
+      \ 'venv.bak/',
+      \ 'venv/',
+      \ ], ',')
+
+let g:custom_defx_mappings = [
+      \ ['!             ', "defx#do_action('execute_command')"],
+      \ ['*             ', "defx#do_action('toggle_select_all')"],
+      \ [';             ', "defx#do_action('repeat')"],
+      \ ['<2-LeftMouse> ', "defx#is_directory() ? defx#do_action('open_tree', 'toggle') : defx#do_action('drop')"],
+      \ ['<C-g>         ', "defx#do_action('print')"],
+      \ ['<C-h>         ', "defx#do_action('resize', 31)"],
+      \ ['<C-i>         ', "defx#do_action('open_directory')"],
+      \ ['<C-o>         ', "defx#do_action('cd', ['..'])"],
+      \ ['<C-r>         ', "defx#do_action('redraw')"],
+      \ ['<C-t>         ', "defx#do_action('open', 'tabe')"],
+      \ ['<C-v>         ', "defx#do_action('open', 'vsplit')"],
+      \ ['<C-x>         ', "defx#do_action('open', 'split')"],
+      \ ['<CR>          ', "defx#do_action('drop')"],
+      \ ['<RightMouse>  ', "defx#do_action('cd', ['..'])"],
+      \ ['O             ', "defx#do_action('open_tree', 'recursive:3')"],
+      \ ['p             ', "defx#do_action('preview')"],
+      \ ['a             ', "defx#do_action('toggle_select')"],
+      \ ['cc            ', "defx#do_action('copy')"],
+      \ ['cd            ', "defx#do_action('change_vim_cwd')"],
+      \ ['i             ', "defx#do_action('toggle_ignored_files')"],
+      \ ['ma            ', "defx#do_action('new_file')"],
+      \ ['md            ', "defx#do_action('remove')"],
+      \ ['mm            ', "defx#do_action('rename')"],
+      \ ['o             ', "defx#is_directory() ? defx#do_action('open_tree', 'toggle') : defx#do_action('drop')"],
+      \ ['P             ', "defx#do_action('paste')"],
+      \ ['q             ', "defx#do_action('quit')"],
+      \ ['ss            ', "defx#do_action('multi', [['toggle_sort', 'TIME'], 'redraw'])"],
+      \ ['t             ', "defx#do_action('open_tree', 'toggle')"],
+      \ ['u             ', "defx#do_action('cd', ['..'])"],
+      \ ['x             ', "defx#do_action('execute_system')"],
+      \ ['yy            ', "defx#do_action('yank_path')"],
+      \ ['~             ', "defx#do_action('cd')"],
+      \ ]
+
+function! s:autocmd_custom_defx()
+  if !exists('g:loaded_defx')
+    return
+  endif
+  call defx#custom#column('filename', {
+        \ 'min_width': 100,
+        \ 'max_width': 100,
+        \ })
+endfunction
+
+function! s:open_defx_if_directory()
+  if !exists('g:loaded_defx')
+    echom 'Defx not installed, skipping...'
+    return
+  endif
+  if isdirectory(expand(expand('%:p')))
+    Defx `expand('%:p')`
+        \ -buffer-name=defx
+        \ -columns=mark:git:indent:icons:filename:type:size:time
+  endif
+endfunction
+
+function! s:defx_redraw()
+  if !exists('g:loaded_defx')
+    return
+  endif
+  call defx#redraw()
+endfunction
+
+function! s:defx_buffer_remappings() abort
+  " Define mappings
+  for [key, value] in g:custom_defx_mappings
+    execute 'nnoremap <silent><buffer><expr> ' . key . ' ' . value
+  endfor
+  nnoremap <silent><buffer> ?
+        \ :for [key, value] in g:custom_defx_mappings <BAR>
+        \ echo '' . key . ': ' . value <BAR>
+        \ endfor<CR>
+endfunction
+
+augroup custom_defx
+  autocmd!
+  autocmd VimEnter * call s:autocmd_custom_defx()
+  autocmd BufEnter * call s:open_defx_if_directory()
+  autocmd BufLeave,BufWinLeave \[defx\]* silent call defx#call_action('add_session')
+augroup end
+
+augroup custom_remap_defx
+  autocmd!
+  autocmd FileType defx call s:defx_buffer_remappings()
+  autocmd FileType defx nmap     <buffer> <silent> gp <Plug>(defx-git-prev)
+  autocmd FileType defx nmap     <buffer> <silent> gn <Plug>(defx-git-next)
+  autocmd FileType defx nmap     <buffer> <silent> gs <Plug>(defx-git-stage)
+  autocmd FileType defx nmap     <buffer> <silent> gu <Plug>(defx-git-reset)
+  autocmd FileType defx nmap     <buffer> <silent> gd <Plug>(defx-git-discard)
+  autocmd FileType defx nnoremap <buffer> <silent> <C-l> <cmd>ResizeWindowWidth<CR>
+augroup end
+
+
+"  }}}
+"  Plugin: treesitter {{{
+
+function s:init_treesitter()
+  if !exists('g:loaded_nvim_treesitter')
+    echom 'nvim-treesitter does not exist, skipping...'
+    return
+  endif
+lua << EOF
+require('nvim-treesitter.configs').setup({
+  highlight = { enable = true },
+  textobjects = { enable = true },
+  ensure_installed = {
+    'bash',
+    'c',
+    'css',
+    'go',
+    'html',
+    'javascript',
+    'json',
+    'lua',
+    'python',
+    'query',
+    'rust',
+    'toml',
+    'tsx',
+    'typescript',
+}})
+EOF
+endfunction
+
+augroup custom_treesitter
+  autocmd!
+  autocmd VimEnter * call s:init_treesitter()
+augroup end
+
+"  }}}
 " General: Key remappings {{{
 
 " This is defined as a function to allow me to reset all my key remappings
@@ -1402,7 +1547,7 @@ function! DefaultKeyMappings()
   inoremap <C-v> <C-o>p
 
   " J: basically, unmap in normal mode unless range explicitly specified
-  " nnoremap <silent> <expr> J v:count == 0 ? '<esc>' : 'J'
+  nnoremap <silent> <expr> J v:count == 0 ? '<esc>' : 'J'
 
   " Exit: Preview, Help, QuickFix, and Location List
   inoremap <silent> <C-c> <Esc>:pclose <BAR> cclose <BAR> lclose <CR>a
@@ -1447,6 +1592,36 @@ function! DefaultKeyMappings()
   nnoremap <silent> <leader>R :ToggleNumber<CR>
   nnoremap <silent> <leader>r :ToggleRelativeNumber<CR>
 
+    " TogglePluginWindows:
+  nnoremap <silent> <space>j <cmd>Defx
+        \ -buffer-name=defx
+        \ -columns=mark:git:indent:icons:filename:type
+        \ -direction=topleft
+        \ -search=`expand('%:p')`
+        \ -session-file=`g:custom_defx_state`
+        \ -ignored-files=`g:defx_ignored_files`
+        \ -split=vertical
+        \ -toggle
+        \ -floating-preview
+        \ -vertical-preview
+        \ -preview-height=50
+        \ -winwidth=31
+        \ <CR>
+  nnoremap <silent> <space>J <cmd>Defx `expand('%:p:h')`
+        \ -buffer-name=defx
+        \ -columns=mark:git:indent:icons:filename:type
+        \ -direction=topleft
+        \ -search=`expand('%:p')`
+        \ -ignored-files=`g:defx_ignored_files`
+        \ -split=vertical
+        \ -floating-preview
+        \ -vertical-preview
+        \ -preview-height=50
+        \ -winwidth=31
+        \ <CR>
+  nnoremap <silent> <space>l <cmd>TagbarToggle <CR>
+  nnoremap <silent> <space>u <cmd>UndotreeToggle<CR>
+
   " Choosewin: (just like tmux)
   " nnoremap <C-w>q :ChooseWin<CR>
 
@@ -1483,45 +1658,47 @@ function! DefaultKeyMappings()
   " Run Or Build:
   nnoremap <leader><leader>r :Run<CR>
 
-  " Coc: settings for coc.nvim
-  " see https://github.com/neoclide/coc.nvim
-  nmap <silent> <C-]> <Plug>(coc-definition)
-  nnoremap <silent> <C-K> :call <SID>show_documentation()<CR>
-  nmap <silent> <leader>st <Plug>(coc-type-definition)
-  nmap <silent> <leader>si <Plug>(coc-implementation)
-  nmap <silent> <leader>su <Plug>(coc-references)
-  nmap <silent> <leader>sr <Plug>(coc-rename)
+   " Coc: settings for coc.nvim
+  nmap     <silent>        <C-]> <Plug>(coc-definition)
+  nmap     <silent>        <C-LeftMouse> <Plug>(coc-definition)
+  nnoremap <silent>        <C-k> <cmd>call <SID>show_documentation()<CR>
+  nnoremap <silent>        <C-h> <cmd>call CocActionAsync('showSignatureHelp')<CR>
+  inoremap <silent>        <C-h> <cmd>call CocActionAsync('showSignatureHelp')<CR>
+  nmap     <silent>        <leader>st <Plug>(coc-type-definition)
+  nmap     <silent>        <leader>si <Plug>(coc-implementation)
+  nmap     <silent>        <leader>su <Plug>(coc-references)
+  nmap     <silent>        <leader>sr <Plug>(coc-rename)
+  nmap     <silent>        <leader>sa v<Plug>(coc-codeaction-selected)
+  vmap     <silent>        <leader>sa <Plug>(coc-codeaction-selected)
+  xmap     <silent>        af <Plug>(coc-funcobj-a)
+  omap     <silent>        af <Plug>(coc-funcobj-a)
+  xmap     <silent>        ac <Plug>(coc-classobj-a)
+  omap     <silent>        ac <Plug>(coc-classobj-a)
+  nnoremap <silent>        <leader>sn <cmd>CocNext<CR>
+  nnoremap <silent>        <leader>sp <cmd>CocPrev<CR>
+  nnoremap <silent>        <leader>sl <cmd>CocListResume<CR>
+  nnoremap <silent>        <leader>sc <cmd>CocList commands<cr>
+  nnoremap <silent>        <leader>so <cmd>CocList -A outline<cr>
+  nnoremap <silent>        <leader>sw <cmd>CocList -A -I symbols<cr>
+  inoremap <silent> <expr> <c-space> coc#refresh()
+  nnoremap <silent> <expr> <C-e> coc#float#has_float() ? coc#float#scroll(1) : "\<C-e>"
+  nnoremap <silent> <expr> <C-y> coc#float#has_float() ? coc#float#scroll(0) : "\<C-y>"
+  imap     <silent> <expr> <C-l> coc#expandable() ? "<Plug>(coc-snippets-expand)" : "\<C-y>"
+  inoremap <silent> <expr> <CR> pumvisible() ? '<CR>' : '<C-g>u<CR><c-r>=coc#on_enter()<CR>'
+  nnoremap                 <leader>d <cmd>call CocActionAsync('diagnosticToggle')<CR>
+  nmap     <silent>        <leader>n <Plug>(coc-diagnostic-next)
+  nmap     <silent>        <leader>p <Plug>(coc-diagnostic-prev)
 
-  " diagnostics (these aren't working)
-  nnoremap <leader>d :CocDiagnosticToggle<CR>
-  nmap <leader>n <Plug>(coc-diagnostic-next)
-  nmap <leader>p <Plug>(coc-diagnostic-prev)
-
-  " next and previous items in a list
-  nnoremap <silent> <leader>sn :<C-u>CocNext<CR>
-  nnoremap <silent> <leader>sp :<C-u>CocPrev<CR>
-  nnoremap <silent> <leader>sl :<C-u>CocListResume<CR>
-  " Show commands
-  nnoremap <silent> <leader>sc :<C-u>CocList commands<cr>
-  " Find symbol of current document
-  nnoremap <silent> <leader>ss :<C-u>CocList outline<cr>
-  " Search workspace symbols
-  nnoremap <silent> <leader>sw :<C-u>CocList -I symbols<cr>
-  " Use <c-space> to trigger completion
-  inoremap <silent><expr> <c-space> coc#refresh()
-  " Scroll in floating window
-  nnoremap <expr><C-d> coc#util#has_float() ? coc#util#float_scroll(1) : "\<C-d>"
-  nnoremap <expr><C-u> coc#util#has_float() ? coc#util#float_scroll(0) : "\<C-u>"
-  " snippets
-  imap <C-l> <Plug>(coc-snippets-expand)
-  vmap <C-j> <Plug>(coc-snippets-select)
-  " Use <C-j> for both expand and jump (make expand higher priority.)
-  imap <C-j> <Plug>(coc-snippets-expand-jump)
+  " coc-spell-check:
+  " <leader>aw for current word
+  " <leader>aap for current paragraph
+  vmap <leader>a <Plug>(coc-codeaction-selected)
+  nmap <leader>a <Plug>(coc-codeaction-selected)
 
 
   " coc-smartf: press <esc> to cancel.
-  nmap f <Plug>(coc-smartf-forward)
-  nmap F <Plug>(coc-smartf-backward)
+  " nmap f <Plug>(coc-smartf-forward)
+  " nmap F <Plug>(coc-smartf-backward)
   " nmap ; <Plug>(coc-smartf-repeat)
   " nmap , <Plug>(coc-smartf-repeat-opposite)
 
@@ -1536,8 +1713,8 @@ function! DefaultKeyMappings()
   nnoremap <leader>y "+y
   " Normal mode paste checks whether the current line has text
   " if yes, insert new line, if no, start paste on the current line
-  nnoremap <expr> <leader>p
-        \ len(getline('.')) == 0 ? '"+p' : 'o<esc>"+p'
+  " nnoremap <expr> <leader>p
+  "       \ len(getline('.')) == 0 ? '"+p' : 'o<esc>"+p'
 
   " Mouse Copy: system copy mouse characteristics
   vnoremap <RightMouse> "+y
@@ -1576,8 +1753,6 @@ function! DefaultKeyMappings()
 endfunction
 
 call DefaultKeyMappings()
-
-
 
 " }}}
 " General: Cleanup {{{

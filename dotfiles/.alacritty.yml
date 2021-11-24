@@ -15,6 +15,8 @@ env:
   TERM: xterm-256color
 
 window:
+  dynamic_title: true
+
   # Window dimensions in character columns and lines
   # (changes require restart)
   dimensions:
@@ -125,11 +127,12 @@ colors:
     magenta: '0xb77ee0'
     cyan: '0x54ced6'
     white: '0x2a2a2a'
+
   cursor:
     text: '0xeeeeee'
     cursor: '0x878787'
 
-  # Normal colors
+
 bell:
   animation: EaseOutExpo
   duration: 0
@@ -188,8 +191,9 @@ live_config_reload: true
 #
 # You can set shell.program to the path of your favorite shell, e.g. /bin/fish.
 # Entries in shell.args are passed unmodified as arguments to the shell.
-#shell:
-#  program: /bin/bash
+shell:
+  # program: /usr/bin/zsh
+  program: /usr/local/bin/zsh
 #  args:
 #    - --login
 
@@ -328,5 +332,5 @@ key_bindings:
   - {key: Insert, chars: "\e[2~"}
   - {key: Delete, chars: "\e[3~"}
   - {key: Equals, mods: Control, action: IncreaseFontSize}
-  - {key: Subtract, mods: Control, action: DecreaseFontSize}
+  - {key: Minus, mods: Control, action: DecreaseFontSize}
   - {key: Key0, mods: Control, action: ResetFontSize}
