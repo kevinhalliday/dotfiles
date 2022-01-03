@@ -138,7 +138,7 @@ call SetGlobalConfig()
 call plug#begin('~/.vim/plugged')
 
 " Copilot
-Plug 'github/copilot.vim'
+" Plug 'github/copilot.vim'
 
 " Fonts
 Plug 'ryanoasis/vim-devicons'
@@ -152,6 +152,10 @@ Plug 'fcpg/vim-altscreen'
 " Git Integration
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
+
+" Inlcude above treesitter for typescript react indentation
+" Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
 
 " TreeSitter:
 Plug 'nvim-treesitter/nvim-treesitter', { 'do': 'TSUpdate' }
@@ -179,6 +183,7 @@ Plug 'tpope/vim-rsi'
 
 " Auto-Completion and Diagnostics
 " \ 'iamcco/coc-spell-checker',
+" \ 'neoclide/coc-eslint' ()
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 for coc_plugin in [
       \ 'coc-extensions/coc-svelte',
@@ -192,7 +197,7 @@ for coc_plugin in [
       \ 'pappasam/coc-jedi',
       \ 'neoclide/coc-snippets',
       \ 'neoclide/coc-tsserver',
-      \ 'neoclide/coc-eslint',
+      \ 'fannheyward/coc-eslint',
       \ 'neoclide/coc-pairs',
       \ 'iamcco/coc-diagnostic',
       \ 'iamcco/coc-vimlsp',
@@ -881,6 +886,7 @@ let g:vim_filetype_formatter_commands = {
       \ 'css': 'npx -q prettier --parser css',
       \ 'less': 'npx -q prettier --parser less',
       \ 'html': 'npx -q prettier --parser html',
+      \ 'svg': 'npx -q prettier --parser html',
       \ 'vue': 'npx -q prettier --html-whitespace-sensitivity ignore --parser vue'
       \}
 
@@ -1402,6 +1408,7 @@ lua << EOF
 require('nvim-treesitter.configs').setup({
   highlight = {
     enable = true,
+    additional_vim_regex_highlighting = true
   },
   textobjects = { enable = true },
   autotag = { enable = true  },
@@ -1478,15 +1485,27 @@ function! DefaultKeyMappings()
         \ v:count == 0 ? 'gj' : 'j'
 
   " MoveTabs: goto tab number. Same as Firefox
-  nnoremap <A-1> 1gt
-  nnoremap <A-2> 2gt
-  nnoremap <A-3> 3gt
-  nnoremap <A-4> 4gt
-  nnoremap <A-5> 5gt
-  nnoremap <A-6> 6gt
-  nnoremap <A-7> 7gt
-  nnoremap <A-8> 8gt
-  nnoremap <A-9> 9gt
+  " alt for linux
+  " nnoremap <A-1> 1gt
+  " nnoremap <A-2> 2gt
+  " nnoremap <A-3> 3gt
+  " nnoremap <A-4> 4gt
+  " nnoremap <A-5> 5gt
+  " nnoremap <A-6> 6gt
+  " nnoremap <A-7> 7gt
+  " nnoremap <A-8> 8gt
+  " nnoremap <A-9> 9gt
+
+  " command for mac
+  nnoremap <D-1> 1gt
+  nnoremap <D-2> 2gt
+  nnoremap <D-3> 3gt
+  nnoremap <D-4> 4gt
+  nnoremap <D-5> 5gt
+  nnoremap <D-6> 6gt
+  nnoremap <D-7> 7gt
+  nnoremap <D-8> 8gt
+  nnoremap <D-9> 9gt
 
   " Substitute: replace word under cursor
   nnoremap <leader><leader>s yiw:%s/\<<C-R>0\>//gc<Left><Left><Left>

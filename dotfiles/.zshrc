@@ -402,12 +402,7 @@ WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
 # # }}}
 # ASDF: needs to run after ZSH setup {{{
 
-# for mac - https://github.com/asdf-vm/asdf/issues/428
-export ASDF_DIR="$(brew --prefix asdf)"
-source "$ASDF_DIR/asdf.sh"
-
-# source $HOME/.asdf/asdf.sh
-# source $HOME/.asdf/completions/asdf.bash
+source $(brew --prefix asdf)/libexec/asdf.sh
 
 # }}}
 # Aliases --- {{{
@@ -491,16 +486,9 @@ compdef _dict_words say
 alias so='source ~/.zshrc'
 
 # File navigation
-alias kepler='cd ~/src/KeplerGroup/'
-alias rocket='cd ~/src/KeplerGroup/KIP-Rocket/'
-alias library='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Create-Library'
-alias clz-ui='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Creative-Landing-Zone-UI'
-alias clz-api='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Creative-Landing-Zone-API'
-alias ai-ui='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Augmented-Insights-UI'
-alias ai-api='cd ~/src/KeplerGroup/KIP-Rocket/KIP-Augmented-Insights-API'
-alias gateway='cd ~/src/KeplerGroup/KIP-Rocket/KIP-GraphQL-Gateway'
 alias khalliday='cd ~/src/khalliday7/'
 alias playground='cd ~/src/playground/'
+alias rift='cd ~/src/rift/'
 
 # }}}
 # Functions --- {{{
@@ -562,9 +550,9 @@ function alacritty-install() {
 
 # upgrade relevant local systems
 function upgrade() {
-  sudo apt update
-  sudo apt upgrade -y
-  sudo apt autoremove -y
+  brew update
+  brew upgrade -y
+  brew autoremove -y
   pushd
   cd ~/src/lib/alacritty
   git pull
