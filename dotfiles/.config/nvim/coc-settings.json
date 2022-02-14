@@ -42,6 +42,12 @@
       "command": "nginx-language-server",
       "filetypes": ["nginx"],
       "rootPatterns": ["nginx.conf", ".git"]
+    },
+    "solidity": {
+      "command": "solc",
+      "args": [ "--lsp" ],
+      "rootPatterns": [".git/"],
+      "filetypes": ["solidity"]
     }
   },
   "diagnostic-languageserver.formatters": {
