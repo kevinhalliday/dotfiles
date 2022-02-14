@@ -224,8 +224,8 @@ GEOMETRY_COLOR_VIRTUALENV="green"
 # }}}
  # Plugins --- {{{
 
-if [ -f ~/.zplug/init.zsh ]; then
-  source ~/.zplug/init.zsh
+if [ -f ${ZPLUG_HOME}/init.zsh ]; then
+  source ${ZPLUG_HOME}/init.zsh
 
   # BEGIN: List plugins
 
