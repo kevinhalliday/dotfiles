@@ -181,6 +181,11 @@ if [ -d "$LOCAL_USR_BIN" ]; then
   path_ladd "$LOCAL_USR_BIN"
 fi
 
+HOMEBREW_BIN="/opt/homebrew/bin"
+if [ -d "$HOMEBREW_BIN" ]; then
+	path_ladd "$HOMEBREW_BIN"
+fi
+
 # }}}
 
 #######################################################################
@@ -224,6 +229,7 @@ GEOMETRY_COLOR_VIRTUALENV="green"
 # }}}
  # Plugins --- {{{
 
+ZPLUG_HOME="$(brew --prefix zplug)"
 if [ -f ${ZPLUG_HOME}/init.zsh ]; then
   source ${ZPLUG_HOME}/init.zsh
 
