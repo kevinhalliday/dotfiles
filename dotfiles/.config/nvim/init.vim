@@ -1,335 +1,220 @@
 " Make typing more fun.
+"
+" Notes:
+"
+" BufRead, BufNewFile trumps Filetype
+" Eg, if BufRead,BufNewFile * ignores any Filetype overwrites
+" This is why default settings are chosen with Filetype *
 
-" General: Packages {{{
+" Packages {{{
 
 function! s:packager_init(packager) abort
   call a:packager.add('git@github.com:kristijanhusak/vim-packager', {'type': 'opt'})
 
-  " Writing:
-  call a:packager.add('git@github.com:junegunn/goyo.vim')
-  call a:packager.add('git@github.com:junegunn/limelight.vim')
-  call a:packager.add('git@github.com:dkarter/bullets.vim')
-  call a:packager.add('git@github.com:jlesquembre/rst-tables.nvim')
-  call a:packager.add('git@github.com:moiatgit/vim-rst-sections')
+  " Copilot:
+  call a:packager.add('git@github.com:github/copilot.vim.git')
 
-  " Previewers:
-  call a:packager.add('git@github.com:iamcco/markdown-preview.nvim', {'do': 'cd app & yarn install'})
-  call a:packager.add('git@github.com:tyru/open-browser.vim')
-  call a:packager.add('git@github.com:weirongxu/plantuml-previewer.vim')
+  " Autocompletion And IDE Features:
+  call a:packager.add('git@github.com:neoclide/coc.nvim.git', {'do': 'yarn install --frozen-lockfile'})
+  call a:packager.add('git@github.com:pappasam/coc-jedi.git', {'do': 'yarn install --frozen-lockfile && yarn build'})
 
-  " Repl Integration:
+  " Fonts:
+  call a:packager.add('git@github.com:ryanoasis/vim-devicons.git')
+
+  " TreeSitter:
+  call a:packager.add('git@github.com:nvim-treesitter/nvim-treesitter.git', {'do': ':TSUpdate'})
+  call a:packager.add('git@github.com:nvim-treesitter/playground.git')
+  call a:packager.add('git@github.com:windwp/nvim-ts-autotag.git')
+  call a:packager.add('git@github.com:JoosepAlviste/nvim-ts-context-commentstring.git')
+
+  " Repls:
   call a:packager.add('git@github.com:pappasam/nvim-repl.git')
 
-  " Syntax Theme:
+  " Git Integration:
+  call a:packager.add('git@github.com:tpope/vim-fugitive.git')
+  call a:packager.add('git@github.com:tpope/vim-rhubarb.git')
+
+  " Defx:
+  call a:packager.add('git@github.com:Shougo/defx.nvim')
+  call a:packager.add('git@github.com:kristijanhusak/defx-git')
+  call a:packager.add('git@github.com:kristijanhusak/defx-icons')
+
+  " General:
+  call a:packager.add('git@github.com:bronson/vim-visual-star-search')
+  call a:packager.add('git@github.com:fidian/hexmode')
+  call a:packager.add('git@github.com:junegunn/vader.vim')
+  call a:packager.add('git@github.com:kh3phr3n/tabline')
+  call a:packager.add('git@github.com:mbbill/undotree')
+  call a:packager.add('git@github.com:qpkorr/vim-bufkill')
+  call a:packager.add('git@github.com:ryvnf/readline.vim.git')
+  call a:packager.add('git@github.com:simeji/winresizer')
+  call a:packager.add('git@github.com:unblevable/quick-scope')
+  call a:packager.add('git@github.com:wincent/ferret')
+  call a:packager.add('git@github.com:folke/zen-mode.nvim.git')
+  call a:packager.add('git@github.com:windwp/nvim-autopairs.git')
+  call a:packager.add('git@github.com:ntpeters/vim-better-whitespace.git')
+  call a:packager.add('git@github.com:tpope/vim-commentary.git')
+  call a:packager.add('git@github.com:tpope/vim-repeat.git')
+  call a:packager.add('git@github.com:tpope/vim-surround.git')
+  call a:packager.add('git@github.com:tpope/vim-abolish.git')
+  call a:packager.add('git@github.com:ckarnell/Antonys-macro-repeater.git')
+  call a:packager.add('git@github.com:wincent/ferret.git' )
+  call a:packager.add('git@github.com:airblade/vim-rooter.git' )
+
+  " FZF:
+  call a:packager.add('git@github.com:junegunn/fzf.git', { 'dir': '~/.fzf', 'do': './install --all' })
+  call a:packager.add('git@github.com:junegunn/fzf.vim.git')
+
+  " Writing:
+  call a:packager.add('git@github.com:junegunn/limelight.vim.git')
+  call a:packager.add('git@github.com:dkarter/bullets.vim.git')
+
+  " ColorScheme:
   call a:packager.add('git@github.com:pappasam/papercolor-theme-slim.git')
 
-  " Syntax Highlighting & Indentation:
-  call a:packager.add('git@github.com:peitalin/vim-jsx-typescript.git')
-  call a:packager.add('git@github.com:Glench/Vim-Jinja2-Syntax')
-  call a:packager.add('git@github.com:NLKNguyen/c-syntax.vim')
-  call a:packager.add('git@github.com:chr4/nginx.vim.git')
-  call a:packager.add('git@github.com:evanleck/vim-svelte')
-  call a:packager.add('git@github.com:groenewege/vim-less')
-  call a:packager.add('git@github.com:hashivim/vim-terraform')
-  call a:packager.add('git@github.com:jparise/vim-graphql')
-  call a:packager.add('git@github.com:lervag/vimtex')
-  call a:packager.add('git@github.com:marshallward/vim-restructuredtext')
-  call a:packager.add('git@github.com:jxnblk/vim-mdx-js.git')
-  call a:packager.add('git@github.com:neoclide/jsonc.vim.git')
-  call a:packager.add('git@github.com:neovimhaskell/haskell-vim')
-  call a:packager.add('git@github.com:othree/html5.vim')
+
+  " Previewers:
+  call a:packager.add('git@github.com:iamcco/markdown-preview.nvim.git', { 'do': 'cd app & yarn install'  })
+  call a:packager.add('git@github.com:tyru/open-browser.vim.git')
+  call a:packager.add('git@github.com:weirongxu/plantuml-previewer.vim.git')
+
+  " Formatters:
+  call a:packager.add('git@github.com:pappasam/vim-filetype-formatter.git')
+
+
+  " Syntax Highlighting:
   call a:packager.add('git@github.com:pangloss/vim-javascript')
-  call a:packager.add('git@github.com:aklt/plantuml-syntax.git')
-  call a:packager.add('git@github.com:pearofducks/ansible-vim')
-  call a:packager.add('git@github.com:raimon49/requirements.txt.vim')
-  call a:packager.add('git@github.com:tpope/vim-markdown.git')
-  call a:packager.add('git@github.com:rust-lang/rust.vim')
-  call a:packager.add('git@github.com:tomlion/vim-solidity')
+  call a:packager.add('git@github.com:peitalin/vim-jsx-typescript.git')
+  call a:packager.add('git@github.com:pantharshit00/vim-prisma.git')
+  call a:packager.add('git@github.com:hashivim/vim-terraform.git')
+  call a:packager.add('git@github.com:tomlion/vim-solidity.git')
+  call a:packager.add('git@github.com:jparise/vim-graphql.git')
+  call a:packager.add('git@github.com:chr4/nginx.vim.git')
+  call a:packager.add('git@github.com:khalliday7/Jenkinsfile-vim-syntax.git')
+  call a:packager.add('git@github.com:rdolgushin/groovy.vim.git')
+  call a:packager.add('git@github.com:jxnblk/vim-mdx-js.git')
+
+  " Indentation Only:
+  call a:packager.add('git@github.com:hynek/vim-python-pep8-indent.git')
+  call a:packager.add('git@github.com:vim-scripts/groovyindent-unix.git')
 endfunction
 
+packadd vim-packager
+call packager#setup(function('s:packager_init'), {
+      \ 'window_cmd': 'edit',
+      \ })
+
+command! PackInstall    PackagerInstall
+command! PackUpdate     PackagerUpdate
+command! PackClean      PackagerClean
+command! PackStatus     PackagerStatus
+command! PU             PackagerUpdate | PackagerClean
 
 " }}}
-" General: Leader mappings {{{
+" Leader mappings {{{
 
 let mapleader = ","
 let maplocalleader = "\\"
 
 " }}}
-" General: Global config {{{
+" Global config {{{
 
-function! AlacrittySetBackground()
+filetype plugin indent on
+
+set completeopt=menuone,longest
+set wildmode=longest,list,full
+set wildmenu
+set shortmess+=c
+set hidden
+set signcolumn=yes
+set mouse=a
+set nobackup
+set nowritebackup
+set noswapfile
+set cmdheight=2
+set nowrap
+set incsearch
+set inccommand=nosplit
+set dictionary=$HOME/.american-english-with-propcase.txt
+set spelllang=en_us
+set nojoinspaces
+set showtabline=2
+set autoread
+set grepprg=rg\ --vimgrep
+set pastetoggle=<C-_>
+set notimeout
+set ttimeout
+set exrc
+set shell=$SHELL
+set number
+set splitright
+set laststatus=2
+set ttimeoutlen=50
+set noshowmode
+set noshowcmd
+set updatetime=300
+set history=100
+
+" Path: add node_modules for neomake / other stuff
+let $PATH = $PWD . '/node_modules/.bin:' . $PATH
+
+augroup redraw_on_refocus
+  autocmd!
+  autocmd FocusGained * redraw!
+augroup end
+
+augroup custom_incsearch_highlight
+  autocmd!
+  autocmd CmdlineEnter /,\? set hlsearch
+  autocmd CmdlineLeave /,\? set nohlsearch
+augroup end
+
+augroup custom_nginx
+  autocmd!
+  autocmd FileType nginx set iskeyword+=$
+  autocmd FileType zsh,sh set iskeyword+=-
+augroup end
+
+" Terminal Color Support: only set guicursor if truecolor
+if $COLORTERM ==# 'truecolor'
+  set termguicolors
+else
+  set guicursor=
+endif
+
+" Make Python support work better with asdf
+let g:python3_host_prog = "$HOME/.asdf/shims/python"
+let g:loaded_python_provider = 0
+
+" }}}
+" Alacritty Color Scheme {{{
+
+" set environment variables based on light or dark
+function s:set_env_from_background()
+  let $BAT_THEME = &background == 'light' ?
+        \ 'Monokai Extended Light' : 'Monokai Extended'
+endfunction
+
+function! s:alacritty_set_background()
   let g:alacritty_background = system('alacritty-which-colorscheme')
   if !v:shell_error
     let &background = g:alacritty_background
   else
-    echo 'error calling "alacritty-which-colorscheme"'
-    echo 'default to set background=dark'
-    set background=dark
+    echom 'Error calling "alacritty-which-colorscheme"'
   endif
+  call s:set_env_from_background()
 endfunction
 
-function! SetGlobalConfig()
-  " Code Completion:
-  set completeopt=menuone,longest
-  set wildmode=longest,list,full
-  set wildmenu
-  " don't give |ins-completion-menu| messages; they're noisy
-  set shortmess+=c
-
-  " Hidden Buffer: enable instead of having to write each buffer
-  set hidden
-
-  " Sign Column: always show it
-  set signcolumn=yes
-
-  " Mouse: enable GUI mouse support in all modes
-  set mouse=a
-
-  " SwapFiles: prevent their creation
-  set nobackup
-  set nowritebackup
-  set noswapfile
-
-  " Command Line Height: higher for display for messages
-  set cmdheight=2
-
-  " Line Wrapping: do not wrap lines by default
-  set nowrap
-
-  " Highlight Search: do that
-  set incsearch
-  set inccommand=nosplit
-  augroup incsearch_highlight
-    autocmd!
-    autocmd CmdlineEnter /,\? set hlsearch
-    autocmd CmdlineLeave /,\? set nohlsearch
-  augroup END
-
-  filetype plugin indent on
-
-  " Spell Checking:
-  set dictionary=$HOME/.american-english-with-propcase.txt
-  set spelllang=en_us
-
-  " Single Space After Punctuation: useful when doing :%j (the opposite of gq)
-  set nojoinspaces
-
-  set showtabline=2
-
-  set autoread
-
-  set grepprg=rg\ --vimgrep
-
-  " Paste: this is actually typed <C-/>, but term nvim thinks this is <C-_>
-  set pastetoggle=<C-_>
-
-  set notimeout   " don't timeout on mappings
-  set ttimeout    " do timeout on terminal key codes
-
-  " Local Vimrc: If exrc is set, the current directory is searched for 3 files
-  " in order (Unix), using the first it finds: '.nvimrc', '_nvimrc', '.exrc'
-  set exrc
-
-  " Default Shell:
-  set shell=$SHELL
-
-  " Numbering:
-  set number
-
-  " Window Splitting: Set split settings (options: splitright, splitbelow)
-  set splitright
-
-  " Redraw Window:
-  augroup redraw_on_refocus
-    autocmd!
-    autocmd FocusGained * redraw!
-  augroup END
-
-  " Terminal Color Support: only set guicursor if truecolor
-  if $COLORTERM ==# 'truecolor'
-    set termguicolors
-  else
-    set guicursor=
-  endif
-
-  " Set Background: for PaperColor, also sets handler
-  call AlacrittySetBackground()
-  call jobstart(
-        \ 'ls ' . $HOME . '/.alacritty.yml | entr -ps "echo alacritty_change"',
-        \ {'on_stdout': { j, d, e -> AlacrittySetBackground() }})
-
-  " Status Line: specifics for custom status line
-  set laststatus=2
-  set ttimeoutlen=50
-  set noshowmode
-
-  " ShowCommand: turn off character printing to vim status line
-  set noshowcmd
-
-  " Configure Updatetime: time Vim waits to do something after I stop moving
-  set updatetime=300
-
-  " Linux Dev Path: system libraries
-  set path+=/usr/include/x86_64-linux-gnu/
-
-  " Path: add node_modules for neomake / other stuff
-  let $PATH = $PWD . '/node_modules/.bin:' . $PATH
-
-  " Vim History: for command line; can't imagine that more than 100 is needed
-  set history=100
-endfunction
-call SetGlobalConfig()
+call s:alacritty_set_background()
+call jobstart(
+      \ 'ls ' . $HOME . '/.alacritty.yml | entr -ps "echo alacritty_change"',
+      \ {'on_stdout': { j, d, e -> s:alacritty_set_background() }}
+      \ )
 
 
 " }}}
-" General: Plugin Install {{{
+"  Filetype recognition {{{
 
-
-  " Autocompletion And IDE Features:
-  call a:packager.add('git@github.com:neoclide/coc.nvim.git', {'do': 'yarn install --frozen-lockfile'})
-
-call plug#begin('~/.vim/plugged')
-
-" Copilot
-" Plug 'github/copilot.vim'
-
-" Fonts
-Plug 'ryanoasis/vim-devicons'
-
-" Repls
-Plug 'pappasam/nvim-repl'
-
-" Commands run in vim's virtual screen and don't pollute main shell
-Plug 'fcpg/vim-altscreen'
-
-" Git Integration
-Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-rhubarb'
-
-" Inlcude above treesitter for typescript react indentation
-" Plug 'leafgarland/typescript-vim'
-" Plug 'peitalin/vim-jsx-typescript'
-
-" TreeSitter:
-Plug 'nvim-treesitter/nvim-treesitter', { 'do': 'TSUpdate' }
-Plug 'nvim-treesitter/playground'
-
-" File Navigation
-Plug 'kh3phr3n/tabline'
-Plug 'Shougo/defx.nvim'
-Plug 'kristijanhusak/defx-git'
-Plug 'kristijanhusak/defx-icons'
-Plug 'airblade/vim-rooter' " bse vim root at github root
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
-
-" Tim Pope: general, uncategorizable tim pope plugins
-" Notes:
-"   * abolish: convert to snake cases
-Plug 'tpope/vim-abolish'
-Plug 'tpope/vim-characterize'
-Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-ragtag'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-speeddating'
-Plug 'tpope/vim-rsi'
-
-" Writing
-Plug 'junegunn/limelight.vim' " highlight text (for Goyo)
-Plug 'junegunn/goyo.vim' " Distraction-free writing
-
-" Basic coloring
-" Plug 'NLKNguyen/papercolor-theme'
-Plug 'pappasam/papercolor-theme-slim'
-
-" Previewers
-Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
-Plug 'tyru/open-browser.vim'
-Plug 'weirongxu/plantuml-previewer.vim'
-
-" Utils
-Plug 'windwp/nvim-ts-autotag'
-Plug 'tpope/vim-surround'
-Plug 'ckarnell/Antonys-macro-repeater'
-Plug 'wincent/ferret' " multi file search
-Plug 'dkarter/bullets.vim'
-
-" Syntax highlighting
-Plug 'pantharshit00/vim-prisma'
-Plug 'hashivim/vim-terraform'
-Plug 'tomlion/vim-solidity'
-Plug 'jparise/vim-graphql'
-Plug 'chr4/nginx.vim'
-Plug 'khalliday7/Jenkinsfile-vim-syntax'
-Plug 'rdolgushin/groovy.vim'
-Plug 'jxnblk/vim-mdx-js'
-
-" Code prettifiers
-Plug 'pappasam/vim-filetype-formatter'
-
-" Indentation
-Plug 'hynek/vim-python-pep8-indent'
-Plug 'vim-scripts/groovyindent-unix'
-
-" Tagbar:
-Plug 'majutsushi/tagbar'
-Plug 'lvht/tagbar-markdown'
-
-call plug#end()
-" }}}
-" General: Status Line and Tab Line {{{
-
-function! SetStatusAndTabLine()
-  " Tab Line
-  set tabline=%t
-
-  " Status Line
-  set laststatus=2
-  set statusline=
-  set statusline+=\ %{mode()}\  " spaces after mode
-  set statusline+=%#CursorLine#
-  set statusline+=\   " space
-  set statusline+=%{&paste?'[PASTE]':''}
-  set statusline+=%{&spell?'[SPELL]':''}
-  set statusline+=%r
-  set statusline+=%m
-  set statusline+=%{get(b:,'gitbranch','')}
-  set statusline+=\   " space
-  set statusline+=%*  " default color
-  set statusline+=\ %t  " tailed filename
-  set statusline+=%=
-  set statusline+=%n  " buffer number
-  set statusline+=\ %y\  " file type
-  set statusline+=%#CursorLine#
-  set statusline+=\ %{&ff}\  " Unix or Dos
-  set statusline+=%*  " default color
-  set statusline+=\ %{strlen(&fenc)?&fenc:'none'}\  " file encoding
-endfunction
-call SetStatusAndTabLine()
-
-" Status Line
-augroup statusline_local_overrides
-  autocmd!
-  autocmd FileType defx setlocal statusline=\ defx\ %#CursorLine#
-augroup END
-
-" Strip newlines from a string
-function! StripNewlines(instring)
-  return substitute(a:instring, '\v^\n*(.{-})\n*$', '\1', '')
-endfunction
-
-augroup custom_statusline
-  autocmd!
-  autocmd FileType defx setlocal statusline=\ defx\ %#CursorLine#
-augroup end
-
-augroup custom_cursorline
-  autocmd!
-  autocmd FileType tagbar,defx,qf setlocal cursorline
-augroup end
-
-" }}}
-" General: Filetype specification {{{
 augroup filetype_recognition
   autocmd!
   autocmd BufNewFile,BufRead,BufEnter *.hql,*.q set filetype=hive
@@ -352,13 +237,46 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter *.rs  set filetype=rust
   autocmd BufNewFile,BufRead,BufEnter *.prisma  set filetype=prisma
   autocmd BufNewFile,BufRead,BufEnter .eslintrc.json,tsconfig.json  set filetype=jsonc
-augroup END
+augroup end
 
 
 " }}}
-" General: Comment / Text Format Options {{{
+" Status & Tab lines {{{
 
-" Notes:
+" Tab Line
+set tabline=%t
+
+" Status Line
+set laststatus=2
+set statusline=
+set statusline+=\ %{mode()}\  " spaces after mode
+set statusline+=%#CursorLine#
+set statusline+=\   " space
+set statusline+=%{&paste?'[PASTE]':''}
+set statusline+=%{&spell?'[SPELL]':''}
+set statusline+=%r
+set statusline+=%m
+set statusline+=%{get(b:,'gitbranch','')}
+set statusline+=\   " space
+set statusline+=%*  " default color
+set statusline+=\ %t  " tailed filename
+set statusline+=%=
+set statusline+=%n  " buffer number
+set statusline+=\ %y\  " file type
+set statusline+=%#CursorLine#
+set statusline+=\ %{&ff}\  " Unix or Dos
+set statusline+=%*  " default color
+set statusline+=\ %{strlen(&fenc)?&fenc:'none'}\  " file encoding
+
+" Status Line
+augroup statusline_local_overrides
+  autocmd!
+  autocmd FileType defx setlocal statusline=\ defx\ %#CursorLine#
+augroup end
+
+" }}}
+" Comment / Text Format Options {{{
+
 " commentstring: read by vim-commentary; must be one template
 " comments: csv of comments.
 " formatoptions: influences how Vim formats text
@@ -373,15 +291,11 @@ augroup custom_comment_config
   autocmd FileType typescript.tsx,typescript,typescriptreact
         \ setlocal commentstring=//\ %s
   autocmd FileType markdown setlocal commentstring=<!--\ %s\ -->
-augroup END
-        " \ setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+augroup end
 
 " }}}
-" General: Indentation (tabs, spaces, width, etc) {{{
+" Indentation {{{
 
-" Note -> apparently BufRead, BufNewFile trumps Filetype
-" Eg, if BufRead,BufNewFile * ignores any Filetype overwrites
-" This is why default settings are chosen with Filetype *
 set expandtab shiftwidth=2 softtabstop=2 tabstop=8
 augroup indentation_sr
   autocmd!
@@ -399,24 +313,22 @@ augroup indentation_sr
         \ cinoptions+='(s,U1'
         \ cinoptions+='j1'
         \ cinoptions+='J1'
-augroup END
+augroup end
 
 " }}}
-" General: ColorColumn different widths for different filetypes {{{
+" ColorColumn different widths for different filetypes {{{
 
 set colorcolumn=80
 augroup colorcolumn_configuration
   autocmd!
   autocmd FileType gitcommit setlocal colorcolumn=73 textwidth=72
   autocmd Filetype html,text,markdown,rst setlocal colorcolumn=0
-augroup END
+augroup end
 
 " }}}
-" General: Writing (non-coding) {{{
-
+" Writing {{{
+"
 function! s:abolish_correct()
-  " Started from:
-  " https://github.com/tpope/tpope/blob/94b1f7c33ee4049866f0726f96d9a0fb5fdf868f/.vim/after/plugin/abolish_tpope.vim
   if !exists('g:loaded_abolish')
     echom 'Abolish does not exist, skipping...'
     return
@@ -461,24 +373,20 @@ function! s:abolish_correct()
   Abolish {c,m}arraige{,s}            {}arriage{}
   Abolish {despa,sepe}rat{e,es,ed,ing,ely,ion,ions,or} {despe,sepa}rat{}
   Abolish {les,compar,compari}sion{,s} {les,compari,compari}son{}
-  Abolish healtcheck                  healthcheck
+  Abolish improt                      import
+  Abolish imoprt                      import
 endfunction
 
-" what is textobj#sentence#init?
-" autocmd FileType markdown,rst,text,gitcommit
-"       \ setlocal wrap linebreak nolist
-"       \ | call textobj#sentence#init()
-augroup writing
+augroup custom_writing
   autocmd!
   autocmd VimEnter * call s:abolish_correct()
-  autocmd FileType markdown,rst,text,gitcommit setlocal wrap linebreak nolist
+  autocmd FileType markdown,markdown.mdx,mdx,rst,text,gitcommit setlocal wrap linebreak nolist
   autocmd FileType requirements setlocal nospell
   autocmd BufNewFile,BufRead *.html,*.tex setlocal wrap linebreak nolist
-  autocmd FileType markdown nnoremap <buffer> <leader>f :TableFormat<CR>
-augroup END
+augroup end
 
 " }}}
-" General: Folding Settings {{{
+" Folding Settings {{{
 
 augroup fold_settings
   autocmd!
@@ -486,10 +394,10 @@ augroup fold_settings
         \ setlocal foldmethod=marker foldlevelstart=0 foldnestmax=1
   autocmd FileType markdown,rst
         \ setlocal nofoldenable
-augroup END
+augroup end
 
 " }}}
-" General: Trailing whitespace {{{
+" Trailing whitespace {{{
 
 function! s:trim_whitespace()
   let l:save = winsaveview()
@@ -512,10 +420,10 @@ command! TrimWhitespace call <SID>trim_whitespace()
 augroup fix_whitespace_save
   autocmd!
   autocmd BufWritePre * TrimWhitespace
-augroup END
+augroup end
 
 " }}}
-" General: Syntax highlighting {{{
+" Syntax highlighting {{{
 
 " Python: Highlight args and kwargs, since they are conventionally special
 augroup python_syntax
@@ -525,19 +433,12 @@ augroup python_syntax
   autocmd FileType python syntax keyword pythonBuiltinObj self
 augroup end
 
-" let nvim treesitter do it's thing. this lets us get indentation from
-" typescript vim plugins without them overridng treesitter highlights
-" TODO: could probably do this for other file types
-augroup turn_off_syntax
-  autocmd FileType typescriptreact setlocal syntax=off
-augroup end
-
 " QuickScope: choose primary and secondary colors
 augroup qs_colors
   autocmd!
   autocmd ColorScheme * highlight QuickScopePrimary guifg='LimeGreen' ctermfg=Green gui=underline
   autocmd ColorScheme * highlight QuickScopeSecondary guifg='turquoise1' ctermfg=Cyan gui=underline
-augroup END
+augroup end
 
 " Spell Checking:
 augroup spelling_options
@@ -550,7 +451,7 @@ augroup spelling_options
   autocmd ColorScheme * highlight SpellRare ctermfg=DarkGreen guifg='ForestGreen' gui=underline,italic
   autocmd ColorScheme * highlight SpellCap ctermfg=Yellow guifg='yellow' gui=underline,italic
   autocmd ColorScheme * highlight SpellLocal ctermfg=DarkMagenta guifg='magenta' gui=underline,italic
-augroup END
+augroup end
 
 " Trailing Whitespace: (initial highlight below doesn't matter)
 highlight EOLWS ctermbg=DarkCyan
@@ -565,18 +466,12 @@ augroup whitespace_color
   autocmd InsertLeave * highlight EOLWS guibg='CornflowerBlue' ctermbg=DarkCyan
 
   autocmd FileType defx highlight clear EOLWS
-augroup END
-
-" Cursorline: disable, then override if necessary
-highlight CursorLine cterm=NONE
-augroup cursorline_setting
-  autocmd!
-  autocmd FileType tagbar setlocal cursorline
-augroup END
+augroup end
 
 " ********************************************************************
 " Papercolor: options
 " ********************************************************************
+
 let g:PaperColor_Theme_Options = {}
 let g:PaperColor_Theme_Options.theme = {}
 
@@ -615,7 +510,7 @@ catch
 endtry
 
 " }}}
-" General: Resize Window {{{
+" Resize Window {{{
 
 " WindowWidth: Resize window to a couple more than longest line
 " modified function from:
@@ -664,7 +559,7 @@ command! ResizeWindowWidth call <SID>resize_window_width()
 command! ResizeWindowHeight call <SID>resize_window_height()
 
 " }}}
-" General: Clean Unicode {{{
+" Clean Unicode {{{
 
 " Replace unicode symbols with cleaned, ascii versions
 function! s:clean_unicode()
@@ -678,7 +573,7 @@ endfunction()
 command! CleanUnicode call <SID>clean_unicode()
 
 " }}}
-" General: Neovim Terminal {{{
+" Neovim Terminal {{{
 
 function! s:open_term_interactive(view_type)
   execute a:view_type
@@ -694,103 +589,7 @@ command! Tterm call s:open_term_interactive('tabnew')
 
 
 " }}}
-" General: Language builder / runner {{{
-
-let s:language_builders = {
-      \ 'rust': 'rustc %',
-      \ 'go': 'go build %',
-      \ }
-
-let s:language_runners = {
-      \ 'rust': '%:p:r',
-      \ 'go': 'go run %',
-      \ 'python': 'python %',
-      \ }
-
-function! s:code_term_cmd(str_command)
-  silent only
-  write
-  if &columns >= 160
-    vsplit
-  else
-    belowright split
-  endif
-  execute 'terminal ' . a:str_command
-  nnoremap <buffer> q :bd!<CR>
-  cnoremap <buffer> q bd!
-  wincmd w
-endfunction
-
-" Build source code
-function! s:code_build()
-  if !has_key(s:language_builders, &filetype)
-    echo 'Build not configured for filetype "' . &filetype . '"'
-    return
-  endif
-  call s:code_term_cmd(s:language_builders[&filetype])
-endfunction
-
-" Run source code
-function! s:code_run()
-  let filepath = expand('%:p')
-  if executable(filepath) == 1
-    call s:code_term_cmd(filepath)
-  elseif !has_key(s:language_runners, &filetype)
-    echo 'Run not configured for filetype "' . &filetype . '"'
-  else
-    call s:code_term_cmd(s:language_runners[&filetype])
-  endif
-endfunction
-
-command! Build call <SID>code_build()
-command! Run call <SID>code_run()
-
-" }}}
-" General: View available colors {{{
-
-" From https://vim.fandom.com/wiki/View_all_colors_available_to_gvim
-" There are some sort options at the end you can uncomment to your preference
-"
-" Create a new scratch buffer:
-" - Read file $VIMRUNTIME/rgb.txt
-" - Delete lines where color name is not a single word (duplicates).
-" - Delete 'grey' lines (duplicate 'gray'; there are a few more 'gray').
-" Add syntax so each color name is highlighted in its color.
-function! s:vim_colors()
-  vnew
-  set modifiable
-  setlocal filetype=vimcolors buftype=nofile bufhidden=delete noswapfile
-  0read $VIMRUNTIME/rgb.txt
-  let find_color = '^\s*\(\d\+\s*\)\{3}\zs\w*$'
-  silent execute 'v/'.find_color.'/d'
-  silent g/grey/d
-  let namedcolors=[]
-  1
-  while search(find_color, 'W') > 0
-    let w = expand('<cword>')
-    call add(namedcolors, w)
-  endwhile
-  for w in namedcolors
-    execute 'hi col_'.w.' guifg=black guibg='.w
-    execute 'hi col_'.w.'_fg guifg='.w.' guibg=NONE'
-    execute '%s/\<'.w.'\>/'.printf("%-36s%s", w, w.'_fg').'/g'
-    execute 'syn keyword col_'.w w
-    execute 'syn keyword col_'.w.'_fg' w.'_fg'
-  endfor
-  " Add hex value column (and format columns nicely)
-  %s/^\s*\(\d\+\)\s\+\(\d\+\)\s\+\(\d\+\)\s\+/\=printf(" %3d %3d %3d   #%02x%02x%02x   ", submatch(1), submatch(2), submatch(3), submatch(1), submatch(2), submatch(3))/
-  1
-  nohlsearch
-  nnoremap <buffer> d <C-d>
-  nnoremap <buffer> u <C-u>
-  file VimColors
-  set nomodifiable
-endfunction
-
-command! VimColors silent call <SID>vim_colors()
-
-" }}}
-" General: Toggle numbers {{{
+" Toggle numbers {{{
 
 function! s:toggle_number()
   if &number == 0
@@ -812,88 +611,8 @@ command! ToggleNumber call <SID>toggle_number()
 command! ToggleRelativeNumber call <SID>toggle_relative_number()
 
 " }}}
-" General: spacesurround {{{
-" Helper functions to format surrounding text as I type
-" The function is: Surround<Key>, where key is the intended mapping key
-" 1. Add two spaces around cursor when pressing space bar.
-" 2. Spaces will be deleted if cursor is in middle with 1 space on either side.
-"     For example: ( | ), pressing <bs> or <c-w> should delete surrounding
-"     spaces
-let s:surround_spaces = {
-      \ '()': 1,
-      \ '[]': 1,
-      \ '{}': 1,
-      \ }
-function! SurroundSpace()
-  let char_left = getline('.')[col('.') - 2]
-  let char_right = getline('.')[col('.') - 1]
-  let left_right = char_left . char_right
-  if has_key(s:surround_spaces, left_right)
-    call feedkeys("\<space>\<space>\<left>", 'ni')
-  else
-    call feedkeys("\<space>", 'ni')
-  endif
-endfunction
-" delete surround items if surrounding cursor with no space
-" for example: (|)
-" when pressing delete, surrounding parentheses will be deleted
-let s:surround_delete = {
-      \ "''": 1,
-      \ '""': 1,
-      \ '()': 1,
-      \ '<>': 1,
-      \ '[]': 1,
-      \ '{}': 1,
-      \ }
-function! SurroundBackspace()
-  let char_left = getline('.')[col('.') - 3]
-  let char_left_mid = getline('.')[col('.') - 2]
-  let char_right_mid = getline('.')[col('.') - 1]
-  let char_right = getline('.')[col('.')]
-  let mid_left_right = char_left_mid . char_right_mid
-  let left_right = char_left . char_right
-  if has_key(s:surround_delete, mid_left_right)
-    call feedkeys("\<bs>\<right>\<bs>", 'ni')
-  elseif mid_left_right != '  '
-    call feedkeys("\<bs>", 'ni')
-  elseif has_key(s:surround_spaces, left_right)
-    execute "normal! \<right>di" . left_right[1]
-  else
-    call feedkeys("\<bs>", 'ni')
-  endif
-endfunction
-function! SurroundCw()
-  let char_left = getline('.')[col('.') - 3]
-  let char_left_mid = getline('.')[col('.') - 2]
-  let char_right_mid = getline('.')[col('.') - 1]
-  let char_right = getline('.')[col('.')]
-  let mid_left_right = char_left_mid . char_right_mid
-  let left_right = char_left . char_right
-  if has_key(s:surround_delete, mid_left_right)
-    call feedkeys("\<bs>\<right>\<bs>", 'ni')
-  elseif mid_left_right != '  '
-    call feedkeys("\<c-w>", 'ni')
-  elseif has_key(s:surround_spaces, left_right)
-    execute "normal! \<right>di" . left_right[1]
-  else
-    call feedkeys("\<c-w>", 'ni')
-  endif
-endfunction
+"   vim-filetype-formatter {{{
 
-" }}}
-" Plugin: Vim-Plug: {{{
-" Plug update and upgrade
-function! _PU()
-  exec 'PlugUpdate'
-  exec 'PlugUpgrade'
-endfunction
-command! PU call _PU()
-
-"  }}}
-"  Plugin: Vim Filetype Formatter {{{
-
-" code formatting, thanks sam
-" let g:vim_filetype_formatter_verbose = 1
 let g:vim_filetype_formatter_commands = {
       \ 'python': 'black - -q --line-length 79',
       \ 'javascript': 'npx -q prettier --parser typescript',
@@ -913,7 +632,7 @@ nnoremap <leader>f :FiletypeFormat<cr>
 vnoremap <leader>f :FiletypeFormat<cr>
 
 " }}}
-" Plugin: Fzf {{{
+" Fzf {{{
 
 function! s:warn(message)
   echohl WarningMsg
@@ -1004,22 +723,52 @@ endfunction
 
 
 " }}}
-" Plugin: Tagbar {{{
+" COC {{{
 
-let g:tagbar_map_showproto = '`'
-let g:tagbar_show_linenumbers = -1
-let g:tagbar_autofocus = v:true
-let g:tagbar_indent = 1
-let g:tagbar_sort = v:false  " order by order in sort file
-let g:tagbar_case_insensitive = v:true
-let g:tagbar_width = 37
-let g:tagbar_silent = v:true
-let g:tagbar_foldlevel = 0
+let g:coc_snippet_next = '<C-j>'
+let g:coc_snippet_prev = '<C-k>'
+let g:coc_start_at_startup = 1
+let g:coc_filetype_map = {
+      \ 'python.jinja2': 'python',
+      \ 'markdown.mdx': 'markdown',
+      \ 'sql.jinja2': 'sql',
+      \ 'yaml.ansible': 'yaml',
+      \ 'yaml.docker-compose': 'yaml',
+      \ 'jinja.html': 'html',
+      \ }
 
-nnoremap <leader>t :TagbarToggle<CR>
-
-" }}}
-" Plugin: COC {{{
+" Coc Global Extensions: automatically installed on Vim open
+" \ 'coc-snippets',
+" \ 'coc-highlight',
+let g:coc_global_extensions = [
+      \ '@yaegassy/coc-nginx',
+      \ 'coc-angular',
+      \ 'coc-cssmodules',
+      \ 'coc-css',
+      \ 'coc-diagnostic',
+      \ 'coc-dictionary',
+      \ 'coc-docker',
+      \ 'coc-emoji',
+      \ 'coc-eslint',
+      \ 'coc-go',
+      \ 'coc-html',
+      \ 'coc-java',
+      \ 'coc-json',
+      \ 'coc-lists',
+      \ 'coc-markdownlint',
+      \ 'coc-rls',
+      \ 'coc-sh',
+      \ 'coc-svelte',
+      \ 'coc-svg',
+      \ 'coc-syntax',
+      \ 'coc-texlab',
+      \ 'coc-toml',
+      \ 'coc-tsserver',
+      \ 'coc-vimlsp',
+      \ 'coc-word',
+      \ 'coc-yaml',
+      \ 'coc-yank',
+      \ ]
 
 function! s:show_documentation()
   if (index(['vim','help'], &filetype) >= 0)
@@ -1029,48 +778,8 @@ function! s:show_documentation()
   endif
 endfunction
 
-augroup Smartf
-  autocmd User SmartfEnter :hi Conceal ctermfg=220 guifg=#6638F0
-  autocmd User SmartfLeave :hi Conceal ctermfg=239 guifg=#504945
-augroup end
-
-" Customization:
-" function! s:coc_diagnostic_disable()
-"   call coc#config('diagnostic.enable', v:false)
-"   let g:coc_custom_diagnostic_enabled = v:false
-"   silent CocRestart
-"   echom 'Disabled: Coc Diagnostics'
-" endfunction
-
-" function! s:coc_diagnostic_enable()
-"   call coc#config('diagnostic.enable', v:true)
-"   let g:coc_custom_diagnostic_enabled = v:true
-"   echom 'Enabled: Coc Diagnostics'
-" endfunction
-
-" function! s:coc_diagnostic_toggle()
-"   if g:coc_custom_diagnostic_enabled == v:true
-"     call s:coc_diagnostic_disable()
-"   else
-"     call s:coc_diagnostic_enable()
-"   endif
-" endfunction
-
-" function! s:coc_init()
-"   let g:coc_custom_diagnostic_enabled = v:true
-" endfunction
-
-" augroup coc_initialization
-"   autocmd!
-"   autocmd VimEnter * call s:coc_init()
-" augroup END
-
-" command! CocDiagnosticToggle call s:coc_diagnostic_toggle()
-" command! CocDiagnosticEnable call s:coc_diagnostic_enable()
-" command! CocDiagnosticDisable call s:coc_diagnostic_disable()
-
 " }}}
-" Plugin: Restructured Text {{{
+" Restructured Text {{{
 
 " Vim Rst Sections: documentation
 " -----------------------------------------------------------------------
@@ -1145,7 +854,7 @@ augroup rst_overrides
   autocmd!
   autocmd FileType rst nnoremap <buffer> <leader>w :HovercraftSlide<CR>
   autocmd FileType rst nnoremap <buffer> <leader>f :TableRstFormat<CR>
-augroup END
+augroup end
 
 let g:no_rst_sections_maps = 0
 
@@ -1163,10 +872,10 @@ augroup rst_sections_mappings
   autocmd FileType rst nnoremap <buffer> <silent> <leader>sa :call RstIncrSectionLevel()<CR>
   autocmd FileType rst nnoremap <buffer> <silent> <leader>sx :call RstDecrSectionLevel()<CR>
   autocmd FileType rst nnoremap <buffer> <silent> <leader>sl :call RstSectionLabelize()<CR>
-augroup END
+augroup end
 
 " }}}
-" Plugin: Markdown-preview.vim {{{
+" Markdown-preview.vim {{{
 
 let g:mkdp_auto_start = v:false
 let g:mkdp_auto_close = v:false
@@ -1207,7 +916,7 @@ let g:mkdp_preview_options = {
       \ }
 
 " }}}
-" Plugin: vimtext {{{
+" vimtext {{{
   let g:tex_flavor = 'latex'
 " }}}
 " Plugins: nvim-repl {{{
@@ -1225,7 +934,77 @@ let g:repl_filetype_commands = {
 let g:repl_default = &shell
 
 " }}}
-" Plugin: Preview Compiled Stuff in Viewer {{{
+" Package: zen-mode.nvim {{{
+
+function! s:init_zen_mode()
+  if !exists('g:loaded_commentary')
+    echom 'ts context commentstring does not exist, skipping...'
+    return
+  endif
+lua << EOF
+local ok, _ = pcall(require, 'zen-mode')
+if not ok then
+  print('zen-mode does not exist, skipping...')
+  return
+end
+require'zen-mode'.setup {
+  window = {
+    backdrop = 0.95, -- shade the backdrop of the Zen window. Set to 1 to keep the same as Normal
+    -- height and width can be:
+    -- * an absolute number of cells when > 1
+    -- * a percentage of the width / height of the editor when <= 1
+    -- * a function that returns the width or the height
+    width = 120, -- width of the Zen window
+    height = 1, -- height of the Zen window
+    -- by default, no options are changed for the Zen window
+    -- uncomment any of the options below, or add other vim.wo options you want to apply
+    options = {
+      -- signcolumn = "no", -- disable signcolumn
+      -- number = false, -- disable number column
+      -- relativenumber = false, -- disable relative numbers
+      -- cursorline = false, -- disable cursorline
+      -- cursorcolumn = false, -- disable cursor column
+      -- foldcolumn = "0", -- disable fold column
+      -- list = false, -- disable whitespace characters
+    },
+  },
+  plugins = {
+    -- disable some global vim options (vim.o...)
+    -- comment the lines to not apply the options
+    options = {
+      enabled = true,
+      ruler = false, -- disables the ruler text in the cmd line area
+      showcmd = false, -- disables the command in the last line of the screen
+    },
+    twilight = { enabled = true }, -- enable to start Twilight when zen mode opens
+    gitsigns = { enabled = false }, -- disables git signs
+    tmux = { enabled = false }, -- disables the tmux statusline
+    -- this will change the font size on kitty when in zen mode
+    -- to make this work, you need to set the following kitty options:
+    -- - allow_remote_control socket-only
+    -- - listen_on unix:/tmp/kitty
+    kitty = {
+      enabled = false,
+      font = "+4", -- font size increment
+    },
+  },
+  -- callback where you can add custom code when the Zen window opens
+  on_open = function(win)
+  end,
+  -- callback where you can add custom code when the Zen window closes
+  on_close = function()
+  end,
+}
+EOF
+endfunction
+
+augroup custom_zenmode
+  autocmd!
+  autocmd VimEnter * call s:init_zen_mode()
+augroup end
+
+" }}}
+" Preview Compiled Stuff in Viewer {{{
 
 function! s:preview()
   if &filetype ==? 'rst'
@@ -1250,17 +1029,11 @@ endfunction
 command! Preview call <SID>preview()
 
 " }}}
-"  Plugin: Miscellaneous Configuration {{{
+"  Miscellaneous Configuration {{{
 
 " Python: highlighting
 let g:python_highlight_space_errors = 0
 let g:python_highlight_all = 1
-
-" change color of preview window
-" highlight Pmenu ctermfg=15 ctermbg=0 guifg=#ffffff guibg=#000000
-
-" VimJavascript:
-let g:javascript_plugin_flow = 1
 
 " SQLFormat:
 " relies on 'pip install sqlformat'
@@ -1280,19 +1053,17 @@ let g:go_version_warning = 0
 " disable default mappings
 let g:FerretMap = v:false
 
-" Seoul256:
-" dark:
-"   Range:   233 (darkest) ~ 239 (lightest)
-"   Default: 237
-" light:
-"   Range:   252 (darkest) ~ 256 (lightest)
-"   Default: 253
-" set in Syntax Highlighting section
-" colo seoul256
-let g:seoul256_background = 233
+" QuickScope: great plugin helping with f and t
+let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
+let g:qs_max_chars = 10000
+
+" WinResize:
+let g:winresizer_start_key = '<C-\>'
+let g:winresizer_vert_resize = 1
+let g:winresizer_horiz_resize = 1
 
 "  }}}
-"  Plugin: defx {{{
+"  defx {{{
 
 let g:custom_defx_state = tempname()
 
@@ -1331,7 +1102,7 @@ let g:custom_defx_mappings = [
       \ ['<C-r>         ', "defx#do_action('redraw')"],
       \ ['<C-t>         ', "defx#do_action('open', 'tabe')"],
       \ ['<C-v>         ', "defx#do_action('open', 'vsplit')"],
-      \ ['<C-x>         ', "defx#do_action('drop', 'split')"],
+      \ ['<C-s>         ', "defx#do_action('drop', 'split')"],
       \ ['<CR>          ', "defx#do_action('drop')"],
       \ ['<RightMouse>  ', "defx#do_action('cd', ['..'])"],
       \ ['O             ', "defx#do_action('open_tree', 'recursive:3')"],
@@ -1417,7 +1188,7 @@ augroup end
 
 
 "  }}}
-"  Plugin: treesitter {{{
+"  treesitter {{{
 
 function s:init_treesitter()
   if !exists('g:loaded_nvim_treesitter')
@@ -1447,11 +1218,13 @@ require('nvim-treesitter.configs').setup({
     'lua',
     'python',
     'query',
+    'regex',
     'rust',
     'svelte',
     'toml',
     'tsx',
     'typescript',
+    'vim',
     'yaml',
 }})
 EOF
@@ -1463,12 +1236,60 @@ augroup custom_treesitter
 augroup end
 
 "  }}}
-"  Plugin: copilot.vim {{{
+"  copilot.vim {{{
 
 let g:copilot_no_tab_map = v:true
 
 "  }}}
-" General: Key remappings {{{
+" nvim-autopairs {{{
+
+function! s:init_nvim_autopairs()
+lua << EOF
+local ok, _ = pcall(require, 'nvim-autopairs')
+if not ok then
+  print('nvim-autopairs does not exist, skipping...')
+  return
+end
+local npairs = require'nvim-autopairs'
+local Rule   = require'nvim-autopairs.rule'
+npairs.setup({
+  disable_filetype = { "TelescopePrompt" },
+})
+npairs.add_rules {
+  Rule(' ', ' ')
+    :with_pair(function (opts)
+      local pair = opts.line:sub(opts.col - 1, opts.col)
+      return vim.tbl_contains({ '()', '[]', '{}' }, pair)
+    end),
+  Rule('( ', ' )')
+      :with_pair(function() return false end)
+      :with_move(function(opts)
+          return opts.prev_char:match('.%)') ~= nil
+      end)
+      :use_key(')'),
+  Rule('{ ', ' }')
+      :with_pair(function() return false end)
+      :with_move(function(opts)
+          return opts.prev_char:match('.%}') ~= nil
+      end)
+      :use_key('}'),
+  Rule('[ ', ' ]')
+      :with_pair(function() return false end)
+      :with_move(function(opts)
+          return opts.prev_char:match('.%]') ~= nil
+      end)
+      :use_key(']')
+}
+EOF
+endfunction
+
+augroup custom_nvim_autopairs
+  autocmd!
+  autocmd VimEnter * call s:init_nvim_autopairs()
+augroup end
+
+"  }}}
+" Key remappings {{{
 
 " This is defined as a function to allow me to reset all my key remappings
 " without needing to repeate myself. Useful with Goyo for now
@@ -1702,16 +1523,11 @@ function! DefaultKeyMappings()
   nmap <leader>e <Plug>ReplSendLine
   vmap <leader>e <Plug>ReplSendVisual
 
-  " spacesurround:
-  inoremap <silent>        <space>  <cmd>call SurroundSpace()<CR>
-  inoremap <silent>        <bs>     <cmd>call SurroundBackspace()<CR>
-  inoremap <silent>        <C-w>    <cmd>call SurroundCw()<CR>
-
   " Key Remappings:
   nnoremap <C-p> :call FzfFiles()<CR>
-  nnoremap <leader><C-p> :call FzfHomeFiles()<CR>
-  nnoremap <leader>g<C-p> :call FzfGitFiles()<CR>
-  nnoremap <leader>d<C-p> :call FzfDiffFiles()<CR>
+  nnoremap <C-~> :call FzfHomeFiles()<CR>
+  " nnoremap <C-p> :call FzfGitFiles()<CR>
+  " nnoremap <C-p> :call FzfDiffFiles()<CR>
   nnoremap <C-n> yiw:Grep <C-r>"<CR>
   vnoremap <C-n> y:Grep <C-r>"<CR>
   nnoremap <leader><C-n> yiw:GrepIgnoreCase <C-r>"<CR>
@@ -1721,7 +1537,7 @@ endfunction
 call DefaultKeyMappings()
 
 " }}}
-" General: Cleanup {{{
+" Cleanup {{{
 " commands that need to run at the end of my vimrc
 
 " disable unsafe commands in your project-specific .vimrc files
