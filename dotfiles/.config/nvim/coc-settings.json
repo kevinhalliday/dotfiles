@@ -29,7 +29,8 @@
     "typeParameter": "\uf728",
     "default": "\uf29c"
   },
-  "jedi.jediSettings.autoImportModules": ["numpy", "alembic", "pydantic"],
+  "coc.source.dictionary.filetypes": ["text", "markdown"],
+  "coc.source.word.filetypes": ["text", "markdown"],
   "diagnostic.enable": true,
   "diagnostic-languageserver.filetypes": {
     "python": ["pylint", "mypy"],
@@ -42,14 +43,12 @@
       "command": "nginx-language-server",
       "filetypes": ["nginx"],
       "rootPatterns": ["nginx.conf", ".git"]
-    },
-    "solidity": {
-      "command": "solc",
-      "args": [ "--lsp" ],
-      "rootPatterns": [".git/"],
-      "filetypes": ["solidity"]
     }
   },
+  "cairols.nileUseVenv": true,
+  "cairols.nileVenvCommand": ". .venv/bin/activate",
+  "cairols.useVenv": true,
+  "cairols.venvCommand": ". .venv/bin/activate",
   "diagnostic-languageserver.formatters": {
     "black": {
       "command": "black",
