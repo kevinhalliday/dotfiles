@@ -1,5 +1,6 @@
 #!/bin/bash
+# apply "$HOME/lib/alacritty-theme/themes/tomorrow_night_bright.yaml"
 
 alacritty-colorscheme \
   -c $HOME/.alacritty.yml \
-  -a "$HOME/src/lib/alacritty-theme/themes/tomorrow_night_bright.yaml"
+  apply "$HOME/lib/alacritty-theme/themes/tomorrow_night_bright.yaml"
