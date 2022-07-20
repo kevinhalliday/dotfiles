@@ -156,6 +156,9 @@ export RUST_SRC_PATH="$RUST_TOOLCHAIN_PATH/lib/rustlib/src/rust/src"
 # Bat
 export BAT_PAGER=''
 
+# browser sync
+export LOCAL_IP='ipconfig getifaddr en0'
+
 # }}}
 # Misc env setup --- {{{
 
@@ -183,8 +186,21 @@ fi
 
 HOMEBREW_BIN="/opt/homebrew/bin"
 if [ -d "$HOMEBREW_BIN" ]; then
-	path_ladd "$HOMEBREW_BIN"
+  path_ladd "$HOMEBREW_BIN"
 fi
+
+FOUNDRY_BIN="$HOME/.foundry/bin"
+if [ -d "$FOUNDRY_BIN" ]; then
+  path_ladd "$FOUNDRY_BIN"
+fi
+
+source "$(brew --prefix asdf)/libexec/asdf.sh"
+
+PNPM_HOME="/Users/kevinhalliday/Library/pnpm"
+if [ -d "$PNPM_HOME" ]; then
+  path_ladd "$PNPM_HOME"
+fi
+export PNPM_HOME
 
 # }}}
 
@@ -217,7 +233,8 @@ GEOMETRY_SYMBOL_ROOT="▲"
 GEOMETRY_COLOR_EXIT_VALUE="magenta"
 GEOMETRY_COLOR_PROMPT="white"
 GEOMETRY_COLOR_ROOT="red"
-GEOMETRY_COLOR_DIR="220"
+# GEOMETRY_COLOR_DIR="220"
+GEOMETRY_COLOR_DIR="yellow"
 GEOMETRY_STATUS_COLOR="default"
 GEOMETRY_PROMPT_SUFFIX=""
 
@@ -315,6 +332,9 @@ export LISTMAX=0
 # Executed whenever the current working directory is changed
 function chpwd() {
   # Magically find Python's virtual environment based on name
+  if [[ "$VIRTUAL_ENV" == "$CAIRO_VENV_DIR" ]]; then
+    return
+  fi
   va
 }
 
@@ -356,6 +376,10 @@ function zshexit() {
 
 # }}}
 # ZShell Auto Completion --- {{{
+
+fpath=($(brew --prefix)/share/zsh/site-functions $fpath)
+fpath+=~/.zfunc
+
 autoload -U compinit && compinit
 autoload -U +X bashcompinit && bashcompinit
 zstyle ':completion:*:*:git:*' script /usr/local/etc/bash_completion.d/git-completion.bash
@@ -371,11 +395,7 @@ zstyle ':completion:*' matcher-list '' \
   'm:{a-z\-A-Z}={A-Z\_a-z}' \
   'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-A-Z}={A-Z\_a-z}' \
   'r:|?=** m:{a-z\-A-Z}={A-Z\_a-z}'
-fpath=(/usr/local/share/zsh-completions $fpath)
 zmodload -i zsh/complist
-
-# Add autocompletion path
-fpath+=~/.zfunc
 
 # }}}
 # # ZShell Key-Bindings --- {{{
@@ -397,6 +417,12 @@ bindkey -M menuselect '^j' menu-complete
 bindkey -M menuselect '^k' reverse-menu-complete
 bindkey -M menuselect '^h' backward-char
 bindkey -M menuselect '^l' forward-char
+
+
+# Alt-W
+bindkey  '∑' forward-word
+# Alt-B
+bindkey  '∫' backward-word
 
 bindkey '^p' history-beginning-search-backward
 bindkey '^n' history-beginning-search-forward
@@ -465,8 +491,8 @@ alias diff='diff -rupP'
 
 # Set copy/paste helper functions
 # the perl step removes the final newline from the output
-alias pbcopy="perl -pe 'chomp if eof' | xclip -selection clipboard"
-alias pbpaste='xclip -selection clipboard -o'
+# alias pbcopy="perl -pe 'chomp if eof' | xclip -selection clipboard"
+# alias pbpaste='xclip -selection clipboard -o'
 
 # Public IP
 alias publicip='curl -s checkip.amazonaws.com'
@@ -492,9 +518,18 @@ compdef _dict_words say
 alias so='source ~/.zshrc'
 
 # File navigation
-alias khalliday='cd ~/src/khalliday7/'
+alias khalliday='cd ~/src/kevinhalliday/'
+alias kh='cd ~/src/kevinhalliday/'
 alias playground='cd ~/src/playground/'
+alias play='cd ~/src/playground/'
 alias rift='cd ~/src/rift/'
+alias rfron='cd ~/src/rift/frontend/'
+alias rprot='cd ~/src/rift/protocol/'
+alias rland='cd ~/src/rift/landing/'
+alias rdash='cd ~/src/rift/dashboard/'
+alias rdepl='cd ~/src/rift/deploy/'
+
+alias xdg-open='open'
 
 # }}}
 # Functions --- {{{
@@ -549,7 +584,7 @@ function alacritty-install() {
 
   # man page
   sudo mkdir -p /usr/local/share/man/man1
-  gzip -c extra/alacritty.man | \
+  gzip -c extra/alacritty.man | \ll
     sudo tee /usr/local/share/man/man1/alacritty.1.gz > /dev/null
 }
 
@@ -557,13 +592,8 @@ function alacritty-install() {
 # upgrade relevant local systems
 function upgrade() {
   brew update
-  brew upgrade -y
-  brew autoremove -y
-  pushd
-  cd ~/src/lib/alacritty
-  git pull
-  alacritty-install
-  popd
+  brew upgrade
+  brew autoremove
   asdf uninstall neovim nightly
   asdf install neovim nightly
   nvim -c 'PU'
@@ -722,6 +752,54 @@ function godev-install() {  ## Install default golang dependencies
   asdf reshim golang
 }
 
+function contains() {
+    string="$1"
+    substring="$2"
+    if test "${string#*$substring}" != "$string"
+    then
+        return 0    # $substring is in $string
+    else
+        return 1    # $substring is not in $string
+    fi
+}
+
+
+CAIRO_VENV_NAME="cairo_venv"
+CAIRO_VENV_DIR="$HOME/$CAIRO_VENV_NAME"
+function cairo-install() {
+  pyversion=$(python --version)
+
+  if contains "$pyversion" "3.7" || contains "$pyversion" "3.8"; then
+    if [ -d "$CAIRO_VENV_DIR" ]; then
+      rm -r $CAIRO_VENV_DIR
+    fi
+
+    brew install gmp
+
+    python -m venv "$CAIRO_VENV_DIR"
+    source "$CAIRO_VENV_DIR/bin/activate"
+    cairo-activate
+
+    # special install to handle m1 macs brew isntall gmp placement
+    CFLAGS=-I`brew --prefix gmp`/include \
+      LDFLAGS=-L`brew --prefix gmp`/lib \
+      pip install ecdsa fastecdsa sympy
+
+    pip install cairo-lang
+    pydev-install
+
+    return 0
+  fi
+
+  echo "Python 3.7 or 3.8 is required to install Cairo"
+  return 1
+}
+
+function cairo-activate() {
+  source "$CAIRO_VENV_DIR/bin/activate"
+}
+
+
 # activate virtual environment from any directory from current and up
 # Name of virtualenv
 VIRTUAL_ENV_DEFAULT=.venv
@@ -810,7 +888,7 @@ compdef _vc_completion vc
 
 
 # Print out the Github-recommended gitignore
-export GITIGNORE_DIR=$HOME/src/lib/gitignore
+export GITIGNORE_DIR=$HOME/lib/gitignore
 function gitignore() {
   if [ ! -d "$GITIGNORE_DIR" ]; then
     mkdir -p $HOME/src/lib
@@ -918,6 +996,7 @@ function pynew() {
 """The main module"""
 EOL
 }
+
 
 # GIT: push current branch from origin to current branch
 function push() {
@@ -1050,6 +1129,9 @@ if [[ -o interactive ]]; then
       sudo dmesg -n 1
     fi
   fi
+
+  # activate python env, if it exists
+  va
 fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
