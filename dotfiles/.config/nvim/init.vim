@@ -6,10 +6,16 @@
 " Eg, if BufRead,BufNewFile * ignores any Filetype overwrites
 " This is why default settings are chosen with Filetype *
 
+
+set runtimepath^=/Users/kevinhalliday/src/kevinhalliday/coc-cairo
+
 " Packages {{{
 
 function! s:packager_init(packager) abort
   call a:packager.add('git@github.com:kristijanhusak/vim-packager', {'type': 'opt'})
+
+  " My plugins:
+  call a:packager.add('git@github.com:kevinhalliday/cairo.vim')
 
   " Copilot:
   call a:packager.add('git@github.com:github/copilot.vim.git')
@@ -67,16 +73,20 @@ function! s:packager_init(packager) abort
 
   " Writing:
   call a:packager.add('git@github.com:junegunn/limelight.vim.git')
+  call a:packager.add('git@github.com:junegunn/goyo.vim.git')
   call a:packager.add('git@github.com:dkarter/bullets.vim.git')
 
   " ColorScheme:
   call a:packager.add('git@github.com:pappasam/papercolor-theme-slim.git')
+  call a:packager.add('git@github.com:tanvirtin/monokai.nvim.git')
+  call a:packager.add('git@github.com:tomasiser/vim-code-dark.git')
 
 
   " Previewers:
   call a:packager.add('git@github.com:iamcco/markdown-preview.nvim.git', { 'do': 'cd app & yarn install'  })
   call a:packager.add('git@github.com:tyru/open-browser.vim.git')
   call a:packager.add('git@github.com:weirongxu/plantuml-previewer.vim.git')
+  call a:packager.add('git@github.com:turbio/bracey.vim.git', { 'do': 'yarn install --cwd server' })
 
   " Formatters:
   call a:packager.add('git@github.com:pappasam/vim-filetype-formatter.git')
@@ -207,8 +217,11 @@ endfunction
 
 call s:alacritty_set_background()
 call jobstart(
-      \ 'ls ' . $HOME . '/.alacritty.yml | entr -ps "echo alacritty_change"',
-      \ {'on_stdout': { j, d, e -> s:alacritty_set_background() }}
+      \ 'ls ' . $HOME . '/.alacritty.yml | entr -ps "echo alacritty_colorchange"',
+      \ {
+      \   'on_stdout': { j, d, e -> s:alacritty_set_background() },
+      \   'on_stderr': { j, d, e -> s:alacritty_set_background() }
+      \ }
       \ )
 
 
@@ -237,6 +250,7 @@ augroup filetype_recognition
   autocmd BufNewFile,BufRead,BufEnter *.rs  set filetype=rust
   autocmd BufNewFile,BufRead,BufEnter *.prisma  set filetype=prisma
   autocmd BufNewFile,BufRead,BufEnter .eslintrc.json,tsconfig.json  set filetype=jsonc
+  autocmd BufNewFile,BufRead,BufEnter .cairo  set filetype=cairo
 augroup end
 
 
@@ -285,6 +299,8 @@ augroup custom_comment_config
   autocmd!
   autocmd FileType dosini
         \ setlocal commentstring=#\ %s comments=:#,:;
+  autocmd FileType cairo
+        \ setlocal commentstring=#\ %s comments=:#,:;
   autocmd FileType jsonc
         \ setlocal commentstring=//\ %s comments=:// formatoptions=jcroql
   autocmd FileType sh setlocal formatoptions=jcroql
@@ -299,7 +315,7 @@ augroup end
 set expandtab shiftwidth=2 softtabstop=2 tabstop=8
 augroup indentation_sr
   autocmd!
-  autocmd Filetype python,c,haskell,rust,rst,kv,nginx,asm,nasm,gdscript3
+  autocmd Filetype python,c,haskell,rust,rst,kv,nginx,asm,nasm,gdscript3,cair
         \ setlocal shiftwidth=4 softtabstop=4 tabstop=8
   autocmd Filetype dot setlocal autoindent cindent
   autocmd Filetype make,tsv,votl,go,gomod
@@ -323,6 +339,7 @@ augroup colorcolumn_configuration
   autocmd!
   autocmd FileType gitcommit setlocal colorcolumn=73 textwidth=72
   autocmd Filetype html,text,markdown,rst setlocal colorcolumn=0
+  autocmd FileType solidity setlocal colorcolumn=120
 augroup end
 
 " }}}
@@ -423,7 +440,15 @@ augroup fix_whitespace_save
 augroup end
 
 " }}}
+" Color schemes {{{
+
+" }}}
 " Syntax highlighting {{{
+"
+augroup cairo_syntax
+  autocmd!
+  autocmd FileType cairo set syntax=cairo
+augroup end
 
 " Python: Highlight args and kwargs, since they are conventionally special
 augroup python_syntax
@@ -503,11 +528,26 @@ let g:PaperColor_Theme_Options.language = {
       \ }
 
 " Load:
+" try
+"   colorscheme PaperColorSlim
+" catch
+"   echo 'An error occured while configuring PaperColor'
+" endtry
+
 try
-  colorscheme PaperColorSlim
+  " colorscheme monokai
+  " colorscheme monokai_pro
+  " colorscheme monokai_soda
+  colorscheme monokai_ristretto
 catch
-  echo 'An error occured while configuring PaperColor'
+  echo 'An error occured while configuring Monokai'
 endtry
+
+" try
+"   colorscheme codedark
+" catch
+"   echo 'An error occured while configuring codedark'
+" endtry
 
 " }}}
 " Resize Window {{{
@@ -625,7 +665,9 @@ let g:vim_filetype_formatter_commands = {
       \ 'less': 'npx -q prettier --parser less',
       \ 'html': 'npx -q prettier --parser html',
       \ 'svg': 'npx -q prettier --parser html',
-      \ 'vue': 'npx -q prettier --html-whitespace-sensitivity ignore --parser vue'
+      \ 'vue': 'npx -q prettier --html-whitespace-sensitivity ignore --parser vue',
+      \ 'solidity': 'npx -q prettier --parser solidity-parse',
+      \ 'cairo': 'cairo-format -',
       \}
 
 nnoremap <leader>f :FiletypeFormat<cr>
@@ -740,13 +782,15 @@ let g:coc_filetype_map = {
 " Coc Global Extensions: automatically installed on Vim open
 " \ 'coc-snippets',
 " \ 'coc-highlight',
+" \ 'coc-markdownlint',
+" \ 'coc-angular',
+" \ 'coc-cairo',
+" \ 'https://github.com/rodrigore/coc-tailwind-intellisense',
 let g:coc_global_extensions = [
       \ '@yaegassy/coc-nginx',
-      \ 'coc-angular',
       \ 'coc-cssmodules',
       \ 'coc-css',
       \ 'coc-diagnostic',
-      \ 'coc-dictionary',
       \ 'coc-docker',
       \ 'coc-emoji',
       \ 'coc-eslint',
@@ -755,7 +799,6 @@ let g:coc_global_extensions = [
       \ 'coc-java',
       \ 'coc-json',
       \ 'coc-lists',
-      \ 'coc-markdownlint',
       \ 'coc-rls',
       \ 'coc-sh',
       \ 'coc-svelte',
@@ -765,9 +808,12 @@ let g:coc_global_extensions = [
       \ 'coc-toml',
       \ 'coc-tsserver',
       \ 'coc-vimlsp',
-      \ 'coc-word',
       \ 'coc-yaml',
       \ 'coc-yank',
+      \ 'coc-dictionary',
+      \ 'coc-word',
+      \ 'coc-tailwindcss',
+      \ 'coc-solidity',
       \ ]
 
 function! s:show_documentation()
@@ -894,7 +940,7 @@ let g:mkdp_command_for_global = v:false
 " a custom vim function name to open preview page
 " this function will receive url as param
 " default is empty
-let g:mkdp_browserfunc = ''
+" let g:mkdp_browserfunc = 'open'
 
 " options for markdown render
 " mkit: markdown-it options for render
@@ -1013,14 +1059,15 @@ function! s:preview()
   elseif &filetype ==? 'markdown'
     " from markdown-preview.vim
     exec 'MarkdownPreview'
+  elseif &filetype ==? 'html'
+    " from bran.vim
+    exec 'Bracey'
   elseif &filetype ==? 'dot'
     " from wmgraphviz.vim
     exec 'GraphvizInteractive'
   elseif &filetype ==? 'plantuml'
     " from plantuml-previewer.vim
     exec 'PlantumlOpen'
-  elseif &filetype ==? 'html'
-    exec 'silent !google-chrome % &'
   else
     echo 'Preview not supported for this filetype'
   endif
@@ -1061,6 +1108,9 @@ let g:qs_max_chars = 10000
 let g:winresizer_start_key = '<C-\>'
 let g:winresizer_vert_resize = 1
 let g:winresizer_horiz_resize = 1
+
+" Bracey:
+let g:bracey_refresh_on_save = 1
 
 "  }}}
 "  defx {{{
@@ -1199,7 +1249,8 @@ lua << EOF
 require('nvim-treesitter.configs').setup({
   highlight = {
     enable = true,
-    additional_vim_regex_highlighting = true
+    additional_vim_regex_highlighting = true,
+    disable = { "cairo" },
   },
   textobjects = { enable = true },
   autotag = { enable = true  },
@@ -1401,6 +1452,7 @@ function! DefaultKeyMappings()
   nnoremap <leader><leader>g :Goyo<CR>
   nnoremap <leader><leader>l :Limelight!!<CR>
   nmap <leader><leader>v <Plug>Veil
+  nmap <leader><leader>z <Plug>ZenMode
 
   " IndentLines: toggle if indent lines is visible
   nnoremap <silent> <leader>i :IndentLinesToggle<CR>
@@ -1452,7 +1504,8 @@ function! DefaultKeyMappings()
   nnoremap <silent>        <leader>sc <cmd>CocList commands<cr>
   " nnoremap <silent>        <leader>so <cmd>CocList -A outline<cr>
   nnoremap <silent>        <leader>sw <cmd>CocList -A -I symbols<cr>
-  inoremap <silent> <expr> <c-space> coc#refresh()
+  inoremap <silent> <expr> <C-space> coc#refresh()
+  inoremap <silent> <expr> <C-]> coc#refresh()
   nnoremap <silent> <expr> <C-e> coc#float#has_float() ? coc#float#scroll(1) : "\<C-e>"
   nnoremap <silent> <expr> <C-y> coc#float#has_float() ? coc#float#scroll(0) : "\<C-y>"
   imap     <silent> <expr> <C-l> coc#expandable() ? "<Plug>(coc-snippets-expand)" : "\<C-y>"
