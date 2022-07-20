@@ -233,7 +233,6 @@ GEOMETRY_SYMBOL_ROOT="▲"
 GEOMETRY_COLOR_EXIT_VALUE="magenta"
 GEOMETRY_COLOR_PROMPT="white"
 GEOMETRY_COLOR_ROOT="red"
-# GEOMETRY_COLOR_DIR="220"
 GEOMETRY_COLOR_DIR="yellow"
 GEOMETRY_STATUS_COLOR="default"
 GEOMETRY_PROMPT_SUFFIX=""
@@ -616,7 +615,8 @@ function update-prompt-colors() {
   fi
 }
 
-update-prompt-colors
+# we will get to  this when we are ready
+# update-prompt-colors
 # if [ -n "$TMUX" ]; then
 #   tmux set-hook after-select-pane 'run "update-prompt-colors > /dev/null"'
 #   tmux set-hook after-select-window 'run "update-prompt-colors > /dev/null"'
