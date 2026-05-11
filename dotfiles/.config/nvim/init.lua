@@ -1,3 +1,6 @@
+-- import old vim
+-- move over as necessary
+vim.cmd([[
 " Make typing more fun.
 "
 " Notes:
@@ -12,6 +15,7 @@ set runtimepath^=/Users/kevinhalliday/src/kevinhalliday/vim-go-syntax
 
 " Packages {{{
 
+" keeping for reference, plugins managed in lua/plugins
 function! s:packager_init(packager) abort
   call a:packager.add('git@github.com:kristijanhusak/vim-packager', {'type': 'opt'})
 
@@ -100,7 +104,7 @@ function! s:packager_init(packager) abort
 
   " Syntax Highlighting:
   call a:packager.add('git@github.com:pangloss/vim-javascript')
-  call a:packager.add('git@github.com:peitalin/vim-jsx-typescript.git')
+  call a:packager.add('git@github.cojkjk:peitalin/vim-jsx-typescript.git')
   call a:packager.add('git@github.com:pantharshit00/vim-prisma.git')
   call a:packager.add('git@github.com:hashivim/vim-terraform.git')
   call a:packager.add('git@github.com:tomlion/vim-solidity.git')
@@ -118,23 +122,6 @@ function! s:packager_init(packager) abort
   call a:packager.add('git@github.com:hynek/vim-python-pep8-indent.git')
   call a:packager.add('git@github.com:vim-scripts/groovyindent-unix.git')
 endfunction
-
-packadd vim-packager
-call packager#setup(function('s:packager_init'), {
-      \ 'window_cmd': 'edit',
-      \ })
-
-command! PackInstall    PackagerInstall
-command! PackUpdate     PackagerUpdate
-command! PackClean      PackagerClean
-command! PackStatus     PackagerStatus
-command! PU             PackagerUpdate | PackagerClean
-
-" }}}
-" Leader mappings {{{
-
-let mapleader = ","
-let maplocalleader = "\\"
 
 " }}}
 " Global config {{{
@@ -161,7 +148,7 @@ set nojoinspaces
 set showtabline=2
 set autoread
 set grepprg=rg\ --vimgrep
-set pastetoggle=<C-_>
+" set pastetoggle=<C-_> (deprecated)
 set notimeout
 set ttimeout
 set exrc
@@ -207,37 +194,7 @@ let g:python3_host_prog = "$HOME/.asdf/shims/python"
 let g:loaded_python_provider = 0
 
 " }}}
-" Alacritty Color Scheme {{{
-
-" need to do this later
-" set environment variables based on light or dark
-" function s:set_env_from_background()
-"   let $BAT_THEME = &background == 'light' ?
-"         \ 'Monokai Extended Light' : 'Monokai Extended'
-" endfunction
-
-" function! s:alacritty_set_background()
-"   let g:alacritty_background = system('alacritty-which-colorscheme')
-"   if !v:shell_error
-"     let &background = g:alacritty_background
-"   else
-"     echom 'Error calling "alacritty-which-colorscheme"'
-"   endif
-"   call s:set_env_from_background()
-" endfunction
-
-" call s:alacritty_set_background()
-" call jobstart(
-"       \ 'ls ' . $HOME . '/.alacritty.yml | entr -ps "echo alacritty_colorchange"',
-"       \ {
-"       \   'on_stdout': { j, d, e -> s:alacritty_set_background() },
-"       \   'on_stderr': { j, d, e -> s:alacritty_set_background() }
-"       \ }
-"       \ )
-
-
-" }}}
-"  Filetype recognition {{{
+" Filetype recognition {{{
 
 augroup filetype_recognition
   autocmd!
@@ -295,12 +252,6 @@ set statusline+=%#CursorLine#
 set statusline+=\ %{&ff}\  " Unix or Dos
 set statusline+=%*  " default color
 set statusline+=\ %{strlen(&fenc)?&fenc:'none'}\  " file encoding
-
-" Status Line
-augroup statusline_local_overrides
-  autocmd!
-  autocmd FileType defx setlocal statusline=\ defx\ %#CursorLine#
-augroup end
 
 " }}}
 " Comment / Text Format Options {{{
@@ -428,7 +379,7 @@ augroup end
 
 augroup fold_settings
   autocmd!
-  autocmd FileType vim,tmux,bash,zsh,sh
+  autocmd FileType vim,tmux,bash,zsh,sh,lua
         \ setlocal foldmethod=marker foldlevelstart=0 foldnestmax=1
   autocmd FileType markdown,rst
         \ setlocal nofoldenable
@@ -510,8 +461,6 @@ augroup whitespace_color
 
   autocmd InsertEnter * highlight clear EOLWS
   autocmd InsertLeave * highlight EOLWS guibg='CornflowerBlue' ctermbg=DarkCyan
-
-  autocmd FileType defx highlight clear EOLWS
 augroup end
 
 
@@ -677,27 +626,23 @@ command! ToggleNumber call <SID>toggle_number()
 command! ToggleRelativeNumber call <SID>toggle_relative_number()
 
 " }}}
-"   vim-filetype-formatter {{{
+" vim-filetype-formatter {{{
 
-" doesnt work
-" \ 'typescript': 'npx eslint --fix-dry-run --stdin',
-" \ 'typescript.tsx': 'npx eslint --fix-dry-run --stdin',
-" \ 'typescriptreact': 'npx eslint --fix-dry-run --stdin',
 let g:vim_filetype_formatter_commands = {
       \ 'rust': 'rustup run nightly rustfmt --quiet --emit stdout',
-      \ 'python': 'black - -q --line-length 79',
-      \ 'javascript': 'npx -q biome format --write --stdin-file-path=dummy.js',
-      \ 'javascript.jsx': 'npx -q biome format --write --stdin-file-path=dummy.jsx',
-      \ 'typescript': 'npx -q biome format --write --stdin-file-path=dummy.ts',
-      \ 'typescript.tsx': 'npx -q biome format --write --stdin-file-path=dummy.tsx',
-      \ 'typescriptreact': 'npx -q biome format --write --stdin-file-path=dummy.tsx',
-      \ 'svelte': 'npx -q biome format --write --stdin-file-path=dummy.svelte',
-      \ 'css': 'npx -q biome format --write --stdin-file-path=dummy.css',
-      \ 'less': 'npx -q biome format --write --stdin-file-path=dummy.less',
+      \ 'python': '!black - -q --line-length 79',
+      \ 'javascript': 'npx -q biome format --write --stdin-file-path=terminal/src/dummy.js',
+      \ 'javascript.jsx': '!pnpm -q biome format --write --stdin-file-path=terminal/src/dummy.jsx',
+      \ 'typescript': '!pnpm -q biome format --write --stdin-file-path=terminal/src/dummy.ts',
+      \ 'typescript.tsx': '!pnpm -q biome format --write --stdin-file-path=terminal/src/dummy.tsx',
+      \ 'typescriptreact': '!pnpm -q biome format --write --stdin-file-path=terminal/src/dummy.tsx',
+      \ 'svelte': 'npx -q biome format --write --stdin-file-path=src/dummy.svelte',
+      \ 'css': 'npx -q biome format --write --stdin-file-path=src/dummy.css',
+      \ 'less': 'npx -q biome format --write --stdin-file-path=src/dummy.less',
       \ 'html': 'npx -q prettier --parser html',
-      \ 'svg': 'npx -q biome format --write --stdin-file-path=dummy.svg',
-      \ 'vue': 'npx -q biome format --write --stdin-file-path=dummy.vue',
-      \ 'solidity': 'forge fmt --raw -',
+      \ 'svg': 'npx -q biome format --write --stdin-file-path=src/dummy.svg',
+      \ 'vue': 'npx -q biome format --write --stdin-file-path=src/dummy.vue',
+      \ 'solidity': '!forge fmt --raw -',
       \ 'cairo': 'cairo-format -',
       \ 'prisma': 'npx -q prettier --plugin prettier-plugin-prisma --stdin-filepath schema.prisma',
       \ 'json': 'npx -q biome format --write --stdin-file-path=dummy.json',
@@ -861,6 +806,7 @@ let g:coc_global_extensions = [
       \ '@yaegassy/coc-nginx',
       \ 'coc-elixir',
       \ 'coc-biome',
+      \ 'coc-jedi',
       \ ]
 
 function! s:show_documentation()
@@ -1123,7 +1069,7 @@ endfunction
 command! Preview call <SID>preview()
 
 " }}}
-"  Miscellaneous Configuration {{{
+" Miscellaneous Configuration {{{
 
 " Python: highlighting
 let g:python_highlight_space_errors = 0
@@ -1163,132 +1109,7 @@ let g:bracey_refresh_on_save = 1
 let g:rooter_patterns = ['package.json', 'pyproject.toml', 'Cargo.toml', 'foundry.toml', '.git', 'Makefile']
 
 "  }}}
-"  defx {{{
-
-let g:custom_defx_state = tempname()
-
-let g:defx_ignored_files = join([
-      \ '*.aux',
-      \ '*.egg-info/',
-      \ '*.o',
-      \ '*.out',
-      \ '*.pdf',
-      \ '*.pyc',
-      \ '*.toc',
-      \ '.*',
-      \ '__pycache__/',
-      \ 'build/',
-      \ 'dist/',
-      \ 'docs/_build/',
-      \ 'fonts/',
-      \ 'node_modules/',
-      \ 'pip-wheel-metadata/',
-      \ 'plantuml-images/',
-      \ 'site/',
-      \ 'target/',
-      \ 'venv.bak/',
-      \ 'venv/',
-      \ ], ',')
-
-let g:custom_defx_mappings = [
-      \ ['!             ', "defx#do_action('execute_command')"],
-      \ ['*             ', "defx#do_action('toggle_select_all')"],
-      \ [';             ', "defx#do_action('repeat')"],
-      \ ['<2-LeftMouse> ', "defx#is_directory() ? defx#do_action('open_tree', 'toggle') : defx#do_action('drop')"],
-      \ ['<C-g>         ', "defx#do_action('print')"],
-      \ ['<C-h>         ', "defx#do_action('resize', 31)"],
-      \ ['<C-i>         ', "defx#do_action('open_directory')"],
-      \ ['<C-o>         ', "defx#do_action('cd', ['..'])"],
-      \ ['<C-r>         ', "defx#do_action('redraw')"],
-      \ ['<C-t>         ', "defx#do_action('open', 'tabe')"],
-      \ ['<C-v>         ', "defx#do_action('open', 'vsplit')"],
-      \ ['<C-s>         ', "defx#do_action('drop', 'split')"],
-      \ ['<CR>          ', "defx#do_action('drop')"],
-      \ ['<RightMouse>  ', "defx#do_action('cd', ['..'])"],
-      \ ['O             ', "defx#do_action('open_tree', 'recursive:3')"],
-      \ ['p             ', "defx#do_action('preview')"],
-      \ ['a             ', "defx#do_action('toggle_select')"],
-      \ ['cc            ', "defx#do_action('copy')"],
-      \ ['cd            ', "defx#do_action('change_vim_cwd')"],
-      \ ['i             ', "defx#do_action('toggle_ignored_files')"],
-      \ ['nf            ', "defx#do_action('new_file')"],
-      \ ['nd            ', "defx#do_action('new_directory')"],
-      \ ['dd            ', "defx#do_action('remove')"],
-      \ ['rn            ', "defx#do_action('rename')"],
-      \ ['o             ', "defx#is_directory() ? defx#do_action('open_tree', 'toggle') : defx#do_action('drop')"],
-      \ ['P             ', "defx#do_action('paste')"],
-      \ ['q             ', "defx#do_action('quit')"],
-      \ ['ss            ', "defx#do_action('multi', [['toggle_sort', 'TIME'], 'redraw'])"],
-      \ ['t             ', "defx#do_action('open_tree', 'toggle')"],
-      \ ['u             ', "defx#do_action('cd', ['..'])"],
-      \ ['x             ', "defx#do_action('execute_system')"],
-      \ ['yy            ', "defx#do_action('yank_path')"],
-      \ ['~             ', "defx#do_action('cd')"],
-      \ ]
-
-function! s:autocmd_custom_defx()
-  if !exists('g:loaded_defx')
-    return
-  endif
-  call defx#custom#column('filename', {
-        \ 'min_width': 100,
-        \ 'max_width': 100,
-        \ })
-endfunction
-
-let g:defx_icons_column_length = 2
-
-function! s:open_defx_if_directory()
-  if !exists('g:loaded_defx')
-    echom 'Defx not installed, skipping...'
-    return
-  endif
-  if isdirectory(expand(expand('%:p')))
-    Defx `expand('%:p')`
-        \ -buffer-name=defx
-        \ -columns=mark:git:indent:icons:filename:type:size:time
-  endif
-endfunction
-
-function! s:defx_redraw()
-  if !exists('g:loaded_defx')
-    return
-  endif
-  call defx#redraw()
-endfunction
-
-function! s:defx_buffer_remappings() abort
-  " Define mappings
-  for [key, value] in g:custom_defx_mappings
-    execute 'nnoremap <silent><buffer><expr> ' . key . ' ' . value
-  endfor
-  nnoremap <silent><buffer> ?
-        \ :for [key, value] in g:custom_defx_mappings <BAR>
-        \ echo '' . key . ': ' . value <BAR>
-        \ endfor<CR>
-endfunction
-
-augroup custom_defx
-  autocmd!
-  autocmd VimEnter * call s:autocmd_custom_defx()
-  autocmd BufEnter * call s:open_defx_if_directory()
-  autocmd BufLeave,BufWinLeave \[defx\]* silent call defx#call_action('add_session')
-augroup end
-
-augroup custom_remap_defx
-  autocmd!
-  autocmd FileType defx call s:defx_buffer_remappings()
-  autocmd FileType defx nmap     <buffer> <silent> gp <Plug>(defx-git-prev)
-  autocmd FileType defx nmap     <buffer> <silent> gn <Plug>(defx-git-next)
-  autocmd FileType defx nmap     <buffer> <silent> gs <Plug>(defx-git-stage)
-  autocmd FileType defx nmap     <buffer> <silent> gu <Plug>(defx-git-reset)
-  autocmd FileType defx nmap     <buffer> <silent> gd <Plug>(defx-git-discard)
-  autocmd FileType defx nnoremap <buffer> <silent> <C-l> <cmd>ResizeWindowWidth<CR>
-augroup end
-
-
-"  }}}
-"  treesitter {{{
+" treesitter {{{
 
 function s:init_treesitter()
   if !exists('g:loaded_nvim_treesitter')
@@ -1337,7 +1158,7 @@ augroup custom_treesitter
 augroup end
 
 "  }}}
-"  copilot.vim {{{
+" copilot.vim {{{
 
 let g:copilot_no_tab_map = v:true
 
@@ -1390,10 +1211,7 @@ augroup custom_nvim_autopairs
 augroup end
 
 "  }}}
-" Key remappings {{{
-
-" This is defined as a function to allow me to reset all my key remappings
-" without needing to repeate myself. Useful with Goyo for now
+" Key Mappings {{{
 function! DefaultKeyMappings()
   " Turn of syntax
   nnoremap <leader>so :set syntax=OFF<CR>
@@ -1465,35 +1283,9 @@ function! DefaultKeyMappings()
   nnoremap <silent> <leader>R :ToggleNumber<CR>
   nnoremap <silent> <leader>r :ToggleRelativeNumber<CR>
 
-    " TogglePluginWindows:
-  nnoremap <silent> <space>j <cmd>Defx
-        \ -buffer-name=defx
-        \ -columns=mark:git:indent:icons:filename:type
-        \ -direction=topleft
-        \ -search=`expand('%:p')`
-        \ -session-file=`g:custom_defx_state`
-        \ -ignored-files=`g:defx_ignored_files`
-        \ -split=vertical
-        \ -toggle
-        \ -floating-preview
-        \ -vertical-preview
-        \ -preview-height=50
-        \ -winwidth=31
-        \ <CR>
-  nnoremap <silent> <space>J <cmd>Defx `expand('%:p:h')`
-        \ -buffer-name=defx
-        \ -columns=mark:git:indent:icons:filename:type
-        \ -direction=topleft
-        \ -search=`expand('%:p')`
-        \ -ignored-files=`g:defx_ignored_files`
-        \ -split=vertical
-        \ -floating-preview
-        \ -vertical-preview
-        \ -preview-height=50
-        \ -winwidth=31
-        \ <CR>
-  nnoremap <silent> <space>l <cmd>TagbarToggle <CR>
-  nnoremap <silent> <space>u <cmd>UndotreeToggle<CR>
+  " TogglePluginWindows:
+  nnoremap <silent> <space>j :NvimTreeToggle<CR>
+  nnoremap <silent> <space>J :NvimTreeFindFileToggle<CR>
 
   " Choosewin: (just like tmux)
   " nnoremap <C-w>q :ChooseWin<CR>
@@ -1511,12 +1303,6 @@ function! DefaultKeyMappings()
   nnoremap <silent> <leader><leader>h :ResizeWindowHeight<CR>
   nnoremap <silent> <leader><leader>w :ResizeWindowWidth<CR>
 
-  " DeleteHiddenBuffers: shortcut to make this easier
-  " note: weird stuff happens if you mess this up
-  " nnoremap <leader>d :DeleteInactiveBuffers<CR>
-
-  " Jumping To Header File:
-  " nnoremap gh :call CurtineIncSw()<CR>
 
   " SearchBackward: remap comma to single quote
   nnoremap ' ,
@@ -1539,6 +1325,7 @@ function! DefaultKeyMappings()
   nmap     <silent>        <C-]> <Plug>(coc-definition)
   nmap     <silent>        <C-LeftMouse> <Plug>(coc-definition)
   nnoremap <silent>        <C-k> <cmd>call <SID>show_documentation()<CR>
+  nnoremap <silent>        <C-c> <cmd>call clearmatches()<CR>
   nnoremap <silent>        <C-h> <cmd>call CocActionAsync('showSignatureHelp')<CR>
   inoremap <silent>        <C-h> <cmd>call CocActionAsync('showSignatureHelp')<CR>
   nmap     <silent>        <leader>st <Plug>(coc-type-definition)
@@ -1555,12 +1342,10 @@ function! DefaultKeyMappings()
   nnoremap <silent>        <leader>sp <cmd>CocPrev<CR>
   nnoremap <silent>        <leader>sl <cmd>CocListResume<CR>
   nnoremap <silent>        <leader>sc <cmd>CocList commands<cr>
-  " nnoremap <silent>        <leader>so <cmd>CocList -A outline<cr>
   nnoremap <silent>        <leader>sw <cmd>CocList -A -I symbols<cr>
   inoremap <silent> <expr> <C-space> coc#refresh()
   inoremap <silent> <expr> <C-]> coc#refresh()
 
-  " enter
   nnoremap <silent> <expr> <C-e> coc#float#has_float() ? "\<C-w><C-w>" : "\<C-e>"
   nnoremap <silent> <expr> <C-u> coc#float#has_float() ? coc#float#scroll(0) : "\<C-y>"
   nnoremap <silent> <expr> <C-d> coc#float#has_float() ? coc#float#scroll(1) : "\<C-y>"
@@ -1571,22 +1356,10 @@ function! DefaultKeyMappings()
   nmap     <silent>        <leader>n <Plug>(coc-diagnostic-next)
   nmap     <silent>        <leader>p <Plug>(coc-diagnostic-prev)
 
-  " coc-spell-check:
-  " <leader>aw for current word
-  " <leader>aap for current paragraph
-  vmap     <silent>         <leader>a <Plug>(coc-codeaction-selected)
-  nmap     <silent>         <leader>a <Plug>(coc-codeaction-selected)
-  nnoremap <silent>         <leader>s <cmd>CocCommand cSpell.toggleEnableSpellChecker<CR>
-
-
-  " coc-smartf: press <esc> to cancel.
-  " nmap f <Plug>(coc-smartf-forward)
-  " nmap F <Plug>(coc-smartf-backward)
-  " nmap ; <Plug>(coc-smartf-repeat)
-  " nmap , <Plug>(coc-smartf-repeat-opposite)
-
-  vmap <leader>a <Plug>(coc-codeaction-selected)<cr>
-  nmap <leader>a <Plug>(coc-codeaction-selected)<cr>
+  """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  " Avante
+  vnoremap <silent> <leader>al :AvanteClear<CR>
+  nnoremap <silent> <leader>al :AvanteClear<CR>
 
   """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   " Mouse Configuration: remaps mouse to work better in terminal
@@ -1594,10 +1367,6 @@ function! DefaultKeyMappings()
   " Clipboard Copy Paste: Visual mode copy is pretty simple
   vnoremap <leader>y "+y
   nnoremap <leader>y "+y
-  " Normal mode paste checks whether the current line has text
-  " if yes, insert new line, if no, start paste on the current line
-  " nnoremap <expr> <leader>p
-  "       \ len(getline('.')) == 0 ? '"+p' : 'o<esc>"+p'
 
   " Mouse Copy: system copy mouse characteristics
   vnoremap <RightMouse> "+y
@@ -1636,8 +1405,6 @@ function! DefaultKeyMappings()
   " Key Remappings:
   nnoremap <C-p> :call FzfFiles()<CR>
   nnoremap <C-l> :call FzfSrcFiles()<CR>
-  " nnoremap <C-p> :call FzfGitFiles()<CR>
-  " nnoremap <C-p> :call FzfDiffFiles()<CR>
   nnoremap <C-n> yiw:Grep <C-r>"<CR>
   vnoremap <C-n> y:Grep <C-r>"<CR>
   nnoremap <leader><C-n> yiw:GrepIgnoreCase <C-r>"<CR>
@@ -1645,7 +1412,6 @@ function! DefaultKeyMappings()
 endfunction
 
 call DefaultKeyMappings()
-
 " }}}
 " Cleanup {{{
 " commands that need to run at the end of my vimrc
@@ -1656,3 +1422,26 @@ call DefaultKeyMappings()
 set secure
 
 " }}}
+]])
+
+-- Map leaders
+vim.g.mapleader = ","
+vim.g.maplocalleader = "\\"
+
+-- lazy.nvim
+require('config.sensitive')
+require('config.lazy')
+
+-- reload key mappings
+vim.cmd([[
+  call DefaultKeyMappings()
+]])
+
+-- -- -- nnoremap <silent>        <C-k> <cmd>call <SID>show_documentation()<CR>
+-- vim.keymap.set('n', '<C-k>', function()
+--   vim.cmd('call >show_documentation()')
+--   vim.cmd('call clearmatches()')
+-- end, { noremap = true, silent = true })
+--
+-- Disable copilot
+-- vim.g.copilot_enabled = false

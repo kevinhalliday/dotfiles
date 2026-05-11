@@ -32,10 +32,6 @@
   "coc.source.dictionary.filetypes": ["text", "markdown"],
   "coc.source.word.filetypes": ["text", "markdown"],
   "diagnostic.enable": true,
-  "diagnostic-languageserver.filetypes": {
-    "python": ["pylint", "mypy"],
-    "sh": "shellcheck"
-  },
   "typescript.showUnused": false,
   "prisma": {},
   "languageserver": {
@@ -49,6 +45,8 @@
   "cairols.nileVenvCommand": ". .venv/bin/activate",
   "cairols.useVenv": true,
   "cairols.venvCommand": ". .venv/bin/activate",
+  "solidity.includePath": "lib",
+  "solidity.includePath": "node_modules",
   "diagnostic-languageserver.formatters": {
     "black": {
       "command": "black",
@@ -63,6 +61,16 @@
       "args": ["-"]
     }
   },
+  "diagnostic-languageserver.filetypes": {
+    "python": ["pylint", "mypy"],
+    // it was being kind of annoying
+    // "go": ["golangci-lint"],
+    "sh": "shellcheck"
+  },
+  "diagnostic-languageserver.mergeConfig": true,
+  "diagnostic-languageserver.debug": true,
+  "diagnostic-languageserver.enable": true,
+  "diagnostic-languageserver.trace.server": "verbose",
   "diagnostic-languageserver.linters": {
     "mypy": {
       "sourceName": "mypy",
@@ -88,6 +96,40 @@
         "error": "error"
       }
     },
+
+    "golangci-lint": {
+      "rootPatterns": ["go.mod"],
+    },
+    // was being annoying, using defaults
+    // golangci-lint run -E goimports,sqlclosecheck,bodyclose,asciicheck,misspell,errorlint -e "errors.As" -e "errors.Is"
+    // "golangci-lint": {
+    //   "sourceName": "golangci-lint",
+    //   "command": "golangci-lint",
+    //   "rootPatterns": ["go.mod"],
+    //   // seems .git does not always play nice, when go mod or go workspace is nested within
+    //   // "rootPatterns": [ ".git", "go.mod"],
+    //   // args borrowed from optimism
+    //   "args": [
+    //     "run",
+    //     "-E",
+    //     "goimports,sqlclosecheck,bodyclose,asciicheck,misspell,errorlint",
+    //     "-e",
+    //     "\"errors.As\"",
+    //     "-e",
+    //     "\"errors.Is\"",
+    //     "--out-format",
+    //     "json"
+    //   ],
+    //   "parseJson": {
+    //     "sourceName": "Pos.Filename",
+    //     "sourceNameFilter": true,
+    //     "errorsRoot": "Issues",
+    //     "line": "Pos.Line",
+    //     "column": "Pos.Column",
+    //     "message": "${Text} [${FromLinter}]",
+    //   }
+    // },
+
     "pylint": {
       "sourceName": "pylint",
       "command": "pylint",
@@ -110,7 +152,7 @@
           "message": 4
         }
       ],
-      "rootPatterns": ["pyproject.toml", ".git"],
+      // "rootPatterns": ["pyproject.toml", ".git"],
       "securities": {
         "informational": "hint",
         "refactor": "info",
@@ -122,5 +164,6 @@
       "offsetColumn": 1,
       "formatLines": 1
     }
-  }
+  },
+  "@ignored/coc-solidity.telemetry": true
 }

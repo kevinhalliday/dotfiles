@@ -167,11 +167,17 @@ if [ -d "$HOME_BIN" ]; then
   path_ladd "$HOME_BIN"
 fi
 
-POETRY_LOC="$HOME/.poetry/bin"
-if [ -d "$POETRY_LOC" ]; then
-  path_ladd "$POETRY_LOC"
-  source $HOME/.poetry/env
+GO_HOME_BIN="$HOME/go/bin"
+if [ -d "$GO_HOME_BIN" ]; then
+  path_ladd "$GO_HOME_BIN"
 fi
+
+# POETRY_LOC="$HOME/.poetry/bin"
+# if [ -d "$POETRY_LOC" ]; then
+#   path_ladd "$POETRY_LOC"
+#   source $HOME/.poetry/env
+# fi
+
 
 # used by pipx
 LOCAL_BIN="$HOME/.local/bin"
@@ -189,18 +195,40 @@ if [ -d "$HOMEBREW_BIN" ]; then
   path_ladd "$HOMEBREW_BIN"
 fi
 
+# source "$(brew --prefix asdf)/libexec/asdf.sh"
+
 FOUNDRY_BIN="$HOME/.foundry/bin"
 if [ -d "$FOUNDRY_BIN" ]; then
   path_ladd "$FOUNDRY_BIN"
 fi
-
-source "$(brew --prefix asdf)/libexec/asdf.sh"
 
 PNPM_HOME="/Users/kevinhalliday/Library/pnpm"
 if [ -d "$PNPM_HOME" ]; then
   path_ladd "$PNPM_HOME"
 fi
 export PNPM_HOME
+
+NARGO_BIN="$HOME/.nargo/bin"
+if [ -d "$NARGO_BIN" ]; then
+  path_ladd "$NARGO_BIN"
+fi
+
+if [ -f '/Users/kevinhalliday/src/lib/google-cloud-sdk/path.zsh.inc' ]; then
+  . '/Users/kevinhalliday/src/lib/google-cloud-sdk/path.zsh.inc';
+fi
+
+# Set GOPATH from GOROOT if not already set. trim any trailing /go from GOROOT
+setgopath() {
+  export GOPATH="${GOROOT%/go}/packages"
+}
+setgopath
+
+
+# for github gpg
+# https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key
+export GPG_TTY=$(tty)
+
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
 # }}}
 
@@ -259,10 +287,6 @@ if [ -f ${ZPLUG_HOME}/init.zsh ]; then
   zplug "lukechilds/zsh-better-npm-completion", defer:2
   zplug "zsh-users/zsh-completions", as:plugin
   zplug "zsh-users/zsh-syntax-highlighting", as:plugin
-  zplug "junegunn/fzf-bin", \
-    from:gh-r, \
-    as:command, \
-    rename-to:fzf
   zplug "junegunn/fzf", use:"shell/*.zsh", defer:2
   zplug "geometry-zsh/geometry", as:plugin
 
@@ -335,6 +359,7 @@ function chpwd() {
     return
   fi
   va
+  setgopath
 }
 
 # Executed every $PERIOD seconds, just before a prompt.
@@ -379,8 +404,14 @@ function zshexit() {
 fpath=($(brew --prefix)/share/zsh/site-functions $fpath)
 fpath+=~/.zfunc
 
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/kevinhalliday/src/lib/google-cloud-sdk/completion.zsh.inc' ];
+  then . '/Users/kevinhalliday/src/lib/google-cloud-sdk/completion.zsh.inc';
+fi
+
 autoload -U compinit && compinit
 autoload -U +X bashcompinit && bashcompinit
+
 zstyle ':completion:*:*:git:*' script /usr/local/etc/bash_completion.d/git-completion.bash
 
 # CURRENT STATE: does not select any sort of searching
@@ -395,6 +426,10 @@ zstyle ':completion:*' matcher-list '' \
   'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-A-Z}={A-Z\_a-z}' \
   'r:|?=** m:{a-z\-A-Z}={A-Z\_a-z}'
 zmodload -i zsh/complist
+
+# tabtab source for packages
+# uninstall by removing these lines
+[[ -f ~/.config/tabtab/zsh/__tabtab.zsh ]] && . ~/.config/tabtab/zsh/__tabtab.zsh || true
 
 # }}}
 # # ZShell Key-Bindings --- {{{
@@ -453,6 +488,7 @@ alias ..........='cd ../../../../../../../../../..'
 
 alias vi='nvim'
 alias vim='nvim'
+alias vimdiff='nvim -d'
 
 # Tree that ignores annoying directories
 alias itree="tree -I '__pycache__|venv|node_modules'"
@@ -482,6 +518,7 @@ alias vdir='vdir --color=auto'
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+alias gca='git commit --amend'
 
 # diff
 # r: recursively; u: shows line number; p: shows difference in C function
@@ -498,13 +535,18 @@ alias publicip='curl -s checkip.amazonaws.com'
 
 # Git
 alias g='git status'
-alias gl='git --no-pager branch --verbose --all'
+alias gbl='git --no-pager branch --verbose --all'
 alias gm='git commit --verbose'
 alias gma='git add --all && git commit --verbose'
 alias gp='git remote prune origin'
 alias gd='git diff'
+alias gcm='git checkout main'
 # show a tree of all commits, including dangling unnamed branches
 alias githist='git log --graph --decorate --oneline $(git rev-list -g --all)'
+
+alias glg="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+# same as above, with head
+alias gl="git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit | head -n 20"
 
 # battery
 alias battery='upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "state|time\ to\ full|percentage"'
@@ -520,13 +562,9 @@ alias so='source ~/.zshrc'
 alias khalliday='cd ~/src/kevinhalliday/'
 alias kh='cd ~/src/kevinhalliday/'
 alias playground='cd ~/src/playground/'
+alias om='cd ~/src/omni/omni/'
 alias play='cd ~/src/playground/'
-alias rift='cd ~/src/rift/'
-alias rfron='cd ~/src/rift/frontend/'
-alias rprot='cd ~/src/rift/protocol/'
-alias rland='cd ~/src/rift/landing/'
-alias rdash='cd ~/src/rift/dashboard/'
-alias rdepl='cd ~/src/rift/deploy/'
+alias notes='cd ~/src/notes/'
 
 alias xdg-open='open'
 
@@ -554,17 +592,17 @@ function t() {
   fi
   HAS_SESSION=$(tmux has-session -t $SESSION 2>/dev/null)
   if [ $HAS_SESSION ]; then
-    if [[ "$(alacritty-which-colorscheme)" = 'light' ]]; then
-      tmux -2 select-window -t $SESSION:1
-      tmux source-file ~/.tmux-light
-    fi
+    # if [[ "$(alacritty-which-colorscheme)" = 'light' ]]; then
+    #   tmux -2 select-window -t $SESSION:1
+    #   tmux source-file ~/.tmux-light
+    # fi
     tmux -2 attach -t $SESSION
   else
     tmux -2 new-session -d -s $SESSION
-    if [[ "$(alacritty-which-colorscheme)" = 'light' ]]; then
-      tmux -2 select-window -t $SESSION:1
-      tmux source-file ~/.tmux-light
-    fi
+    # if [[ "$(alacritty-which-colorscheme)" = 'light' ]]; then
+    #   tmux -2 select-window -t $SESSION:1
+    #   tmux source-file ~/.tmux-light
+    # fi
     tmux -2 attach -t $SESSION
   fi
 }
@@ -598,22 +636,22 @@ function upgrade() {
   nvim -c 'PU'
 }
 
-function dark-prompt {
-  GEOMETRY_COLOR_DIR='136'
-}
+# function dark-prompt {
+#   GEOMETRY_COLOR_DIR='136'
+# }
 
-function light-prompt {
-  GEOMETRY_COLOR_DIR='220'
-}
+# function light-prompt {
+#   GEOMETRY_COLOR_DIR='220'
+# }
 
-function update-prompt-colors() {
-  local colorscheme="$(alacritty-which-colorscheme)"
-  if [[ $colorscheme = 'light' ]]; then
-    dark-prompt
-  elif [[ $colorscheme = 'dark' ]]; then
-    light-prompt
-  fi
-}
+# function update-prompt-colors() {
+#   local colorscheme="$(alacritty-which-colorscheme)"
+#   if [[ $colorscheme = 'light' ]]; then
+#     dark-prompt
+#   elif [[ $colorscheme = 'dark' ]]; then
+#     light-prompt
+#   fi
+# }
 
 # we will get to  this when we are ready
 # update-prompt-colors
@@ -622,22 +660,22 @@ function update-prompt-colors() {
 #   tmux set-hook after-select-window 'run "update-prompt-colors > /dev/null"'
 # fi
 
-# Alacritty Helpers
-function dark() {
-  alacritty-dark
-  if [ ! -z "$TMUX" ]; then
-    tmux source-file ~/.tmux.conf
-  fi
-  light-prompt
-}
+# # Alacritty Helpers
+# function dark() {
+#   alacritty-dark
+#   if [ ! -z "$TMUX" ]; then
+#     tmux source-file ~/.tmux.conf
+#   fi
+#   light-prompt
+# }
 
-function light() {
-  alacritty-light
-  if [ ! -z "$TMUX" ]; then
-    tmux source-file ~/.tmux-light
-  fi
-  dark-prompt
-}
+# function light() {
+#   alacritty-light
+#   if [ ! -z "$TMUX" ]; then
+#     tmux source-file ~/.tmux-light
+#   fi
+#   dark-prompt
+# }
 
 function update_zoom() {
   curl -Lsf https://zoom.us/client/latest/zoom_amd64.deb -o /tmp/zoom_amd64.deb
@@ -666,7 +704,6 @@ function syn() {  # arg1: word
 }
 compdef _dict_words syn
 
-# I type cd so much, I'll just type d instead
 function d() { #arg1: directory
   cd $1
 }
@@ -1004,6 +1041,12 @@ function push() {
   git push -u origin "$current_branch"
 }
 
+# GIT: force push current branch from origin to current branch
+function pushf() {
+  local current_branch="$(git rev-parse --abbrev-ref HEAD)"
+  git push -u origin "$current_branch" --force
+}
+
 # GIT: pull current branch from origin to current branch
 function pull() {
   local current_branch="$(git rev-parse --abbrev-ref HEAD)"
@@ -1108,6 +1151,45 @@ function gr() {
   fi
 }
 
+function towebp() {
+  local dir=$1
+
+  if [ -z "$dir" ]; then
+    dir=`find * -type d -print 2> /dev/null | fzf-tmux` \
+  fi
+
+  cd "$dir"
+
+  # for ext in $@; do
+  # for ext in png jpg jpeg; do
+  for ext in jpg; do
+    for file in ./**/*.${ext}; do
+      cwebp -quiet -m 6 "$file" -o "${file%".$ext"}.webp"
+    done
+  done
+
+  cd -
+}
+
+
+
+# usage: debugtx <rpc> <tx_hash>
+function debugtx {
+  rpc=$1
+  tx_hash=$2
+  trace=$(curl $rpc -s -X POST \
+    -H "Content-Type: application/json" \
+    -d '{
+      "method": "debug_traceTransaction",
+      "params": ["'"$tx_hash"'", {"tracer": "callTracer"}],
+      "jsonrpc": "2.0",
+      "id": 1
+    }'
+  )
+
+  echo "$trace" | jq .
+}
+
 
 # }}}
 # Executed Commands --- {{{
@@ -1135,7 +1217,27 @@ if [[ -o interactive ]]; then
 fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 [ -f ~/.bash/sensitive ] && source ~/.bash/sensitive
+[ -f ~/.zsh/sensitive ] && source ~/.zsh/sensitive
+
+export GSSH_USER=omni-user
+
+# set go root
+[ -f ~/.asdf/plugins/golang/set-env.zsh ] && source ~/.asdf/plugins/golang/set-env.zsh
 
 # }}}
+
+# pnpm
+export PNPM_HOME="/Users/kevinhalliday/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+# bun completions
+[ -s "/Users/kevinhalliday/.bun/_bun" ] && source "/Users/kevinhalliday/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
